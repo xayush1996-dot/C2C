@@ -41,8 +41,17 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const auth = localStorage.getItem("c2c_auth");
-      if (auth === "true") {
+      const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+      };
+
+      const authLocal = localStorage.getItem("c2c_auth");
+      const authCookie = getCookie("c2c_auth");
+
+      if (authLocal === "true" || authCookie === "true") {
         setAuthorized(true);
       } else {
         router.push("/login");

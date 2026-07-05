@@ -59,14 +59,9 @@ export default function BookingModal() {
       setIsPaying(false);
       setPaymentSuccess(true);
       setTimeout(() => {
-        setStep(3); // Go to Scheduling
+        setStep(4); // Go to booked success receipt
       }, 1000);
     }, 2000);
-  };
-
-  const confirmBooking = () => {
-    if (!selectedDate || !selectedTime) return;
-    setStep(4); // Success screen
   };
 
   // Generate some mockup dates for calendar (next 5 weekdays)
@@ -149,14 +144,14 @@ export default function BookingModal() {
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${step >= 2 ? "bg-rust text-cream" : "bg-white text-charcoal/40 border border-rust/10"}`}>
                       {step > 2 ? <Check size={12} /> : "2"}
                     </div>
-                    <span className="text-[10px] mt-1 font-medium text-charcoal/60">Payment</span>
+                    <span className="text-[10px] mt-1 font-medium text-charcoal/60">Schedule</span>
                   </div>
                   <div className={`flex-1 h-0.5 mx-2 ${step > 2 ? "bg-rust" : "bg-rust/10"}`} />
                   <div className="flex flex-col items-center">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${step >= 3 ? "bg-rust text-cream" : "bg-white text-charcoal/40 border border-rust/10"}`}>
                       3
                     </div>
-                    <span className="text-[10px] mt-1 font-medium text-charcoal/60">Schedule</span>
+                    <span className="text-[10px] mt-1 font-medium text-charcoal/60">Payment</span>
                   </div>
                 </div>
               )}
@@ -218,13 +213,89 @@ export default function BookingModal() {
                     onClick={() => setStep(2)}
                     className="w-full py-3.5 bg-charcoal hover:bg-rust text-cream font-medium tracking-wide rounded-full shadow-sm cursor-pointer transition-colors duration-300 focus:outline-none text-center"
                   >
+                    Proceed to Schedule
+                  </button>
+                </motion.div>
+              )}
+
+              {/* STEP 2: Calendly Mockup */}
+              {step === 2 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-6"
+                >
+                  <div className="bg-white p-5 rounded-2xl border border-rust/10 shadow-xs space-y-4">
+                    <div className="flex items-center gap-2 text-xs text-rust font-bold uppercase tracking-wider">
+                      <Calendar size={14} /> Schedule Session
+                    </div>
+                    <p className="text-xs text-charcoal/60">
+                      Choose an open slot to establish your coaching schedule.
+                    </p>
+
+                    {/* Date Picker Grid */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-charcoal/80">Select Date:</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                        {getMockDates().map((dt) => (
+                          <button
+                            key={dt.value}
+                            type="button"
+                            onClick={() => setSelectedDate(dt.value)}
+                            className={`p-2.5 rounded-lg border text-center text-xs font-medium cursor-pointer transition-all duration-200 ${
+                              selectedDate === dt.value
+                                ? "bg-rust border-rust text-cream shadow-xs"
+                                : "bg-white border-rust/10 hover:border-rust/35 text-charcoal"
+                            }`}
+                          >
+                            {dt.label.split(',')[0]}
+                            <span className="block text-[10px] opacity-75">{dt.label.split(',')[1]}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Time Picker Grid */}
+                    {selectedDate && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        className="space-y-2 border-t border-rust/5 pt-3"
+                      >
+                        <label className="text-xs font-semibold text-charcoal/80">Select Time Zone & Slot:</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {mockTimes.map((tm) => (
+                            <button
+                              key={tm}
+                              type="button"
+                              onClick={() => setSelectedTime(tm)}
+                              className={`py-2 px-3 rounded-lg border text-center text-xs cursor-pointer transition-all duration-200 ${
+                                selectedTime === tm
+                                  ? "bg-rust border-rust text-cream"
+                                  : "bg-white border-rust/10 hover:border-rust/35 text-charcoal"
+                              }`}
+                            >
+                              {tm}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* CTA */}
+                  <button
+                    onClick={() => setStep(3)}
+                    disabled={!selectedDate || !selectedTime}
+                    className="w-full py-3.5 bg-charcoal hover:bg-rust text-cream font-medium tracking-wide rounded-full shadow-sm cursor-pointer transition-colors duration-300 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none"
+                  >
                     Proceed to Payment
                   </button>
                 </motion.div>
               )}
 
-              {/* STEP 2: Mock Razorpay Payment Screen */}
-              {step === 2 && activePackage && (
+              {/* STEP 3: Mock Razorpay Payment Screen */}
+              {step === 3 && activePackage && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -305,82 +376,6 @@ export default function BookingModal() {
                       )}
                     </button>
                   </form>
-                </motion.div>
-              )}
-
-              {/* STEP 3: Calendly Mockup */}
-              {step === 3 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-6"
-                >
-                  <div className="bg-white p-5 rounded-2xl border border-rust/10 shadow-xs space-y-4">
-                    <div className="flex items-center gap-2 text-xs text-rust font-bold uppercase tracking-wider">
-                      <Calendar size={14} /> Schedule Session
-                    </div>
-                    <p className="text-xs text-charcoal/60">
-                      Your payment was verified. Choose an open slot to establish your coaching schedule.
-                    </p>
-
-                    {/* Date Picker Grid */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-charcoal/80">Select Date:</label>
-                      <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
-                        {getMockDates().map((dt) => (
-                          <button
-                            key={dt.value}
-                            type="button"
-                            onClick={() => setSelectedDate(dt.value)}
-                            className={`p-2.5 rounded-lg border text-center text-xs font-medium cursor-pointer transition-all duration-200 ${
-                              selectedDate === dt.value
-                                ? "bg-rust border-rust text-cream shadow-xs"
-                                : "bg-white border-rust/10 hover:border-rust/35 text-charcoal"
-                            }`}
-                          >
-                            {dt.label.split(',')[0]}
-                            <span className="block text-[10px] opacity-75">{dt.label.split(',')[1]}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Time Picker Grid */}
-                    {selectedDate && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        className="space-y-2 border-t border-rust/5 pt-3"
-                      >
-                        <label className="text-xs font-semibold text-charcoal/80">Select Time Zone & Slot:</label>
-                        <div className="grid grid-cols-2 gap-2">
-                          {mockTimes.map((tm) => (
-                            <button
-                              key={tm}
-                              type="button"
-                              onClick={() => setSelectedTime(tm)}
-                              className={`py-2 px-3 rounded-lg border text-center text-xs cursor-pointer transition-all duration-200 ${
-                                selectedTime === tm
-                                  ? "bg-rust border-rust text-cream"
-                                  : "bg-white border-rust/10 hover:border-rust/35 text-charcoal"
-                              }`}
-                            >
-                              {tm}
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </div>
-
-                  {/* CTA */}
-                  <button
-                    onClick={confirmBooking}
-                    disabled={!selectedDate || !selectedTime}
-                    className="w-full py-3.5 bg-charcoal hover:bg-rust text-cream font-medium tracking-wide rounded-full shadow-sm cursor-pointer transition-colors duration-300 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none"
-                  >
-                    Confirm Booking Schedule
-                  </button>
                 </motion.div>
               )}
 

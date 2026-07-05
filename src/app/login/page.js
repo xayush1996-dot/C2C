@@ -17,6 +17,10 @@ export default function LoginPage() {
     if (typeof window !== "undefined") {
       localStorage.removeItem("c2c_auth");
       localStorage.removeItem("c2c_client_auth");
+      
+      // Clear cookies by setting expired dates
+      document.cookie = "c2c_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      document.cookie = "c2c_client_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
     }
   }, []);
 
@@ -38,7 +42,8 @@ export default function LoginPage() {
         // Client Credentials: client@example.com / clientpassword
         if (email.toLowerCase() === "client@example.com" && password === "clientpassword") {
           localStorage.setItem("c2c_client_auth", "true");
-          router.push("/client");
+          document.cookie = "c2c_client_auth=true; path=/; max-age=86400; SameSite=Lax";
+          router.push("/");
         } else {
           setLoading(false);
           setError("Invalid client credentials. Please try again.");
@@ -47,7 +52,8 @@ export default function LoginPage() {
         // Admin Credentials: admin@c2c.com / clarity2026
         if (email.toLowerCase() === "admin@c2c.com" && password === "clarity2026") {
           localStorage.setItem("c2c_auth", "true");
-          router.push("/admin");
+          document.cookie = "c2c_auth=true; path=/; max-age=86400; SameSite=Lax";
+          router.push("/");
         } else {
           setLoading(false);
           setError("Invalid admin credentials. Please try again.");
