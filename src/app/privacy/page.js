@@ -2,7 +2,7 @@ import React from "react";
 import { Shield, Lock, Eye } from "lucide-react";
 
 export const metadata = {
-  title: "Privacy Policy — Confusion to Clarity",
+  title: "Privacy Policy & Confidentiality",
   description: "Read about our client privacy protocols, data security measures, and NDA terms.",
 };
 
