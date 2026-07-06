@@ -2,7 +2,7 @@ import React from "react";
 import { Info, Scale, ShieldAlert } from "lucide-react";
 
 export const metadata = {
-  title: "Terms of Service — Confusion to Clarity",
+  title: "Terms of Service",
   description: "Read about our rescheduling window, refund guidelines, and program access rules.",
 };
 
