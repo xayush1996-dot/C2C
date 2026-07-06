@@ -1,0 +1,34 @@
+{
+  "name": "c2c-backend",
+  "version": "1.0.0",
+  "description": "C2C Backend Standalone API Project",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --detectOpenHandles src/tests"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.5.2",
+    "google-auth-library": "^10.9.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.4.1",
+    "pdfkit": "^0.19.1",
+    "razorpay": "^2.9.6",
+    "winston": "^3.13.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.3",
+    "supertest": "^7.0.0"
+  }
+}
