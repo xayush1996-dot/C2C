@@ -35,20 +35,20 @@ export default function FAQSection() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-4">
+    <div className="w-full max-w-3xl mx-auto space-y-4 select-none">
       {faqs.map((faq, index) => {
         const isOpen = openIndex === index;
         return (
           <div
             key={index}
-            className="border-b border-rust/10 pb-4 transition-all duration-300"
+            className="border-b border-border-divider/50 pb-4 transition-all duration-300"
           >
             <button
               onClick={() => toggleFAQ(index)}
-              className="w-full flex items-center justify-between py-4 text-left font-serif text-base md:text-lg font-bold text-charcoal hover:text-rust transition-colors duration-200 focus:outline-none cursor-pointer"
+              className="w-full flex items-center justify-between py-4 text-left font-serif text-base md:text-lg font-bold text-text-primary hover:text-accent-gold transition-colors duration-200 focus:outline-none cursor-pointer"
             >
               <span>{faq.question}</span>
-              <span className="ml-4 flex-shrink-0 text-rust">
+              <span className="ml-4 flex-shrink-0 text-accent-gold">
                 {isOpen ? (
                   <Minus size={18} className="stroke-[2.5]" />
                 ) : (
@@ -66,7 +66,7 @@ export default function FAQSection() {
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="overflow-hidden"
                 >
-                  <p className="text-sm md:text-base text-charcoal/70 leading-relaxed pt-1 pb-4 pr-6">
+                  <p className="text-sm md:text-base text-text-secondary leading-relaxed pt-1 pb-4 pr-6">
                     {faq.answer}
                   </p>
                 </motion.div>

@@ -19,22 +19,6 @@ import {
   AlertCircle
 } from "lucide-react";
 
-// Mock Enquiries
-const initialEnquiries = [
-  { id: 1, name: "Clarissa Vance", email: "clarissa@vancecorp.com", phone: "+1 (555) 234-5678", message: "Interested in the Reset Programme for our leadership team. Need details on tailoring features.", date: "2026-07-05", status: "New" },
-  { id: 2, name: "Marcus Stone", email: "mstone@stonebuilders.io", phone: "+1 (555) 876-5432", message: "Inquiry about Couples' Conversations. Do both partners need to complete questionnaires separately?", date: "2026-07-04", status: "Read" },
-  { id: 3, name: "Lina Alvarez", email: "alvarez.l@uxdesign.net", phone: "+1 (555) 901-2345", message: "URGENT: Booking a Clarity Call for tomorrow if slot is open.", date: "2026-07-04", status: "New" },
-  { id: 4, name: "Robert Chen", email: "robert.c@venturecap.org", phone: "+1 (555) 345-6789", message: "General inquiry on your NDA and confidentiality protocol.", date: "2026-07-02", status: "Replied" }
-];
-
-// Mock Transaction Ledger
-const initialTransactions = [
-  { id: 1, name: "Sarah Lin", email: "sarah.lin@producthub.co", service: "Clarity Call", paid: "$149", date: "2026-07-08", time: "01:00 PM", meetActive: true },
-  { id: 2, name: "Marc Henderson", email: "m.henderson@cloudlabs.net", service: "Reset Programme", paid: "$499", date: "2026-07-10", time: "09:00 AM", meetActive: true },
-  { id: 3, name: "David & Elena R.", email: "elena@veloce.design", service: "Couples' Conversations", paid: "$249", date: "2026-07-12", time: "03:30 PM", meetActive: false },
-  { id: 4, name: "Jonathan Wilde", email: "j.wilde@wildemedia.co", service: "Start Where You Are", paid: "$99", date: "2026-07-14", time: "10:30 AM", meetActive: true }
-];
-
 export default function AdminPage() {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
@@ -178,29 +162,29 @@ export default function AdminPage() {
 
   if (!authorized) {
     return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
+      <div className="min-h-screen bg-bg-base flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-rust/30 border-t-rust rounded-full animate-spin" />
-          <p className="text-xs text-charcoal/50 uppercase tracking-widest font-bold">Verifying security clearances...</p>
+          <div className="w-8 h-8 border-4 border-accent-gold/20 border-t-accent-gold rounded-full animate-spin" />
+          <p className="text-xs text-text-secondary uppercase tracking-widest font-bold">Verifying security clearances...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-charcoal flex flex-col md:flex-row">
+    <div className="min-h-screen bg-bg-base text-text-primary flex flex-col md:flex-row select-none">
       
       {/* SIDEBAR NAVIGATION */}
-      <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-rust/10 flex flex-col justify-between py-6 px-4">
+      <aside className="w-full md:w-64 bg-surface border-b md:border-b-0 md:border-r border-border-divider/60 flex flex-col justify-between py-6 px-4">
         <div className="space-y-8">
           {/* Logo & Access */}
-          <div className="flex items-center space-x-2.5 px-2">
-            <div className="w-8 h-8 rounded-full bg-rust flex items-center justify-center text-cream">
+          <div className="flex items-center space-x-2.5 px-2 text-left">
+            <div className="w-8 h-8 rounded-full bg-accent-gold flex items-center justify-center text-bg-base">
               <Sparkles size={16} />
             </div>
             <div>
-              <span className="font-serif text-base font-bold tracking-tight text-charcoal block">C2C Dashboard</span>
-              <span className="text-[10px] text-rust font-bold uppercase tracking-wider">Internal access</span>
+              <span className="font-serif text-base font-bold tracking-tight text-text-primary block">C2C Dashboard</span>
+              <span className="text-[10px] text-accent-gold font-bold uppercase tracking-wider">Internal access</span>
             </div>
           </div>
 
@@ -210,8 +194,8 @@ export default function AdminPage() {
               onClick={() => { setActiveTab("overview"); setSearchTerm(""); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === "overview"
-                  ? "bg-cream text-rust"
-                  : "text-charcoal/60 hover:bg-cream/40 hover:text-charcoal"
+                  ? "bg-bg-elevated text-accent-gold border border-accent-gold/20 shadow-xs"
+                  : "text-text-secondary hover:bg-bg-elevated/40 hover:text-text-primary"
               }`}
             >
               <BarChart3 size={16} />
@@ -221,8 +205,8 @@ export default function AdminPage() {
               onClick={() => { setActiveTab("enquiries"); setSearchTerm(""); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === "enquiries"
-                  ? "bg-cream text-rust"
-                  : "text-charcoal/60 hover:bg-cream/40 hover:text-charcoal"
+                  ? "bg-bg-elevated text-accent-gold border border-accent-gold/20 shadow-xs"
+                  : "text-text-secondary hover:bg-bg-elevated/40 hover:text-text-primary"
               }`}
             >
               <Users size={16} />
@@ -232,8 +216,8 @@ export default function AdminPage() {
               onClick={() => { setActiveTab("ledger"); setSearchTerm(""); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === "ledger"
-                  ? "bg-cream text-rust"
-                  : "text-charcoal/60 hover:bg-cream/40 hover:text-charcoal"
+                  ? "bg-bg-elevated text-accent-gold border border-accent-gold/20 shadow-xs"
+                  : "text-text-secondary hover:bg-bg-elevated/40 hover:text-text-primary"
               }`}
             >
               <CreditCard size={16} />
@@ -243,8 +227,8 @@ export default function AdminPage() {
               onClick={() => { setActiveTab("reports"); setSearchTerm(""); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === "reports"
-                  ? "bg-cream text-rust"
-                  : "text-charcoal/60 hover:bg-cream/40 hover:text-charcoal"
+                  ? "bg-bg-elevated text-accent-gold border border-accent-gold/20 shadow-xs"
+                  : "text-text-secondary hover:bg-bg-elevated/40 hover:text-text-primary"
               }`}
             >
               <FileSpreadsheet size={16} />
@@ -254,10 +238,10 @@ export default function AdminPage() {
         </div>
 
         {/* Exit link */}
-        <div className="pt-6 border-t border-rust/5">
+        <div className="pt-6 border-t border-border-divider/50">
           <Link
             href="/"
-            className="flex items-center space-x-2 text-xs font-semibold text-charcoal/60 hover:text-rust transition-colors duration-200 px-2"
+            className="flex items-center space-x-2 text-xs font-semibold text-text-secondary hover:text-accent-gold transition-colors duration-200 px-2"
           >
             <ArrowLeft size={14} />
             <span>Return to Site</span>
@@ -266,18 +250,18 @@ export default function AdminPage() {
       </aside>
 
       {/* MAIN CONTENT VIEWPORT */}
-      <main className="flex-1 p-6 md:p-10 space-y-8 max-w-7xl mx-auto w-full">
+      <main className="flex-1 p-6 md:p-10 space-y-8 max-w-7xl mx-auto w-full text-left">
         
         {/* Viewport Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-rust/10 pb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border-divider/50 pb-6">
           <div>
-            <h2 className="font-serif text-2xl md:text-3xl font-bold text-charcoal capitalize">
+            <h2 className="font-serif text-2xl md:text-3xl font-bold text-text-primary capitalize">
               {activeTab === "overview" && "Executive Summary"}
               {activeTab === "enquiries" && "Lead & Enquiries Hub"}
               {activeTab === "ledger" && "Transaction Ledger"}
               {activeTab === "reports" && "Reporting Panel"}
             </h2>
-            <p className="text-xs text-charcoal/50 mt-1">
+            <p className="text-xs text-text-secondary mt-1">
               Sandbox console for Confusion to Clarity frontend assets.
             </p>
           </div>
@@ -285,7 +269,7 @@ export default function AdminPage() {
           {/* Quick Search for relevant tabs */}
           {(activeTab === "enquiries" || activeTab === "ledger") && (
             <div className="relative w-full sm:w-64">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-charcoal/40">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-secondary/40">
                 <Search size={14} />
               </span>
               <input
@@ -293,7 +277,7 @@ export default function AdminPage() {
                 placeholder="Search database..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-rust/20 bg-white focus:outline-none focus:border-rust"
+                className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-border-divider bg-surface text-text-primary focus:outline-none focus:border-accent-gold/40"
               />
             </div>
           )}
@@ -304,54 +288,54 @@ export default function AdminPage() {
           <div className="space-y-8 animate-fadeIn">
             {/* Numeric Highlight Widgets */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-rust/10 shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-charcoal/50">
+              <div className="bg-surface p-6 rounded-2xl border border-border-divider/60 shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-text-secondary">
                   <span className="text-xs uppercase font-bold tracking-wider">Gross Revenue</span>
-                  <CreditCard size={18} className="text-rust" />
+                  <CreditCard size={18} className="text-accent-gold" />
                 </div>
-                <p className="font-serif text-3xl font-bold text-charcoal">$996.00</p>
-                <span className="text-[10px] text-emerald-600 font-semibold">4 sandbox transactions completed</span>
+                <p className="font-serif text-3xl font-bold text-text-primary">$996.00</p>
+                <span className="text-[10px] text-emerald-400 font-semibold">4 sandbox transactions completed</span>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-rust/10 shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-charcoal/50">
+              <div className="bg-surface p-6 rounded-2xl border border-border-divider/60 shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-text-secondary">
                   <span className="text-xs uppercase font-bold tracking-wider">Active Leads</span>
-                  <Users size={18} className="text-rust" />
+                  <Users size={18} className="text-accent-gold" />
                 </div>
-                <p className="font-serif text-3xl font-bold text-charcoal">
+                <p className="font-serif text-3xl font-bold text-text-primary">
                   {enquiries.filter((e) => e.status === "New").length}
                 </p>
-                <span className="text-[10px] text-charcoal/50">Awaiting executive response</span>
+                <span className="text-[10px] text-text-secondary">Awaiting executive response</span>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-rust/10 shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-charcoal/50">
+              <div className="bg-surface p-6 rounded-2xl border border-border-divider/60 shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-text-secondary">
                   <span className="text-xs uppercase font-bold tracking-wider">Active Meet Links</span>
-                  <Video size={18} className="text-rust" />
+                  <Video size={18} className="text-accent-gold" />
                 </div>
-                <p className="font-serif text-3xl font-bold text-charcoal">
+                <p className="font-serif text-3xl font-bold text-text-primary">
                   {transactions.filter((t) => t.meetActive).length}
                 </p>
-                <span className="text-[10px] text-charcoal/50">Configured in scheduling ledger</span>
+                <span className="text-[10px] text-text-secondary font-medium">Configured in scheduling ledger</span>
               </div>
             </div>
 
             {/* Quick Actions Panel */}
-            <div className="bg-white rounded-2xl border border-rust/10 p-6 space-y-4">
-              <h3 className="font-serif text-lg font-bold text-charcoal">Interactive sandbox guidelines</h3>
-              <p className="text-xs text-charcoal/70 leading-relaxed">
+            <div className="bg-surface rounded-2xl border border-border-divider/60 p-6 space-y-4">
+              <h3 className="font-serif text-lg font-bold text-text-primary font-bold">Interactive sandbox guidelines</h3>
+              <p className="text-xs text-text-secondary leading-relaxed font-medium">
                 This dashboard visualizes incoming client queries and ledger transactions generated in the checkout funnel. Use the sidebar menu to toggle views. You can test interactive actions like switching Google Meet link statuses or simulating report exports.
               </p>
               <div className="flex flex-wrap gap-3">
                 <button
                   onClick={() => setActiveTab("enquiries")}
-                  className="px-4 py-2 bg-charcoal hover:bg-rust text-cream text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-accent-gold hover:bg-accent-gold/90 text-bg-base text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors cursor-pointer"
                 >
                   Manage Enquiries
                 </button>
                 <button
                   onClick={() => setActiveTab("ledger")}
-                  className="px-4 py-2 border border-rust/20 hover:border-rust text-charcoal hover:text-rust text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors cursor-pointer"
+                  className="px-4 py-2 border border-border-divider hover:border-accent-gold text-text-primary hover:text-accent-gold text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors cursor-pointer font-bold"
                 >
                   Check Ledger
                 </button>
@@ -362,30 +346,30 @@ export default function AdminPage() {
 
         {/* 2. ENQUIRIES & LEAD MANAGEMENT VIEW */}
         {activeTab === "enquiries" && (
-          <div className="bg-white rounded-2xl border border-rust/10 overflow-hidden shadow-xs animate-fadeIn">
+          <div className="bg-surface rounded-2xl border border-border-divider/60 overflow-hidden shadow-xs animate-fadeIn">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-cream/40 border-b border-rust/10 text-[10px] uppercase tracking-wider font-bold text-charcoal/60">
+                  <tr className="bg-bg-elevated/40 border-b border-border-divider/50 text-[10px] uppercase tracking-wider font-bold text-text-secondary">
                     <th className="py-4 px-6">Client & Contact</th>
                     <th className="py-4 px-6">Message Excerpt</th>
                     <th className="py-4 px-6">Submitted Date</th>
                     <th className="py-4 px-6">Status Indicator</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-rust/5 text-xs">
+                <tbody className="divide-y divide-border-divider/30 text-xs">
                   {filteredEnquiries.length > 0 ? (
                     filteredEnquiries.map((enq) => (
-                      <tr key={enq.id} className="hover:bg-cream/10 transition-colors">
+                      <tr key={enq.id} className="hover:bg-bg-elevated/20 transition-colors">
                         <td className="py-4 px-6 space-y-1">
-                          <p className="font-bold text-charcoal">{enq.name}</p>
-                          <p className="text-[10px] text-charcoal/60">{enq.email}</p>
-                          <p className="text-[10px] text-charcoal/50">{enq.phone}</p>
+                          <p className="font-bold text-text-primary">{enq.name}</p>
+                          <p className="text-[10px] text-text-secondary/80 font-mono">{enq.email}</p>
+                          <p className="text-[10px] text-text-secondary/70">{enq.phone}</p>
                         </td>
-                        <td className="py-4 px-6 max-w-sm text-charcoal/70 leading-relaxed">
+                        <td className="py-4 px-6 max-w-sm text-text-secondary leading-relaxed font-medium">
                           {enq.message}
                         </td>
-                        <td className="py-4 px-6 text-charcoal/60 font-mono">
+                        <td className="py-4 px-6 text-text-secondary font-mono">
                           {enq.date}
                         </td>
                         <td className="py-4 px-6">
@@ -393,10 +377,10 @@ export default function AdminPage() {
                             onClick={() => toggleEnquiryStatus(enq.id)}
                             className={`px-3 py-1.5 rounded-full font-bold text-[9px] uppercase tracking-wider cursor-pointer border ${
                               enq.status === "New"
-                                ? "bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100"
+                                ? "bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20"
                                 : enq.status === "Read"
-                                ? "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
-                                : "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
+                                ? "bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20"
+                                : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20"
                             }`}
                           >
                             {enq.status}
@@ -406,7 +390,7 @@ export default function AdminPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="py-8 text-center text-charcoal/40">
+                      <td colSpan="4" className="py-8 text-center text-text-secondary/40">
                         No submissions matched your search query.
                       </td>
                     </tr>
@@ -419,11 +403,11 @@ export default function AdminPage() {
 
         {/* 3. TRANSACTION & BOOKING LEDGER VIEW */}
         {activeTab === "ledger" && (
-          <div className="bg-white rounded-2xl border border-rust/10 overflow-hidden shadow-xs animate-fadeIn">
+          <div className="bg-surface rounded-2xl border border-border-divider/60 overflow-hidden shadow-xs animate-fadeIn">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-cream/40 border-b border-rust/10 text-[10px] uppercase tracking-wider font-bold text-charcoal/60">
+                  <tr className="bg-bg-elevated/40 border-b border-border-divider/50 text-[10px] uppercase tracking-wider font-bold text-text-secondary">
                     <th className="py-4 px-6">Client Info</th>
                     <th className="py-4 px-6">Service Package</th>
                     <th className="py-4 px-6">Amount Paid</th>
@@ -431,31 +415,31 @@ export default function AdminPage() {
                     <th className="py-4 px-6">Meet Link Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-rust/5 text-xs">
+                <tbody className="divide-y divide-border-divider/30 text-xs">
                   {filteredTransactions.length > 0 ? (
                     filteredTransactions.map((tx) => (
-                      <tr key={tx.id} className="hover:bg-cream/10 transition-colors">
+                      <tr key={tx.id} className="hover:bg-bg-elevated/20 transition-colors">
                         <td className="py-4 px-6 space-y-0.5">
-                          <p className="font-bold text-charcoal">{tx.name}</p>
-                          <p className="text-[10px] text-charcoal/60 font-mono">{tx.email}</p>
+                          <p className="font-bold text-text-primary">{tx.name}</p>
+                          <p className="text-[10px] text-text-secondary font-mono">{tx.email}</p>
                         </td>
                         <td className="py-4 px-6">
-                          <span className="font-medium text-charcoal">{tx.service}</span>
+                          <span className="font-medium text-text-primary">{tx.service}</span>
                         </td>
-                        <td className="py-4 px-6 font-mono font-semibold text-charcoal">
+                        <td className="py-4 px-6 font-mono font-semibold text-accent-gold">
                           {tx.paid}
                         </td>
-                        <td className="py-4 px-6 text-charcoal/70">
-                          <span className="block font-medium">{tx.date}</span>
-                          <span className="text-[10px] text-charcoal/50">{tx.time}</span>
+                        <td className="py-4 px-6 text-text-secondary">
+                          <span className="block font-medium text-text-primary">{tx.date}</span>
+                          <span className="text-[10px] text-text-secondary/70">{tx.time}</span>
                         </td>
                         <td className="py-4 px-6">
                           <button
                             onClick={() => toggleMeetLink(tx.id)}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] uppercase font-bold tracking-wider cursor-pointer transition-colors duration-200 ${
                               tx.meetActive
-                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                                : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20"
+                                : "bg-rose-500/10 text-rose-400 border-rose-500/20 hover:bg-rose-500/20"
                             }`}
                           >
                             {tx.meetActive ? (
@@ -475,7 +459,7 @@ export default function AdminPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="5" className="py-8 text-center text-charcoal/40">
+                      <td colSpan="5" className="py-8 text-center text-text-secondary/40">
                         No transactions found.
                       </td>
                     </tr>
@@ -491,17 +475,17 @@ export default function AdminPage() {
           <div className="space-y-6 animate-fadeIn">
             
             {/* Selection filters */}
-            <div className="bg-white rounded-2xl border border-rust/10 p-6 space-y-6 shadow-xs">
-              <h3 className="font-serif text-lg font-bold text-charcoal border-b border-rust/5 pb-2">Filter Data Report</h3>
+            <div className="bg-surface rounded-2xl border border-border-divider/60 p-6 space-y-6 shadow-xs">
+              <h3 className="font-serif text-lg font-bold text-text-primary border-b border-border-divider/50 pb-2">Filter Data Report</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Service Dropdown */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-charcoal/60">Service Category:</label>
+                <div className="space-y-1.5 text-left">
+                  <label className="text-xs font-semibold text-text-secondary">Service Category:</label>
                   <select
                     value={selectedService}
                     onChange={(e) => setSelectedService(e.target.value)}
-                    className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-rust/20 bg-cream/10 focus:outline-none focus:border-rust"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/50 text-text-primary focus:outline-none focus:border-accent-gold/45"
                   >
                     <option value="all">All Packages</option>
                     <option value="Start Where You Are">Start Where You Are</option>
@@ -512,53 +496,53 @@ export default function AdminPage() {
                 </div>
 
                 {/* Date Picker Start */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-charcoal/60">Start Date:</label>
+                <div className="space-y-1.5 text-left">
+                  <label className="text-xs font-semibold text-text-secondary">Start Date:</label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-charcoal/40">
+                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-secondary/40">
                       <Calendar size={12} />
                     </span>
                     <input
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full text-xs pl-8 pr-3.5 py-2 rounded-lg border border-rust/20 bg-cream/10 focus:outline-none focus:border-rust"
+                      className="w-full text-xs pl-8 pr-3.5 py-2 rounded-lg border border-border-divider bg-bg-base/50 text-text-primary focus:outline-none focus:border-accent-gold/45"
                     />
                   </div>
                 </div>
 
                 {/* Date Picker End */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-charcoal/60">End Date:</label>
+                <div className="space-y-1.5 text-left">
+                  <label className="text-xs font-semibold text-text-secondary">End Date:</label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-charcoal/40">
+                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-secondary/40">
                       <Calendar size={12} />
                     </span>
                     <input
                       type="date"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full text-xs pl-8 pr-3.5 py-2 rounded-lg border border-rust/20 bg-cream/10 focus:outline-none focus:border-rust"
+                      className="w-full text-xs pl-8 pr-3.5 py-2 rounded-lg border border-border-divider bg-bg-base/50 text-text-primary focus:outline-none focus:border-accent-gold/45"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Action Button */}
-              <div className="border-t border-rust/5 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p className="text-[11px] text-charcoal/50 leading-relaxed flex items-center gap-1.5 max-w-md">
-                  <AlertCircle size={14} className="text-rust shrink-0" />
+              <div className="border-t border-border-divider/50 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p className="text-[11px] text-text-secondary leading-relaxed flex items-center gap-1.5 max-w-md text-left font-medium">
+                  <AlertCircle size={14} className="text-accent-gold shrink-0" />
                   Generating PDF pulls client profiles, schedule records, and transactions inside this range.
                 </p>
 
                 <button
                   onClick={handleDownloadPDF}
                   disabled={downloading}
-                  className="w-full sm:w-auto px-6 py-3 bg-charcoal hover:bg-rust text-cream font-bold text-xs uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer focus:outline-none"
+                  className="w-full sm:w-auto px-6 py-3 bg-accent-gold hover:bg-accent-gold/90 text-bg-base font-bold text-xs uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer focus:outline-none"
                 >
                   {downloading ? (
                     <>
-                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-bg-base/30 border-t-bg-base rounded-full animate-spin" />
                       Compiling PDF Report...
                     </>
                   ) : (
@@ -573,12 +557,12 @@ export default function AdminPage() {
 
             {/* Notification alert on success */}
             {downloadSuccess && (
-              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl flex items-start gap-3 text-xs animate-fadeIn">
-                <CheckCircle size={16} className="text-emerald-600 shrink-0 mt-0.5" />
+              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 p-4 rounded-xl flex items-start gap-3 text-xs animate-fadeIn text-left">
+                <CheckCircle size={16} className="text-emerald-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="font-bold">Export Complete</p>
-                  <p className="text-emerald-700/80 mt-0.5">
-                    Your financial and booking report was compiled. File <strong className="font-semibold">confusion_to_clarity_report.pdf</strong> (24KB) was simulated and sent to downloads.
+                  <p className="text-emerald-300/80 mt-0.5 font-medium">
+                    Your financial and booking report was compiled. File <strong className="font-semibold text-text-primary">confusion_to_clarity_report.pdf</strong> (24KB) was simulated and sent to downloads.
                   </p>
                 </div>
               </div>

@@ -73,30 +73,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-6 py-12 bg-cream">
-      <div className="w-full max-w-md bg-white border border-rust/10 p-8 rounded-3xl shadow-sm space-y-6 relative overflow-hidden">
+    <div className="min-h-[85vh] flex items-center justify-center px-6 py-12 bg-bg-base text-text-primary select-none">
+      <div className="w-full max-w-md bg-surface border border-border-divider p-8 rounded-[24px] shadow-sm space-y-6 relative overflow-hidden">
         
         {/* Decorative corner accent */}
-        <div className="absolute right-0 top-0 w-24 h-24 bg-rust/5 rounded-bl-full pointer-events-none" />
+        <div className="absolute right-0 top-0 w-24 h-24 bg-accent-gold/5 rounded-bl-full pointer-events-none" />
 
         {/* Branding header */}
         <div className="text-center space-y-2 relative z-10">
-          <div className="w-10 h-10 rounded-full bg-rust flex items-center justify-center text-cream mx-auto shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-accent-gold flex items-center justify-center text-bg-base mx-auto shadow-sm">
             <Sparkles size={20} />
           </div>
-          <h2 className="font-serif text-2xl font-bold text-charcoal pt-2">Confusion to Clarity</h2>
-          <p className="text-xs text-charcoal/50">Access your digital coaching workspace.</p>
+          <h2 className="font-serif text-2xl font-bold text-text-primary pt-2">Confusion to Clarity</h2>
+          <p className="text-xs text-text-secondary">Access your digital coaching workspace.</p>
         </div>
 
         {/* Tabs switcher */}
-        <div className="flex bg-cream/60 p-1.5 rounded-2xl border border-rust/5">
+        <div className="flex bg-bg-base/60 p-1.5 rounded-2xl border border-border-divider/50">
           <button
             type="button"
             onClick={() => handleTabChange("client")}
             className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-300 cursor-pointer ${
               activeTab === "client"
-                ? "bg-white text-rust shadow-sm"
-                : "text-charcoal/60 hover:text-charcoal"
+                ? "bg-bg-elevated text-accent-gold border border-accent-gold/20 shadow-xs"
+                : "text-text-secondary hover:text-text-primary"
             }`}
           >
             <UserCheck size={14} />
@@ -107,8 +107,8 @@ export default function LoginPage() {
             onClick={() => handleTabChange("admin")}
             className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-300 cursor-pointer ${
               activeTab === "admin"
-                ? "bg-white text-rust shadow-sm"
-                : "text-charcoal/60 hover:text-charcoal"
+                ? "bg-bg-elevated text-accent-gold border border-accent-gold/20 shadow-xs"
+                : "text-text-secondary hover:text-text-primary"
             }`}
           >
             <ShieldCheck size={14} />
@@ -121,10 +121,10 @@ export default function LoginPage() {
           
           {/* Subtitle helper description */}
           <div className="text-center">
-            <h3 className="text-sm font-semibold text-charcoal/80">
+            <h3 className="text-sm font-semibold text-text-primary">
               {activeTab === "client" ? "Client Access Workspace" : "Admin Security Console"}
             </h3>
-            <p className="text-[11px] text-charcoal/50 mt-0.5">
+            <p className="text-[11px] text-text-secondary mt-0.5">
               {activeTab === "client" 
                 ? "Access scheduled calls, worksheets, and transaction records." 
                 : "Manage client bookings, contact leads, and reports."}
@@ -133,16 +133,16 @@ export default function LoginPage() {
 
           {/* Error Banner */}
           {error && (
-            <div className="bg-rose-50 border border-rose-200 text-rose-800 p-3.5 rounded-xl flex items-start gap-2.5 text-xs">
-              <AlertCircle size={16} className="text-rose-600 shrink-0 mt-0.5" />
+            <div className="bg-rose-950/20 border border-rose-900/50 text-rose-300 p-3.5 rounded-xl flex items-start gap-2.5 text-xs text-left">
+              <AlertCircle size={16} className="text-rose-400 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Email input */}
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-charcoal/60 flex items-center gap-1.5">
-              <Mail size={13} className="opacity-70" /> Email Address
+          <div className="space-y-1 text-left">
+            <label className="text-xs font-semibold text-text-secondary flex items-center gap-1.5">
+              <Mail size={13} className="opacity-70 text-accent-gold" /> Email Address
             </label>
             <input
               type="email"
@@ -150,14 +150,14 @@ export default function LoginPage() {
               placeholder={activeTab === "client" ? "client@example.com" : "admin@c2c.com"}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-rust/20 bg-cream/10 text-sm focus:outline-none focus:border-rust"
+              className="w-full px-4 py-2.5 rounded-xl border border-border-divider bg-bg-base/50 text-sm focus:outline-none focus:border-accent-blue text-text-primary"
             />
           </div>
 
           {/* Password input */}
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-charcoal/60 flex items-center gap-1.5">
-              <Lock size={13} className="opacity-70" /> Password
+          <div className="space-y-1 text-left">
+            <label className="text-xs font-semibold text-text-secondary flex items-center gap-1.5">
+              <Lock size={13} className="opacity-70 text-accent-gold" /> Password
             </label>
             <input
               type="password"
@@ -165,14 +165,14 @@ export default function LoginPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-rust/20 bg-cream/10 text-sm focus:outline-none focus:border-rust"
+              className="w-full px-4 py-2.5 rounded-xl border border-border-divider bg-bg-base/50 text-sm focus:outline-none focus:border-accent-blue text-text-primary"
             />
           </div>
 
           {/* Guidelines info */}
-          <div className="bg-cream/40 p-4 rounded-xl border border-rust/5 space-y-2 text-[11px] text-charcoal/70">
-            <p className="font-semibold text-charcoal">Demo Portal Credentials:</p>
-            <div className="flex justify-between font-mono text-[10px] text-charcoal/60">
+          <div className="bg-bg-elevated/40 p-4 rounded-xl border border-border-divider/50 space-y-2 text-[11px] text-text-secondary text-left">
+            <p className="font-semibold text-text-primary">Demo Portal Credentials:</p>
+            <div className="flex justify-between font-mono text-[10px] text-text-secondary/80">
               {activeTab === "client" ? (
                 <>
                   <span>Email: client@example.com</span>
@@ -188,7 +188,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleQuickLogin}
-              className="w-full text-center text-rust hover:text-charcoal font-bold mt-1 text-[10px] uppercase tracking-wider block cursor-pointer transition-colors"
+              className="w-full text-center text-accent-gold hover:text-text-primary font-bold mt-1 text-[10px] uppercase tracking-wider block cursor-pointer transition-colors"
             >
               Fill Demo Credentials
             </button>
@@ -198,11 +198,11 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-charcoal hover:bg-rust text-cream font-medium tracking-wide rounded-full cursor-pointer transition-colors duration-300 flex items-center justify-center gap-2 focus:outline-none text-sm"
+            className="w-full py-3.5 bg-accent-gold hover:bg-accent-gold/90 text-bg-base font-bold tracking-wide rounded-full cursor-pointer transition-colors duration-300 flex items-center justify-center gap-2 focus:outline-none text-sm uppercase"
           >
             {loading ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-bg-base/30 border-t-bg-base rounded-full animate-spin" />
                 Authenticating Session...
               </>
             ) : (

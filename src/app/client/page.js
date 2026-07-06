@@ -70,33 +70,33 @@ export default function ClientPage() {
 
   if (!authorized) {
     return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
+      <div className="min-h-screen bg-bg-base flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-rust/30 border-t-rust rounded-full animate-spin" />
-          <p className="text-xs text-charcoal/50 uppercase tracking-widest font-bold">Accessing your profile...</p>
+          <div className="w-8 h-8 border-4 border-accent-gold/20 border-t-accent-gold rounded-full animate-spin" />
+          <p className="text-xs text-text-secondary uppercase tracking-widest font-bold">Accessing your profile...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-cream py-10 px-6 md:px-12 max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen bg-bg-base text-text-primary py-10 px-6 md:px-12 max-w-5xl mx-auto space-y-8 select-none">
 
       {/* Header bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-rust/10 pb-6">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-full bg-rust flex items-center justify-center text-cream">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border-divider/50 pb-6">
+        <div className="flex items-center space-x-3 text-left">
+          <div className="w-8 h-8 rounded-full bg-accent-gold flex items-center justify-center text-bg-base">
             <Sparkles size={16} />
           </div>
           <div>
-            <h1 className="font-serif text-2xl font-bold text-charcoal">Welcome, Sarah Lin</h1>
-            <p className="text-xs text-charcoal/50 mt-0.5">Your personal coaching space.</p>
+            <h1 className="font-serif text-2xl font-bold text-text-primary">Welcome, Sarah Lin</h1>
+            <p className="text-xs text-text-secondary mt-0.5">Your personal coaching space.</p>
           </div>
         </div>
 
         <button
           onClick={handleLogout}
-          className="text-xs font-semibold text-charcoal/60 hover:text-rust transition-colors duration-200 flex items-center gap-1.5 cursor-pointer"
+          className="text-xs font-semibold text-text-secondary hover:text-accent-gold transition-colors duration-200 flex items-center gap-1.5 cursor-pointer"
         >
           <LogOut size={14} />
           Log Out
@@ -106,9 +106,9 @@ export default function ClientPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left Column: Next Session (Span 2) */}
         <div className="md:col-span-2 space-y-6">
-          <div className="bg-white rounded-3xl p-6 border border-rust/10 shadow-xs space-y-6">
-            <h3 className="font-serif text-lg font-bold text-charcoal flex items-center gap-2 border-b border-rust/5 pb-3">
-              <Calendar size={18} className="text-rust" /> Upcoming Appointment
+          <div className="bg-surface rounded-[24px] p-6 border border-border-divider/60 shadow-xs space-y-6 text-left">
+            <h3 className="font-serif text-lg font-bold text-text-primary flex items-center gap-2 border-b border-border-divider/30 pb-3">
+              <Calendar size={18} className="text-accent-gold" /> Upcoming Appointment
             </h3>
 
             {bookings.length > 0 ? (
@@ -117,25 +117,25 @@ export default function ClientPage() {
                 return (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
                     <div className="space-y-3">
-                      <span className="px-2.5 py-1 rounded bg-rust/10 text-rust text-[9px] uppercase font-bold tracking-wider">
+                      <span className="px-2.5 py-1 rounded bg-accent-gold/10 text-accent-gold text-[9px] uppercase font-bold tracking-wider border border-accent-gold/25">
                         {upcoming.service}
                       </span>
-                      <h4 className="font-serif text-xl font-bold text-charcoal">Session 1: Intake & Alignment</h4>
-                      <p className="text-xs text-charcoal/60 leading-relaxed">
+                      <h4 className="font-serif text-xl font-bold text-text-primary">Session 1: Intake & Alignment</h4>
+                      <p className="text-xs text-text-secondary leading-relaxed font-medium">
                         Focusing on mapping out executive barriers and designing boundaries around your product pivot.
                       </p>
                     </div>
 
                     {/* Time Details Panel */}
-                    <div className="bg-cream/40 p-4 rounded-2xl border border-rust/5 space-y-3 text-xs">
-                      <div className="flex items-center gap-2 text-charcoal/80">
-                        <Calendar size={14} className="text-rust" />
+                    <div className="bg-bg-elevated/40 p-4 rounded-2xl border border-border-divider/50 space-y-3 text-xs">
+                      <div className="flex items-center gap-2 text-text-primary">
+                        <Calendar size={14} className="text-accent-gold" />
                         <span className="font-semibold">
                           {new Date(upcoming.date + "T12:00:00").toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 text-charcoal/80">
-                        <Clock size={14} className="text-rust" />
+                      <div className="flex items-center gap-2 text-text-primary">
+                        <Clock size={14} className="text-accent-gold" />
                         <span className="font-semibold">{upcoming.time} (GMT)</span>
                       </div>
 
@@ -144,7 +144,7 @@ export default function ClientPage() {
                           href="https://meet.google.com"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full py-2.5 bg-rust hover:bg-charcoal text-cream text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5 focus:outline-none"
+                          className="w-full py-2.5 bg-accent-gold hover:bg-accent-gold/90 text-bg-base text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer font-bold"
                         >
                           <Video size={12} />
                           Join Google Meet
@@ -152,7 +152,7 @@ export default function ClientPage() {
                       ) : (
                         <button
                           disabled
-                          className="w-full py-2.5 bg-charcoal/10 text-charcoal/40 text-[10px] uppercase font-bold tracking-wider rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed"
+                          className="w-full py-2.5 bg-bg-base/30 text-text-secondary/40 border border-border-divider text-[10px] uppercase font-bold tracking-wider rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed"
                         >
                           <Video size={12} />
                           Meet Link Disabled
@@ -163,36 +163,36 @@ export default function ClientPage() {
                 );
               })()
             ) : (
-              <div className="text-center py-8 text-charcoal/40 text-xs">
+              <div className="text-center py-8 text-text-secondary/40 text-xs">
                 No upcoming sessions scheduled.
               </div>
             )}
           </div>
  
           {/* Billing Log */}
-          <div className="bg-white rounded-3xl p-6 border border-rust/10 shadow-xs space-y-4">
-            <h3 className="font-serif text-lg font-bold text-charcoal flex items-center gap-2 border-b border-rust/5 pb-3">
-              <CreditCard size={18} className="text-rust" /> Invoices & Receipts
+          <div className="bg-surface rounded-[24px] p-6 border border-border-divider/60 shadow-xs space-y-4 text-left">
+            <h3 className="font-serif text-lg font-bold text-text-primary flex items-center gap-2 border-b border-border-divider/30 pb-3">
+              <CreditCard size={18} className="text-accent-gold" /> Invoices & Receipts
             </h3>
  
             <div className="overflow-x-auto text-xs">
-              <table className="w-full text-left">
+              <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="text-[10px] uppercase tracking-wider text-charcoal/50 border-b border-rust/5 pb-2">
+                  <tr className="text-[10px] uppercase tracking-wider text-text-secondary/50 border-b border-border-divider/30 pb-2">
                     <th className="pb-2">Date</th>
                     <th className="pb-2">Service</th>
                     <th className="pb-2">Price Paid</th>
                     <th className="pb-2 text-right">Invoices</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-rust/5 text-charcoal/80">
+                <tbody className="divide-y divide-border-divider/30 text-text-secondary">
                   {bookings.map((b) => (
                     <tr key={b.id}>
-                      <td className="py-3 font-mono">{b.date}</td>
-                      <td className="py-3 font-medium">{b.service} Setup fee</td>
-                      <td className="py-3 font-semibold">{b.paid}</td>
+                      <td className="py-3 font-mono text-text-primary">{b.date}</td>
+                      <td className="py-3 font-medium text-text-primary">{b.service} Setup fee</td>
+                      <td className="py-3 font-semibold text-accent-gold">{b.paid}</td>
                       <td className="py-3 text-right">
-                        <button className="text-[10px] font-bold text-rust hover:underline inline-flex items-center gap-1 cursor-pointer">
+                        <button className="text-[10px] font-bold text-accent-blue hover:underline inline-flex items-center gap-1 cursor-pointer">
                           <Download size={10} /> PDF Receipt
                         </button>
                       </td>
@@ -200,7 +200,7 @@ export default function ClientPage() {
                   ))}
                   {bookings.length === 0 && (
                     <tr>
-                      <td colSpan="4" className="py-6 text-center text-charcoal/40">
+                      <td colSpan="4" className="py-6 text-center text-text-secondary/40">
                         No transactions recorded.
                       </td>
                     </tr>
@@ -212,36 +212,36 @@ export default function ClientPage() {
         </div>
 
         {/* Right Column: Shared Toolkits */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-3xl p-6 border border-rust/10 shadow-xs space-y-4">
-            <h3 className="font-serif text-lg font-bold text-charcoal flex items-center gap-2 border-b border-rust/5 pb-3">
-              <FileText size={18} className="text-rust" /> Diagnostic Library
+        <div className="space-y-6 text-left">
+          <div className="bg-surface rounded-[24px] p-6 border border-border-divider/60 shadow-xs space-y-4">
+            <h3 className="font-serif text-lg font-bold text-text-primary flex items-center gap-2 border-b border-border-divider/30 pb-3">
+              <FileText size={18} className="text-accent-gold" /> Diagnostic Library
             </h3>
 
             <ul className="space-y-3 text-xs">
-              <li className="flex items-start gap-2.5 p-2 bg-cream/20 rounded-xl border border-rust/5">
+              <li className="flex items-start gap-2.5 p-2 bg-bg-elevated/40 rounded-xl border border-border-divider/50">
                 <CheckCircle size={16} className="text-emerald-500 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-charcoal">Intake Survey Response</p>
-                  <p className="text-[10px] text-charcoal/50">Submitted Jul 5, 2026</p>
+                  <p className="font-bold text-text-primary">Intake Survey Response</p>
+                  <p className="text-[10px] text-text-secondary/60">Submitted Jul 5, 2026</p>
                 </div>
               </li>
-              <li className="flex items-start gap-2.5 p-2 bg-cream/20 rounded-xl border border-rust/5">
+              <li className="flex items-start gap-2.5 p-2 bg-bg-elevated/40 rounded-xl border border-border-divider/50">
                 <CheckCircle size={16} className="text-emerald-500 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-charcoal">NDA & Confidentiality Waiver</p>
-                  <p className="text-[10px] text-charcoal/50">Signed Jul 5, 2026</p>
+                  <p className="font-bold text-text-primary">NDA & Confidentiality Waiver</p>
+                  <p className="text-[10px] text-text-secondary/60">Signed Jul 5, 2026</p>
                 </div>
               </li>
-              <li className="flex items-start justify-between items-center gap-2.5 p-2 rounded-xl hover:bg-cream/20 transition-colors">
+              <li className="flex items-center justify-between gap-2.5 p-2 rounded-xl hover:bg-bg-elevated/40 border border-transparent hover:border-border-divider/50 transition-all duration-300">
                 <div className="flex items-start gap-2.5">
-                  <FileText size={16} className="text-rust shrink-0 mt-0.5" />
+                  <FileText size={16} className="text-accent-gold shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold text-charcoal">Habit Loops Tracking Worksheet</p>
-                    <p className="text-[10px] text-charcoal/50">Download templates (1.2MB)</p>
+                    <p className="font-bold text-text-primary">Habit Loops Tracking Sheet</p>
+                    <p className="text-[10px] text-text-secondary/60">Download templates (1.2MB)</p>
                   </div>
                 </div>
-                <button className="p-1 rounded hover:bg-rust/10 text-rust cursor-pointer">
+                <button className="p-1 rounded hover:bg-accent-gold/15 text-accent-gold cursor-pointer">
                   <Download size={14} />
                 </button>
               </li>
@@ -249,13 +249,13 @@ export default function ClientPage() {
           </div>
 
           {/* Need help support widget */}
-          <div className="bg-gradient-to-tr from-charcoal to-[#2a2321] rounded-3xl p-5 border border-rust/10 text-cream space-y-3 relative overflow-hidden shadow-xs">
+          <div className="bg-surface rounded-[24px] p-5 border border-border-divider/60 text-text-primary space-y-3 relative overflow-hidden shadow-xs">
             <div className="absolute right-0 bottom-0 opacity-5 pointer-events-none transform translate-x-4 translate-y-4">
-              <HelpCircle size={100} />
+              <HelpCircle size={100} className="text-accent-gold" />
             </div>
-            <h4 className="font-serif text-base font-bold">Confidential Support</h4>
-            <p className="text-[11px] text-cream/70 leading-relaxed">
-              Have questions regarding scheduling thresholds or joint sessions? Contact Julius Thorne directly at <strong className="text-rust">julius@c2c.com</strong>.
+            <h4 className="font-serif text-base font-bold text-text-primary">Confidential Support</h4>
+            <p className="text-[11px] text-text-secondary leading-relaxed">
+              Have questions regarding scheduling thresholds or joint sessions? Contact Julius Thorne directly at <strong className="text-accent-gold font-semibold">julius@c2c.com</strong>.
             </p>
           </div>
         </div>
