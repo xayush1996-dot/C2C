@@ -145,15 +145,6 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center relative z-10">
           {/* Hero Copy */}
           <div className="lg:col-span-7 space-y-6 text-left">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4 }}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-gold/10 text-accent-gold text-xs font-bold uppercase tracking-wider border border-accent-gold/20"
-            >
-              <Sparkles size={12} className="stroke-[2.5]" />
-              FOUNDATION FOR SUSTAINABLE SUCCESS
-            </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
