@@ -199,44 +199,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 02. THE 4-STEP FLOW */}
-      <section className="bg-white/40 border-y border-rust/10 py-20 px-6 md:px-12">
-        <div className="max-w-7xl mx-auto space-y-16">
-          <div className="text-center max-w-2xl mx-auto space-y-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-rust">
-              02. Visual Roadmap
-            </span>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-charcoal">
-              The Journey to Clarity
-            </h2>
-            <p className="text-sm text-charcoal/60 leading-relaxed">
-              We design our digital checkout to resemble our coaching: minimalist, direct, and completely stress-free.
-            </p>
-          </div>
-
-          {/* Process Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
-            {stepsList.map((step, i) => (
-              <div key={i} className="space-y-4 relative text-left">
-                {/* Number Accent */}
-                <span className="font-serif text-4xl md:text-5xl font-bold text-rust/20 block leading-none">
-                  {step.num}
-                </span>
-                
-                <h3 className="font-serif text-lg font-bold text-charcoal">
-                  {step.title}
-                </h3>
-                
-                <p className="text-xs md:text-sm text-charcoal/60 leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 03. FOUNDER PROFILE */}
+      {/* 02. FOUNDER PROFILE */}
       <section className="px-6 md:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
@@ -279,7 +242,7 @@ export default function HomePage() {
           {/* Narrative copy */}
           <div className="lg:col-span-7 space-y-6 text-left">
             <span className="text-xs font-bold uppercase tracking-wider text-rust">
-              03. Founder Profile & Creed
+              02. Founder Profile & Creed
             </span>
             
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-charcoal leading-tight">
@@ -319,11 +282,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 04. MEDIA & TRAINING */}
+      {/* 03. MEDIA & TRAINING */}
       <section className="px-6 md:px-12 max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
           <span className="text-xs font-bold uppercase tracking-wider text-rust">
-            04. Media & Training
+            03. Media & Training
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-charcoal">
             Video Lessons & Banners
@@ -337,11 +300,11 @@ export default function HomePage() {
         <VideoPlayer />
       </section>
 
-      {/* 05. TESTIMONIALS (SOCIAL PROOF) */}
+      {/* 04. TESTIMONIALS (SOCIAL PROOF) */}
       <section className="px-6 md:px-12 max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
           <span className="text-xs font-bold uppercase tracking-wider text-rust">
-            05. Client Reviews
+            04. Client Reviews
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-charcoal">
             Stories of Alignment
@@ -355,11 +318,11 @@ export default function HomePage() {
         <TestimonialCarousel />
       </section>
 
-      {/* 06. FAQ SECTION */}
+      {/* 05. FAQ SECTION */}
       <section className="px-6 md:px-12 max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
           <span className="text-xs font-bold uppercase tracking-wider text-rust">
-            06. FAQ Section
+            05. FAQ Section
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-charcoal">
             Frequently Asked Questions
@@ -371,6 +334,43 @@ export default function HomePage() {
 
         {/* Accordion Component */}
         <FAQSection />
+      </section>
+
+      {/* 06. THE 4-STEP FLOW */}
+      <section className="bg-white/40 border-y border-rust/10 py-20 px-6 md:px-12">
+        <div className="max-w-7xl mx-auto space-y-16">
+          <div className="text-center max-w-2xl mx-auto space-y-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-rust">
+              06. Visual Roadmap
+            </span>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-charcoal">
+              The Journey to Clarity
+            </h2>
+            <p className="text-sm text-charcoal/60 leading-relaxed">
+              We design our digital checkout to resemble our coaching: minimalist, direct, and completely stress-free.
+            </p>
+          </div>
+
+          {/* Process Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+            {stepsList.map((step, i) => (
+              <div key={i} className="space-y-4 relative text-left">
+                {/* Number Accent */}
+                <span className="font-serif text-4xl md:text-5xl font-bold text-rust/20 block leading-none">
+                  {step.num}
+                </span>
+                
+                <h3 className="font-serif text-lg font-bold text-charcoal">
+                  {step.title}
+                </h3>
+                
+                <p className="text-xs md:text-sm text-charcoal/60 leading-relaxed">
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* 07. SERVICES & PRICING */}
