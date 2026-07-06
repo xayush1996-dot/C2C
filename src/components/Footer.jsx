@@ -14,7 +14,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer id="contact" className="bg-cream border-t border-rust/10 pt-16 pb-12 mt-auto">
+    <footer className="bg-cream border-t border-rust/10 pt-16 pb-12 mt-auto">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8 mb-12">
           {/* Brand Info */}
@@ -28,34 +28,34 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-charcoal/70 text-sm max-w-sm leading-relaxed">
-              Helping Students & Young Professionals Build a Foundation for Sustainable Success. Tailored mentorship, group workshops, and 1-on-1 private coaching.
+              Premium tailored coaching and consulting. Empowering professionals and couples to bridge transitions, reset patterns, and achieve absolute clarity.
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal/50">
-              Programs
+              Services
             </h4>
             <ul className="space-y-2.5">
               <li>
                 <a href="#services" className="text-sm text-charcoal/80 hover:text-rust transition-colors duration-200">
-                  Emotional Intelligence (EQ)
+                  Start Where You Are
                 </a>
               </li>
               <li>
                 <a href="#services" className="text-sm text-charcoal/80 hover:text-rust transition-colors duration-200">
-                  Soft Skills & Leadership
+                  Clarity Call
                 </a>
               </li>
               <li>
                 <a href="#services" className="text-sm text-charcoal/80 hover:text-rust transition-colors duration-200">
-                  Public Speaking & Personality
+                  Reset Programme
                 </a>
               </li>
               <li>
                 <a href="#services" className="text-sm text-charcoal/80 hover:text-rust transition-colors duration-200">
-                  Career Readiness & Placement
+                  Couples' Conversations
                 </a>
               </li>
             </ul>
@@ -64,7 +64,7 @@ export default function Footer() {
           {/* Legal / Access Links */}
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal/50">
-              Quick Links
+              Information
             </h4>
             <ul className="space-y-2.5">
               <li>

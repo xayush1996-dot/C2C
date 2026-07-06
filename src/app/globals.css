@@ -1,23 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #F8FAFC;
-  --color-rust: #D4AF37;
-  --color-charcoal: #0F172A;
+  --color-cream: #F6F3ED;
+  --color-rust: #C8745E;
+  --color-charcoal: #1A1A1A;
   
-  --color-navy: #0F172A;
-  --color-gold: #D4AF37;
-  --color-slate-50: #F8FAFC;
-  --color-slate-800: #1E293B;
-  --color-white: #FFFFFF;
-  
-  --font-serif: var(--font-poppins), ui-serif, Georgia, Cambria, sans-serif;
+  --font-serif: var(--font-lora), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 :root {
-  --background: #F8FAFC;
-  --foreground: #1E293B;
+  --background: #F6F3ED;
+  --foreground: #1A1A1A;
 }
 
 body {

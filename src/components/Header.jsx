@@ -17,21 +17,9 @@ export default function Header() {
   const [isClientLoggedIn, setIsClientLoggedIn] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [activeHash, setActiveHash] = useState("#home");
 
   // Don't show public header on admin route
   const isAdmin = pathname?.startsWith("/admin");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setActiveHash(window.location.hash || "#home");
-      const handleHashChange = () => {
-        setActiveHash(window.location.hash || "#home");
-      };
-      window.addEventListener("hashchange", handleHashChange);
-      return () => window.removeEventListener("hashchange", handleHashChange);
-    }
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -102,33 +90,6 @@ export default function Header() {
             Confusion to Clarity
           </span>
         </Link>
-
-        {/* Central Navigation Links */}
-        <nav className="hidden lg:flex items-center space-x-1 bg-[#F5F2EC] border border-rust/10 rounded-full px-1.5 py-1 select-none">
-          {[
-            { name: "Home", href: "/" },
-            { name: "About", href: "/#founder" },
-            { name: "Programs", href: "/#services" },
-            { name: "Success Stories", href: "/#testimonials" },
-            { name: "Contact", href: "/#contact" }
-          ].map((item) => {
-            const itemHash = item.href.includes("#") ? item.href.substring(item.href.indexOf("#")) : "#home";
-            const isActive = activeHash === itemHash;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-300 ${
-                  isActive
-                    ? "bg-[#E5E1D8] text-charcoal border border-[#43A6FC]"
-                    : "text-charcoal/60 hover:text-rust border border-transparent"
-                }`}
-              >
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
 
         {/* Action Items - Exactly Two Elements (or Profile Dropdown + CTA) */}
         <div className="flex items-center space-x-6 md:space-x-8 relative">
