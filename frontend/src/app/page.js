@@ -133,16 +133,23 @@ export default function HomePage() {
     hero_subtitle: "Premium strategic coaching for high-impact leaders, founders, and couples navigating pivotal life transitions.",
     founder_name: "Sarah Lin",
     founder_bio: "A former corporate strategist turned high-performance coach, Sarah has spent the last 15 years guiding leaders through intense personal and professional pivots. Her methodology blends logical frameworks with deep emotional intelligence to help clients build long-term, sustainable life clarity.",
-    track_record_years: "15+ Years Experience",
-    track_record_leaders: "200+ Leaders Coached",
-    track_record_retention: "94% Client Retention",
-    track_record_success: "98% Transition Success"
+    track_record_years: "5,000+",
+    track_record_leaders: "150+",
+    track_record_retention: "95%",
+    track_record_success: "99%"
   });
 
   useEffect(() => {
     const fetchCMSData = async () => {
       try {
         const srvRes = await fetch("/api/services");
+        if (!srvRes.ok) {
+          throw new Error(`Services fetch returned status ${srvRes.status}`);
+        }
+        const srvContentType = srvRes.headers.get("content-type");
+        if (!srvContentType || !srvContentType.includes("application/json")) {
+          throw new Error("Services fetch returned non-JSON content");
+        }
         const srvData = await srvRes.json();
         if (srvData.success && srvData.services.length > 0) {
           const merged = servicePackages.map(pkg => {
@@ -161,6 +168,13 @@ export default function HomePage() {
         }
 
         const contentRes = await fetch("/api/content");
+        if (!contentRes.ok) {
+          throw new Error(`Content fetch returned status ${contentRes.status}`);
+        }
+        const contentContentType = contentRes.headers.get("content-type");
+        if (!contentContentType || !contentContentType.includes("application/json")) {
+          throw new Error("Content fetch returned non-JSON content");
+        }
         const contentData = await contentRes.json();
         if (contentData.success && Object.keys(contentData.content).length > 0) {
           setContent(prev => ({
@@ -169,7 +183,7 @@ export default function HomePage() {
           }));
         }
       } catch (err) {
-        console.error("Failed to load CMS data:", err);
+        console.warn("CMS data loading failed (using fallback presets):", err.message || err);
       }
     };
     fetchCMSData();
@@ -189,7 +203,7 @@ export default function HomePage() {
       {/* 01. HERO SECTION */}
       <section id="hero" className="relative px-6 md:px-12 max-w-7xl mx-auto pt-10 md:pt-16 overflow-hidden">
         {/* Soft radial glow behind hero */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-gold/5 rounded-full blur-[120px] pointer-events-none z-0" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px] pointer-events-none z-0" />
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center relative z-10">
           {/* Hero Copy */}
@@ -244,10 +258,10 @@ export default function HomePage() {
             <div className="aspect-[4/5] max-w-md mx-auto bg-surface rounded-[24px] p-8 shadow-sm border border-border-divider/60 relative overflow-hidden flex flex-col justify-between">
               {/* Decorative graphic patterns */}
               <div className="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-bg-section/50" />
-              <div className="absolute right-10 top-10 w-6 h-6 rounded-full border border-accent-gold/30" />
+              <div className="absolute right-10 top-10 w-6 h-6 rounded-full border border-text-secondary/30" />
               
               <div className="space-y-4 relative z-10 text-left">
-                <span className="text-[10px] font-bold text-accent-gold uppercase tracking-widest block">BRAND CREED</span>
+                <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest block">BRAND CREED</span>
                 <p className="font-serif text-2xl font-bold text-text-primary italic leading-snug">
                   \"Excellence is not an event. It is a structured foundation. We build it with you.\"
                 </p>
@@ -257,9 +271,9 @@ export default function HomePage() {
               <div className="bg-bg-elevated/40 p-6 rounded-2xl border border-border-divider/50 relative z-10 space-y-4 text-left">
                 <p className="text-[10px] uppercase font-bold text-text-secondary/50 tracking-wider">Target Focus Area</p>
                 <div className="space-y-2.5 text-xs font-semibold text-text-primary">
-                  <div className="flex items-center gap-2.5"><Check size={14} className="text-accent-gold stroke-[2.5]" /> College Students & Graduates</div>
-                  <div className="flex items-center gap-2.5"><Check size={14} className="text-accent-gold stroke-[2.5]" /> Corporate Trainees & Job Seekers</div>
-                  <div className="flex items-center gap-2.5"><Check size={14} className="text-accent-gold stroke-[2.5]" /> Active Young Professionals</div>
+                  <div className="flex items-center gap-2.5"><Check size={14} className="text-text-primary stroke-[2.5]" /> College Students & Graduates</div>
+                  <div className="flex items-center gap-2.5"><Check size={14} className="text-text-primary stroke-[2.5]" /> Corporate Trainees & Job Seekers</div>
+                  <div className="flex items-center gap-2.5"><Check size={14} className="text-text-primary stroke-[2.5]" /> Active Young Professionals</div>
                 </div>
               </div>
             </div>
@@ -271,25 +285,25 @@ export default function HomePage() {
       <section id="statistics" className="px-6 md:px-12 max-w-7xl mx-auto">
         <div className="bg-surface text-text-primary rounded-[24px] p-8 md:p-12 border border-border-divider/60 shadow-lg relative overflow-hidden">
           <div className="absolute right-0 top-0 opacity-5 pointer-events-none transform translate-x-12 -translate-y-12">
-            <Award size={240} className="text-accent-gold" />
+            <Award size={240} className="text-text-secondary/10" />
           </div>
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 relative z-10 text-center">
             <div className="space-y-1">
-              <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-extrabold text-accent-gold">{content.track_record_years}</h3>
-              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Global Expertise</p>
+              <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl font-extrabold text-accent-gold">{content.track_record_years}</h3>
+              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Students Trained</p>
             </div>
             <div className="space-y-1">
-              <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-extrabold text-accent-gold">{content.track_record_leaders}</h3>
-              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Leaders Coached</p>
+              <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl font-extrabold text-accent-gold">{content.track_record_leaders}</h3>
+              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Workshops Conducted</p>
             </div>
             <div className="space-y-1">
-              <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-extrabold text-accent-gold">{content.track_record_retention}</h3>
-              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Client Retention</p>
+              <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl font-extrabold text-accent-gold">{content.track_record_retention}</h3>
+              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Placement Success</p>
             </div>
             <div className="space-y-1">
-              <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-extrabold text-accent-gold">{content.track_record_success}</h3>
-              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Transition Success</p>
+              <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl font-extrabold text-accent-gold">{content.track_record_success}</h3>
+              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Satisfaction Rate</p>
             </div>
           </div>
         </div>
@@ -298,7 +312,7 @@ export default function HomePage() {
       {/* 03. MEDIA & TRAINING */}
       <section id="media-training" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
+          <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
             03. MEDIA & TRAINING
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
@@ -320,15 +334,15 @@ export default function HomePage() {
             <div className="aspect-[4/5] bg-surface rounded-[24px] overflow-hidden border border-border-divider/60 shadow-xs relative flex items-center justify-center p-8">
               {/* Premium Background styling / glow */}
               <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-transparent to-transparent opacity-60 z-10" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-accent-gold/10 rounded-full blur-[80px] pointer-events-none" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-white/5 rounded-full blur-[80px] pointer-events-none" />
               
               <div className="relative z-20 text-center space-y-4">
-                <div className="w-32 h-32 rounded-full border border-accent-gold/40 mx-auto overflow-hidden bg-bg-elevated flex items-center justify-center">
-                  <User size={64} className="text-accent-gold" />
+                <div className="w-32 h-32 rounded-full border border-border-divider mx-auto overflow-hidden bg-bg-elevated flex items-center justify-center">
+                  <User size={64} className="text-text-primary" />
                 </div>
                 <div>
                   <h4 className="font-serif text-lg font-bold text-text-primary">{content.founder_name}</h4>
-                  <p className="text-[10px] text-accent-gold uppercase tracking-widest font-bold mt-1">Founder & Executive Coach</p>
+                  <p className="text-[10px] text-text-secondary uppercase tracking-widest font-bold mt-1">Founder & Executive Coach</p>
                 </div>
               </div>
             </div>
@@ -337,7 +351,7 @@ export default function HomePage() {
           {/* Right: Biography Narrative */}
           <div className="lg:col-span-7 space-y-6 text-left">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-accent-gold block mb-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-text-secondary block mb-2">
                 04. FOUNDER PROFILE
               </span>
               <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary leading-tight">
@@ -366,7 +380,7 @@ export default function HomePage() {
       {/* 05. OUR SERVICES */}
       <section id="services" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
+          <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
             05. PROGRAM PORTFOLIO
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
@@ -391,20 +405,20 @@ export default function HomePage() {
               <motion.div
                 key={p.id}
                 variants={fadeInUp}
-                className="bg-surface rounded-[18px] p-6 border border-border-divider/60 shadow-2xs hover:shadow-md hover:border-accent-gold/45 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between space-y-4 text-left group cursor-pointer"
+                className="bg-surface rounded-[18px] p-6 border border-border-divider/60 shadow-2xs hover:shadow-md hover:border-text-primary/30 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between space-y-4 text-left group cursor-pointer"
               >
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-accent-gold/5 flex items-center justify-center text-accent-gold border border-accent-gold/15 group-hover:bg-accent-gold group-hover:text-bg-base transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-surface-hover flex items-center justify-center text-text-primary border border-border-divider group-hover:bg-text-primary group-hover:text-bg-base transition-all duration-300">
                     <Icon size={18} />
                   </div>
-                  <h4 className="font-serif text-sm font-bold text-text-primary group-hover:text-accent-gold transition-colors duration-300">
+                  <h4 className="font-serif text-sm font-bold text-text-primary group-hover:text-text-primary transition-colors duration-300">
                     {p.name}
                   </h4>
                   <p className="text-[11px] text-text-secondary leading-normal font-medium">
                     {p.desc}
                   </p>
                 </div>
-                <div className="text-[10px] font-bold text-text-secondary/40 flex items-center gap-1 group-hover:text-accent-gold transition-colors">
+                <div className="text-[10px] font-bold text-text-secondary/40 flex items-center gap-1 group-hover:text-text-primary transition-colors">
                   Learn Details <ChevronRight size={10} />
                 </div>
               </motion.div>
@@ -420,7 +434,7 @@ export default function HomePage() {
           {/* Narrative Info */}
           <div className="lg:col-span-6 space-y-6 text-left">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-accent-gold block mb-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-text-secondary block mb-2">
                 06. THE COMPETITIVE ADVANTAGE
               </span>
               <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary leading-tight">
@@ -443,7 +457,7 @@ export default function HomePage() {
               ].map((item, index) => (
                 <div key={index} className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-accent-gold/15 flex items-center justify-center text-accent-gold">
+                    <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
                       <Check size={10} className="stroke-[3]" />
                     </div>
                     <h4 className="font-serif text-xs font-bold text-text-primary">{item.title}</h4>
@@ -457,12 +471,12 @@ export default function HomePage() {
           {/* Graphical Display */}
           <div className="lg:col-span-6">
             <div className="bg-surface rounded-[24px] p-8 border border-border-divider/60 shadow-2xs text-left space-y-6 relative overflow-hidden">
-              <div className="absolute right-0 top-0 w-24 h-24 bg-accent-gold/5 rounded-bl-full" />
+              <div className="absolute right-0 top-0 w-24 h-24 bg-white/5 rounded-bl-full" />
               <h3 className="font-serif text-lg font-bold text-text-primary border-b border-border-divider/50 pb-3">Core Training Philosophy</h3>
               
               <div className="space-y-4">
                 <div className="p-4 bg-bg-base/40 rounded-xl border border-border-divider/50 flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-accent-gold/5 flex items-center justify-center text-accent-gold shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-surface-hover flex items-center justify-center text-text-primary shrink-0 border border-border-divider">
                     <TrendingUp size={16} />
                   </div>
                   <div className="space-y-0.5">
@@ -472,7 +486,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="p-4 bg-bg-base/40 rounded-xl border border-border-divider/50 flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-accent-gold/5 flex items-center justify-center text-accent-gold shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-surface-hover flex items-center justify-center text-text-primary shrink-0 border border-border-divider">
                     <Layers size={16} />
                   </div>
                   <div className="space-y-0.5">
@@ -482,7 +496,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="p-4 bg-bg-base/40 rounded-xl border border-border-divider/50 flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-accent-gold/5 flex items-center justify-center text-accent-gold shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-surface-hover flex items-center justify-center text-text-primary shrink-0 border border-border-divider">
                     <Zap size={16} />
                   </div>
                   <div className="space-y-0.5">
@@ -500,7 +514,7 @@ export default function HomePage() {
       <section id="learning-journey" className="bg-bg-section border-y border-border-divider/50 py-20 px-6 md:px-12 scroll-mt-20">
         <div className="max-w-7xl mx-auto space-y-16">
           <div className="text-center max-w-2xl mx-auto space-y-4">
-            <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
+            <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
               07. ROADMAP TO PERFORMANCE
             </span>
             <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
@@ -521,7 +535,7 @@ export default function HomePage() {
               { num: "05", title: "Achieve", desc: "Enter placement pipelines with absolute clarity and executive confidence." }
             ].map((step, i) => (
               <div key={i} className="space-y-4 relative text-left group">
-                <span className="font-serif text-4xl md:text-5xl font-extrabold text-accent-gold/15 group-hover:text-accent-gold/40 block leading-none transition-colors duration-300">
+                <span className="font-serif text-4xl md:text-5xl font-extrabold text-text-primary/10 group-hover:text-text-primary/30 block leading-none transition-colors duration-300">
                   {step.num}
                 </span>
                 <h3 className="font-serif text-base font-bold text-text-primary">
@@ -539,7 +553,7 @@ export default function HomePage() {
       {/* 08. TESTIMONIALS */}
       <section id="testimonials" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
+          <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
             08. SUCCESS STORIES
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
@@ -557,7 +571,7 @@ export default function HomePage() {
       {/* 09. UPCOMING WORKSHOPS */}
       <section id="workshops" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
+          <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
             09. ACTIVE COHORTS
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
@@ -576,11 +590,11 @@ export default function HomePage() {
             <div key={w.id} className="bg-surface rounded-[24px] p-6 border border-border-divider/60 shadow-2xs flex flex-col justify-between space-y-6">
               <div className="space-y-4">
                 <div className="flex justify-between items-start">
-                  <span className="px-2.5 py-1 rounded bg-accent-gold/10 text-accent-gold text-[9px] uppercase font-bold tracking-wider border border-accent-gold/25">
+                  <span className="px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 text-[9px] uppercase font-bold tracking-wider border border-emerald-500/20">
                     {w.status}
                   </span>
                   <div className="flex items-center gap-1.5 text-[10px] text-text-secondary">
-                    <Clock size={12} className="text-accent-gold" />
+                    <Clock size={12} className="text-text-secondary" />
                     <span>{w.time}</span>
                   </div>
                 </div>
@@ -593,7 +607,7 @@ export default function HomePage() {
 
               <div className="flex items-center justify-between pt-4 border-t border-border-divider/50">
                 <div className="flex items-center gap-1 text-[11px] text-text-secondary">
-                  <Calendar size={13} className="text-accent-gold" />
+                  <Calendar size={13} className="text-text-secondary" />
                   <span className="font-bold">{w.date}</span>
                 </div>
 
@@ -612,7 +626,7 @@ export default function HomePage() {
       {/* 10. CAREER RESOURCES */}
       <section id="resources" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
+          <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
             10. TRAINING DOWNLOADS
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
@@ -623,15 +637,14 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {[
             { id: 1, type: "Free PDF Guide", title: "The Executive Resume Toolkit", desc: "A comprehensive checklist, cover layout templates, and formatting strategies." },
-            { id: 2, type: "Placement Guide", title: "Interview Strategy Mastery", desc: "Frameworks to navigate behavioral queries, case studies, and corporate stress tests." },
-            { id: 3, type: "Worksheet template", title: "Soft Skills Habit Ledger", desc: "Weekly self-evaluation templates for EQ milestones, team tasks, and networking schedules." }
+            { id: 2, type: "Placement Guide", title: "Interview Strategy Mastery", desc: "Frameworks to navigate behavioral queries, case studies, and corporate stress tests." }
           ].map((r) => (
             <div key={r.id} className="bg-surface rounded-[24px] p-6 border border-border-divider/60 shadow-2xs flex flex-col justify-between text-left space-y-6">
               <div className="space-y-3">
-                <span className="text-[10px] uppercase font-bold text-accent-gold tracking-widest block">{r.type}</span>
+                <span className="text-[10px] uppercase font-bold text-text-secondary tracking-widest block">{r.type}</span>
                 <h4 className="font-serif text-base font-bold text-text-primary leading-snug">{r.title}</h4>
                 <p className="text-[11px] text-text-secondary leading-relaxed">{r.desc}</p>
               </div>
@@ -639,7 +652,7 @@ export default function HomePage() {
               <button
                 onClick={() => triggerDownload(r.id)}
                 disabled={downloading === r.id}
-                className="w-full py-2.5 bg-bg-base/40 hover:bg-accent-gold/10 border border-border-divider hover:border-accent-gold text-text-primary hover:text-accent-gold font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer"
+                className="w-full py-2.5 bg-bg-base/40 hover:bg-surface-hover border border-border-divider text-text-primary font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer"
               >
                 {downloading === r.id ? (
                   <>
@@ -661,7 +674,7 @@ export default function HomePage() {
       {/* 11. CHOOSE YOUR FRAMEWORK (PRICING) */}
       <section id="pricing" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
+          <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
             11. DIRECT BOOKING
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
@@ -686,12 +699,12 @@ export default function HomePage() {
               variants={fadeInUp}
               className={`bg-surface rounded-[24px] p-6 border transition-all duration-300 flex flex-col justify-between relative overflow-hidden shadow-xs hover:shadow-md text-left ${
                 pkg.highlight
-                  ? "border-accent-gold ring-1 ring-accent-gold"
+                  ? "border-text-secondary/50 ring-1 ring-text-secondary/20"
                   : "border-border-divider/60"
               }`}
             >
               {pkg.highlight && (
-                <div className="absolute top-0 right-0 bg-accent-gold text-bg-base text-[9px] uppercase font-extrabold tracking-widest px-3 py-1 rounded-bl-xl">
+                <div className="absolute top-0 right-0 bg-text-primary text-bg-base text-[9px] uppercase font-extrabold tracking-widest px-3 py-1 rounded-bl-xl border-l border-b border-border-divider">
                   Popular Choice
                 </div>
               )}
@@ -721,7 +734,7 @@ export default function HomePage() {
                 <ul className="space-y-2.5 border-t border-border-divider/50 pt-4 text-xs text-text-primary font-medium">
                   {pkg.features.map((feat, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <Check size={14} className="text-accent-gold shrink-0 mt-0.5 stroke-[2.5]" />
+                      <Check size={14} className="text-text-primary shrink-0 mt-0.5 stroke-[2.5]" />
                       <span>{feat}</span>
                     </li>
                   ))}
@@ -747,7 +760,7 @@ export default function HomePage() {
       {/* 12. FAQ SECTION */}
       <section id="faq" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
+          <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
             12. FREQUENTLY ASKED QUESTIONS
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
@@ -766,7 +779,7 @@ export default function HomePage() {
       <section className="px-6 md:px-12 max-w-4xl mx-auto">
         <div className="bg-surface rounded-[24px] p-8 md:p-12 text-text-primary border border-border-divider/60 shadow-md relative overflow-hidden text-center space-y-6">
           <div className="absolute right-0 top-0 opacity-5 pointer-events-none transform translate-x-12 -translate-y-12">
-            <Sparkles size={200} className="text-accent-gold" />
+            <Sparkles size={200} className="text-text-secondary/15" />
           </div>
           
           <div className="space-y-2 relative z-10 max-w-lg mx-auto">
@@ -797,7 +810,7 @@ export default function HomePage() {
             {/* Left Column: Get In Touch */}
             <div className="lg:col-span-7 space-y-6 text-left">
               <div>
-                <span className="inline-block px-3 py-1 bg-bg-elevated border border-border-divider rounded-full text-[9px] uppercase font-bold tracking-widest text-accent-gold">
+                <span className="inline-block px-3 py-1 bg-bg-elevated border border-border-divider rounded-full text-[9px] uppercase font-bold tracking-widest text-text-secondary">
                   GET IN TOUCH
                 </span>
               </div>
@@ -813,12 +826,12 @@ export default function HomePage() {
               {/* Contacts info list */}
               <div className="space-y-4 pt-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-accent-gold/5 flex items-center justify-center text-accent-gold border border-border-divider/50">
+                  <div className="w-10 h-10 rounded-xl bg-surface-hover flex items-center justify-center text-text-primary border border-border-divider">
                     <Mail size={18} />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase font-bold text-text-secondary/40 tracking-wider">Email Us</p>
-                    <a href="mailto:admissions@c2cclarity.com" className="text-sm font-semibold text-text-primary hover:text-accent-gold transition-colors">
+                    <a href="mailto:admissions@c2cclarity.com" className="text-sm font-semibold text-text-primary hover:text-text-primary transition-colors">
                       admissions@c2cclarity.com
                     </a>
                   </div>

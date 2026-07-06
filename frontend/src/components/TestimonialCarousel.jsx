@@ -57,15 +57,15 @@ export default function TestimonialCarousel() {
   return (
     <div className="w-full relative py-12 px-4 bg-surface border border-border-divider/60 rounded-3xl overflow-hidden shadow-xs">
       {/* Decorative quotes background watermark */}
-      <div className="absolute top-4 left-6 text-accent-gold/5 pointer-events-none">
+      <div className="absolute top-4 left-6 text-text-secondary/5 pointer-events-none">
         <Quote size={120} className="stroke-[1.5]" />
       </div>
 
       <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center text-center">
         {/* Star Rating symbols */}
-        <div className="flex items-center space-x-1 mb-6 text-accent-gold">
+        <div className="flex items-center space-x-1 mb-6 text-text-secondary">
           {[...Array(5)].map((_, i) => (
-            <Star key={i} size={16} className="fill-accent-gold stroke-[1.5]" />
+            <Star key={i} size={16} className="fill-text-secondary text-text-secondary stroke-[1.5]" />
           ))}
         </div>
 
@@ -93,7 +93,7 @@ export default function TestimonialCarousel() {
                 <p className="text-xs text-text-secondary font-medium">
                   {testimonials[index].role}
                 </p>
-                <span className="inline-block mt-2 px-2.5 py-1 rounded bg-accent-gold/10 text-accent-gold text-[10px] uppercase font-bold tracking-wider">
+                <span className="inline-block mt-2 px-2.5 py-1 rounded bg-surface-hover text-text-primary text-[10px] uppercase font-bold tracking-wider border border-border-divider">
                   {testimonials[index].context}
                 </span>
               </div>
@@ -105,7 +105,7 @@ export default function TestimonialCarousel() {
         <div className="flex items-center justify-between w-full mt-10 max-w-xs mx-auto border-t border-border-divider/50 pt-6">
           <button
             onClick={prevStep}
-            className="w-10 h-10 rounded-full border border-border-divider flex items-center justify-center hover:bg-surface-hover hover:text-accent-gold hover:border-accent-gold text-text-secondary/60 transition-all duration-300 cursor-pointer"
+            className="w-10 h-10 rounded-full border border-border-divider flex items-center justify-center hover:bg-surface-hover hover:text-text-primary hover:border-text-primary text-text-secondary/60 transition-all duration-300 cursor-pointer"
             aria-label="Previous testimonial"
           >
             <ChevronLeft size={18} />
@@ -120,7 +120,7 @@ export default function TestimonialCarousel() {
                   setIndex(i);
                 }}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === i ? "w-6 bg-accent-gold" : "bg-accent-gold/20"
+                  index === i ? "w-6 bg-text-primary" : "bg-border-divider"
                 }`}
                 aria-label={`Go to slide ${i + 1}`}
               />
@@ -129,7 +129,7 @@ export default function TestimonialCarousel() {
 
           <button
             onClick={nextStep}
-            className="w-10 h-10 rounded-full border border-border-divider flex items-center justify-center hover:bg-surface-hover hover:text-accent-gold hover:border-accent-gold text-text-secondary/60 transition-all duration-300 cursor-pointer"
+            className="w-10 h-10 rounded-full border border-border-divider flex items-center justify-center hover:bg-surface-hover hover:text-text-primary hover:border-text-primary text-text-secondary/60 transition-all duration-300 cursor-pointer"
             aria-label="Next testimonial"
           >
             <ChevronRight size={18} />

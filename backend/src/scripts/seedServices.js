@@ -8,10 +8,10 @@ const defaultContent = [
   { key: 'hero_subtitle', value: 'Premium strategic coaching for high-impact leaders, founders, and couples navigating pivotal life transitions.' },
   { key: 'founder_name', value: 'Sarah Lin' },
   { key: 'founder_bio', value: 'A former corporate strategist turned high-performance coach, Sarah has spent the last 15 years guiding leaders through intense personal and professional pivots. Her methodology blends logical frameworks with deep emotional intelligence to help clients build long-term, sustainable life clarity.' },
-  { key: 'track_record_years', value: '15+ Years Experience' },
-  { key: 'track_record_leaders', value: '200+ Leaders Coached' },
-  { key: 'track_record_retention', value: '94% Client Retention' },
-  { key: 'track_record_success', value: '98% Transition Success' }
+  { key: 'track_record_years', value: '5,000+' },
+  { key: 'track_record_leaders', value: '150+' },
+  { key: 'track_record_retention', value: '95%' },
+  { key: 'track_record_success', value: '99%' }
 ];
 
 const defaultServices = [

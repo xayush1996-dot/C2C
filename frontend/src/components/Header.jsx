@@ -136,10 +136,10 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         {/* Brand Logo & Name */}
         <Link href="/" className="flex items-center space-x-2.5 group">
-          <div className="w-8 h-8 rounded-full bg-accent-gold flex items-center justify-center text-bg-base shadow-sm group-hover:scale-105 transition-transform duration-300">
+          <div className="w-8 h-8 rounded-full bg-text-primary flex items-center justify-center text-bg-base shadow-sm group-hover:scale-105 transition-transform duration-300">
             <Sparkles size={16} className="stroke-[2.5]" />
           </div>
-          <span className="font-serif text-lg md:text-xl font-bold tracking-tight text-text-primary group-hover:text-accent-gold transition-colors duration-300">
+          <span className="font-serif text-lg md:text-xl font-bold tracking-tight text-text-primary group-hover:text-text-secondary transition-colors duration-300">
             Confusion to Clarity
           </span>
         </Link>
@@ -180,15 +180,15 @@ export default function Header() {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex items-center space-x-1.5 focus:outline-none cursor-pointer group"
               >
-                <div className="w-8 h-8 rounded-full bg-accent-gold/10 border border-accent-gold/20 flex items-center justify-center text-accent-gold group-hover:bg-accent-gold group-hover:text-bg-base transition-all duration-300 shadow-xs">
+                <div className="w-8 h-8 rounded-full bg-surface-hover border border-border-divider flex items-center justify-center text-text-primary group-hover:bg-text-primary group-hover:text-bg-base transition-all duration-300 shadow-xs">
                   <User size={15} />
                 </div>
-                <span className="text-xs font-semibold text-text-secondary group-hover:text-accent-gold transition-colors">
+                <span className="text-xs font-semibold text-text-secondary group-hover:text-text-primary transition-colors">
                   {isAdminLoggedIn ? "Admin" : clientName}
                 </span>
                 <ChevronDown 
                   size={14} 
-                  className={`text-text-secondary/40 group-hover:text-accent-gold transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} 
+                  className={`text-text-secondary/40 group-hover:text-text-primary transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} 
                 />
               </button>
 
@@ -210,7 +210,7 @@ export default function Header() {
                     >
                       <Link
                         href={isAdminLoggedIn ? "/admin" : "/client"}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:bg-surface hover:text-accent-gold transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:bg-surface hover:text-text-primary transition-colors"
                       >
                         <LayoutDashboard size={14} />
                         Go to Portal

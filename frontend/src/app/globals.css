@@ -22,23 +22,23 @@
 }
 
 :root {
-  --bg-base: #0B0D14;
-  --bg-section: #0E1119;
-  --bg-elevated: #1A1D26;
-  --surface: #14171F;
-  --surface-hover: #1A1D26;
-  --accent-gold: #C9A96E;
+  --bg-base: #000000;
+  --bg-section: #000000;
+  --bg-elevated: #1E1E1E;
+  --surface: #1E1E1E;
+  --surface-hover: #262626;
+  --accent-gold: #FBBF24;
   --accent-blue: #5B6EE8;
-  --text-primary: #F2F1ED;
-  --text-secondary: #8B8D98;
-  --border: #22252F;
+  --text-primary: #FFFFFF;
+  --text-secondary: #9CA3AF;
+  --border: #2E2E2E;
 
   --background: var(--bg-base);
   --foreground: var(--text-primary);
 }
 
 body {
-  background: radial-gradient(circle at center, #0F1219 0%, #0B0D14 100%);
+  background: #000000;
   color: var(--text-primary);
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   overflow-x: hidden;

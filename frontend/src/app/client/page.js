@@ -127,7 +127,7 @@ export default function ClientPage() {
 
         <button
           onClick={handleLogout}
-          className="text-xs font-semibold text-text-secondary hover:text-accent-gold transition-colors duration-200 flex items-center gap-1.5 cursor-pointer"
+          className="text-xs font-semibold text-text-secondary hover:text-text-primary transition-colors duration-200 flex items-center gap-1.5 cursor-pointer"
         >
           <LogOut size={14} />
           Log Out
@@ -139,7 +139,7 @@ export default function ClientPage() {
         <div className="md:col-span-2 space-y-6">
           <div className="bg-surface rounded-[24px] p-6 border border-border-divider/60 shadow-xs space-y-6 text-left">
             <h3 className="font-serif text-lg font-bold text-text-primary flex items-center gap-2 border-b border-border-divider/30 pb-3">
-              <Calendar size={18} className="text-accent-gold" /> Upcoming Appointment
+              <Calendar size={18} className="text-text-secondary" /> Upcoming Appointment
             </h3>
 
             {bookings.length > 0 ? (
@@ -148,7 +148,7 @@ export default function ClientPage() {
                 return (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
                     <div className="space-y-3">
-                      <span className="px-2.5 py-1 rounded bg-accent-gold/10 text-accent-gold text-[9px] uppercase font-bold tracking-wider border border-accent-gold/25">
+                      <span className="px-2.5 py-1 rounded bg-surface-hover text-text-primary text-[9px] uppercase font-bold tracking-wider border border-border-divider">
                         {upcoming.service}
                       </span>
                       <h4 className="font-serif text-xl font-bold text-text-primary">Session 1: Intake & Alignment</h4>
@@ -160,13 +160,13 @@ export default function ClientPage() {
                     {/* Time Details Panel */}
                     <div className="bg-bg-elevated/40 p-4 rounded-2xl border border-border-divider/50 space-y-3 text-xs">
                       <div className="flex items-center gap-2 text-text-primary">
-                        <Calendar size={14} className="text-accent-gold" />
+                        <Calendar size={14} className="text-text-secondary" />
                         <span className="font-semibold">
                           {new Date(upcoming.date + "T12:00:00").toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-text-primary">
-                        <Clock size={14} className="text-accent-gold" />
+                        <Clock size={14} className="text-text-secondary" />
                         <span className="font-semibold">{upcoming.time} (GMT)</span>
                       </div>
 
@@ -175,7 +175,7 @@ export default function ClientPage() {
                           href="https://meet.google.com"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full py-2.5 bg-accent-gold hover:bg-accent-gold/90 text-bg-base text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer font-bold"
+                          className="w-full py-2.5 bg-surface-hover hover:bg-border-divider text-text-primary text-[10px] uppercase font-bold tracking-wider border border-border-divider rounded-lg transition-colors flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer"
                         >
                           <Video size={12} />
                           Join Google Meet
@@ -203,7 +203,7 @@ export default function ClientPage() {
           {/* Billing Log */}
           <div className="bg-surface rounded-[24px] p-6 border border-border-divider/60 shadow-xs space-y-4 text-left">
             <h3 className="font-serif text-lg font-bold text-text-primary flex items-center gap-2 border-b border-border-divider/30 pb-3">
-              <CreditCard size={18} className="text-accent-gold" /> Invoices & Receipts
+              <CreditCard size={18} className="text-text-secondary" /> Invoices & Receipts
             </h3>
  
             <div className="overflow-x-auto text-xs">
@@ -221,9 +221,9 @@ export default function ClientPage() {
                     <tr key={b.id}>
                       <td className="py-3 font-mono text-text-primary">{b.date}</td>
                       <td className="py-3 font-medium text-text-primary">{b.service} Setup fee</td>
-                      <td className="py-3 font-semibold text-accent-gold">{b.paid}</td>
+                      <td className="py-3 font-semibold text-text-primary">{b.paid}</td>
                       <td className="py-3 text-right">
-                        <button className="text-[10px] font-bold text-accent-blue hover:underline inline-flex items-center gap-1 cursor-pointer">
+                        <button className="text-[10px] font-bold text-text-secondary hover:text-text-primary hover:underline inline-flex items-center gap-1 cursor-pointer">
                           <Download size={10} /> PDF Receipt
                         </button>
                       </td>
@@ -246,7 +246,7 @@ export default function ClientPage() {
         <div className="space-y-6 text-left">
           <div className="bg-surface rounded-[24px] p-6 border border-border-divider/60 shadow-xs space-y-4">
             <h3 className="font-serif text-lg font-bold text-text-primary flex items-center gap-2 border-b border-border-divider/30 pb-3">
-              <FileText size={18} className="text-accent-gold" /> Diagnostic Library
+              <FileText size={18} className="text-text-secondary" /> Diagnostic Library
             </h3>
 
             <ul className="space-y-3 text-xs">
@@ -266,13 +266,13 @@ export default function ClientPage() {
               </li>
               <li className="flex items-center justify-between gap-2.5 p-2 rounded-xl hover:bg-bg-elevated/40 border border-transparent hover:border-border-divider/50 transition-all duration-300">
                 <div className="flex items-start gap-2.5">
-                  <FileText size={16} className="text-accent-gold shrink-0 mt-0.5" />
+                  <FileText size={16} className="text-text-secondary shrink-0 mt-0.5" />
                   <div>
                     <p className="font-bold text-text-primary">Habit Loops Tracking Sheet</p>
                     <p className="text-[10px] text-text-secondary/60">Download templates (1.2MB)</p>
                   </div>
                 </div>
-                <button className="p-1 rounded hover:bg-accent-gold/15 text-accent-gold cursor-pointer">
+                <button className="p-1 rounded hover:bg-surface-hover text-text-primary cursor-pointer">
                   <Download size={14} />
                 </button>
               </li>
@@ -282,11 +282,11 @@ export default function ClientPage() {
           {/* Need help support widget */}
           <div className="bg-surface rounded-[24px] p-5 border border-border-divider/60 text-text-primary space-y-3 relative overflow-hidden shadow-xs">
             <div className="absolute right-0 bottom-0 opacity-5 pointer-events-none transform translate-x-4 translate-y-4">
-              <HelpCircle size={100} className="text-accent-gold" />
+              <HelpCircle size={100} className="text-text-secondary/10" />
             </div>
             <h4 className="font-serif text-base font-bold text-text-primary">Confidential Support</h4>
             <p className="text-[11px] text-text-secondary leading-relaxed">
-              Have questions regarding scheduling thresholds or joint sessions? Contact Julius Thorne directly at <strong className="text-accent-gold font-semibold">julius@c2c.com</strong>.
+              Have questions regarding scheduling thresholds or joint sessions? Contact Julius Thorne directly at <strong className="text-text-primary font-semibold">julius@c2c.com</strong>.
             </p>
           </div>
         </div>

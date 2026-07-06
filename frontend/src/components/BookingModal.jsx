@@ -34,6 +34,13 @@ export default function BookingModal() {
     const fetchServices = async () => {
       try {
         const res = await fetch("/api/services");
+        if (!res.ok) {
+          throw new Error(`Services fetch returned status ${res.status}`);
+        }
+        const contentType = res.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Services fetch returned non-JSON content");
+        }
         const data = await res.json();
         if (data.success && data.services.length > 0) {
           const merged = packages.map(pkg => {
@@ -298,21 +305,21 @@ export default function BookingModal() {
               {step < 4 && (
                 <div className="flex items-center justify-between px-4 pb-2 border-b border-border-divider/30">
                   <div className="flex flex-col items-center">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${step >= 1 ? "bg-accent-gold text-bg-base" : "bg-surface text-text-secondary/40 border border-border-divider"}`}>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${step >= 1 ? "bg-text-primary text-bg-base" : "bg-surface text-text-secondary/40 border border-border-divider"}`}>
                       {step > 1 ? <Check size={12} /> : "1"}
                     </div>
                     <span className="text-[10px] mt-1 font-medium text-text-secondary">Confirm</span>
                   </div>
-                  <div className={`flex-1 h-0.5 mx-2 ${step > 1 ? "bg-accent-gold" : "bg-border-divider"}`} />
+                  <div className={`flex-1 h-0.5 mx-2 ${step > 1 ? "bg-text-primary" : "bg-border-divider"}`} />
                   <div className="flex flex-col items-center">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${step >= 2 ? "bg-accent-gold text-bg-base" : "bg-surface text-text-secondary/40 border border-border-divider"}`}>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${step >= 2 ? "bg-text-primary text-bg-base" : "bg-surface text-text-secondary/40 border border-border-divider"}`}>
                       {step > 2 ? <Check size={12} /> : "2"}
                     </div>
                     <span className="text-[10px] mt-1 font-medium text-text-secondary">Schedule</span>
                   </div>
-                  <div className={`flex-1 h-0.5 mx-2 ${step > 2 ? "bg-accent-gold" : "bg-border-divider"}`} />
+                  <div className={`flex-1 h-0.5 mx-2 ${step > 2 ? "bg-text-primary" : "bg-border-divider"}`} />
                   <div className="flex flex-col items-center">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${step >= 3 ? "bg-accent-gold text-bg-base" : "bg-surface text-text-secondary/40 border border-border-divider"}`}>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${step >= 3 ? "bg-text-primary text-bg-base" : "bg-surface text-text-secondary/40 border border-border-divider"}`}>
                       3
                     </div>
                     <span className="text-[10px] mt-1 font-medium text-text-secondary">Payment</span>
@@ -354,8 +361,8 @@ export default function BookingModal() {
                           onClick={() => setActivePackage(pkg)}
                           className={`flex items-center justify-between p-3.5 rounded-xl border text-left cursor-pointer transition-all duration-300 ${
                             activePackage.id === pkg.id
-                              ? "bg-surface border-accent-gold shadow-sm ring-1 ring-accent-gold"
-                              : "bg-surface/50 border-border-divider hover:border-accent-gold/40"
+                              ? "bg-surface border-text-primary shadow-sm ring-1 ring-text-primary/30"
+                              : "bg-surface/50 border-border-divider hover:border-text-primary/30"
                           }`}
                         >
                           <div>
@@ -363,7 +370,7 @@ export default function BookingModal() {
                             <p className="text-[10px] text-text-secondary mt-0.5">{pkg.duration} — {pkg.price}</p>
                           </div>
                           {activePackage.id === pkg.id && (
-                            <div className="w-5 h-5 rounded-full bg-accent-gold flex items-center justify-center text-bg-base">
+                            <div className="w-5 h-5 rounded-full bg-text-primary flex items-center justify-center text-bg-base">
                               <Check size={12} />
                             </div>
                           )}
@@ -408,8 +415,8 @@ export default function BookingModal() {
                             onClick={() => setSelectedDate(dt.value)}
                             className={`p-2 rounded-lg border text-center text-xs font-medium cursor-pointer transition-all duration-200 ${
                               selectedDate === dt.value
-                                ? "bg-accent-gold border-accent-gold text-bg-base shadow-xs"
-                                : "bg-bg-elevated border-border-divider hover:border-accent-gold/40 text-text-primary"
+                                ? "bg-text-primary border-text-primary text-bg-base shadow-xs"
+                                : "bg-bg-elevated border-border-divider hover:border-text-primary/30 text-text-primary"
                             }`}
                           >
                             {dt.label.split(',')[0]}
@@ -435,8 +442,8 @@ export default function BookingModal() {
                               onClick={() => setSelectedTime(tm)}
                               className={`py-2 px-3 rounded-lg border text-center text-xs cursor-pointer transition-all duration-200 ${
                                 selectedTime === tm
-                                  ? "bg-accent-gold border-accent-gold text-bg-base"
-                                  : "bg-bg-elevated border-border-divider hover:border-accent-gold/40 text-text-primary"
+                                  ? "bg-text-primary border-text-primary text-bg-base"
+                                  : "bg-bg-elevated border-border-divider hover:border-text-primary/30 text-text-primary"
                               }`}
                             >
                               {tm}
@@ -480,7 +487,7 @@ export default function BookingModal() {
 
                     <div className="border-t border-border-divider/50 pt-3 flex justify-between items-baseline">
                       <span className="text-xs text-text-secondary">Total Payable:</span>
-                      <span className="text-xl font-bold font-mono text-accent-gold">{activePackage.price}</span>
+                      <span className="text-xl font-bold font-mono text-text-primary">{activePackage.price}</span>
                     </div>
                   </div>
 
@@ -574,7 +581,7 @@ export default function BookingModal() {
 
                       {/* Simulation Panel */}
                       <div className="bg-bg-base/40 p-3 rounded-lg border border-border-divider flex items-start gap-2.5 text-xs text-text-secondary">
-                        <CreditCard size={16} className="text-accent-gold mt-0.5 shrink-0" />
+                        <CreditCard size={16} className="text-text-primary mt-0.5 shrink-0" />
                         <div>
                           <span className="font-bold text-text-primary">Simulation Mode:</span> Enter any mock credentials above to test. No transaction fees apply.
                         </div>

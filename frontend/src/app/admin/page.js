@@ -727,10 +727,10 @@ export default function AdminPage() {
                     { key: 'hero_subtitle', label: 'Hero Subtitle', placeholder: 'Strategic leadership coaching...', rows: 2 },
                     { key: 'founder_name', label: 'Founder Name', placeholder: 'Sarah Lin', rows: 1 },
                     { key: 'founder_bio', label: 'Founder Biography', placeholder: 'Founder profile bio...', rows: 4 },
-                    { key: 'track_record_years', label: 'Track Record: Experience', placeholder: '15+ Years Experience', rows: 1 },
-                    { key: 'track_record_leaders', label: 'Track Record: Leaders Coached', placeholder: '200+ Leaders Coached', rows: 1 },
-                    { key: 'track_record_retention', label: 'Track Record: Client Retention', placeholder: '94% Client Retention', rows: 1 },
-                    { key: 'track_record_success', label: 'Track Record: Transition Success', placeholder: '98% Transition Success', rows: 1 }
+                    { key: 'track_record_years', label: 'Track Record: Students Trained', placeholder: '5,000+', rows: 1 },
+                    { key: 'track_record_leaders', label: 'Track Record: Workshops Conducted', placeholder: '150+', rows: 1 },
+                    { key: 'track_record_retention', label: 'Track Record: Placement Success', placeholder: '95%', rows: 1 },
+                    { key: 'track_record_success', label: 'Track Record: Satisfaction Rate', placeholder: '99%', rows: 1 }
                   ].map((field) => (
                     <div key={field.key} className="space-y-1.5 text-left border-b border-border-divider/20 pb-4">
                       <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">{field.label}</label>

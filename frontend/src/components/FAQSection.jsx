@@ -45,10 +45,10 @@ export default function FAQSection() {
           >
             <button
               onClick={() => toggleFAQ(index)}
-              className="w-full flex items-center justify-between py-4 text-left font-serif text-base md:text-lg font-bold text-text-primary hover:text-accent-gold transition-colors duration-200 focus:outline-none cursor-pointer"
+              className="w-full flex items-center justify-between py-4 text-left font-serif text-base md:text-lg font-bold text-text-primary hover:text-text-primary transition-colors duration-200 focus:outline-none cursor-pointer"
             >
               <span>{faq.question}</span>
-              <span className="ml-4 flex-shrink-0 text-accent-gold">
+              <span className="ml-4 flex-shrink-0 text-text-secondary">
                 {isOpen ? (
                   <Minus size={18} className="stroke-[2.5]" />
                 ) : (
