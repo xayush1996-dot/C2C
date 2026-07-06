@@ -61,8 +61,6 @@ app.get('/api/health', (req, res) => {
     status: isDbConnected ? 'success' : 'error',
     message: isDbConnected ? 'System is healthy' : 'Database is unhealthy',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    memoryUsage: process.memoryUsage(),
     db: {
       state: dbStatusMap[dbState] || 'unknown',
       connected: isDbConnected

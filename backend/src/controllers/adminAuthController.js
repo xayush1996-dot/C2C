@@ -8,7 +8,7 @@ import Admin from '../models/Admin.js';
 import RefreshToken from '../models/RefreshToken.js';
 
 // Precomputed dummy bcrypt hash (hashed 'dummy_password' at salt cost 12)
-const DUMMY_HASH = '$2b$12$L.y.H3vV9y.0vP0XFf8Cve.8J8e5U5V9G1G1G1G1G1G1G1G1G1G1G';
+const DUMMY_HASH = '$2b$12$Rb1Jb9xghRcRbAitpmy3qOJlk3hj3o.yvrg8heoepdtexPJHh9YuK';
 
 // Access token generator
 const generateAccessToken = (admin) => {

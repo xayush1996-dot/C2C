@@ -156,7 +156,7 @@ export const handleCalendlyWebhook = async (req, res, next) => {
 
         // Update the booking details (handles rescheduled/created slot)
         const calendlyEventId = getEventIdFromUri(payload?.event);
-        const startTime = payload?.scheduled_event?.start_time || payload?.start_time || req.body.payload?.start_time;
+        const startTime = payload?.scheduled_event?.start_time || payload?.start_time;
 
         booking.status = 'CONFIRMED';
         booking.calendlyEventId = calendlyEventId;

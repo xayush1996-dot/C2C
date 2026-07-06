@@ -3,43 +3,58 @@ import Admin from '../models/Admin.js';
 import { logger } from '../config/logger.js';
 
 const seedAdmins = async () => {
+  // Block unsafe production execution
+  if (process.env.NODE_ENV === 'production') {
+    logger.error('Block execution: seedAdmin script is not allowed to run in production mode.');
+    process.exit(1);
+  }
+
+  const email = process.env.SEED_ADMIN_EMAIL;
+  const adminId = process.env.SEED_ADMIN_ID;
+  const password = process.env.SEED_ADMIN_PASSWORD;
+  const name = process.env.SEED_ADMIN_NAME || 'Development Administrator';
+
+  if (!email || !adminId || !password) {
+    logger.error('Exit safely: Required seed credentials (SEED_ADMIN_EMAIL, SEED_ADMIN_ID, SEED_ADMIN_PASSWORD) are missing.');
+    process.exit(1);
+  }
+
+  let success = false;
   try {
     // Open connection
     await connectDB();
 
-    // Reset admin collections to keep seed idempotent
-    await Admin.deleteMany({});
-    logger.info('Cleared existing Admin collections.');
-
-    // Seed Active Admin
-    const activeAdmin = new Admin({
-      email: 'admin@example.com',
-      adminId: 'admin01',
-      password: 'AdminPassword123',
-      name: 'Active Administrator',
-      isActive: true
+    // Prevent duplicate admin creation
+    const existingAdmin = await Admin.findOne({
+      $or: [{ email: email.trim().toLowerCase() }, { adminId: adminId.trim().toLowerCase() }]
     });
-    await activeAdmin.save();
-    logger.info('Seeded Active Admin: admin@example.com / admin01');
 
-    // Seed Disabled Admin
-    const disabledAdmin = new Admin({
-      email: 'disabled@example.com',
-      adminId: 'admin02',
-      password: 'AdminPassword123',
-      name: 'Deactivated Administrator',
-      isActive: false
-    });
-    await disabledAdmin.save();
-    logger.info('Seeded Disabled Admin: disabled@example.com / admin02');
+    if (existingAdmin) {
+      logger.info(`Admin with email ${email} or adminId ${adminId} already exists. Skipping creation.`);
+    } else {
+      // Seed Active Admin
+      const activeAdmin = new Admin({
+        email: email.trim().toLowerCase(),
+        adminId: adminId.trim().toLowerCase(),
+        password: password,
+        name: name,
+        isActive: true
+      });
+      await activeAdmin.save();
+      logger.info(`Seeded initial Admin account successfully: ${email} / ${adminId}`);
+    }
 
     await disconnectDB();
     logger.info('Seeding finished successfully.');
-    process.exit(0);
+    success = true;
   } catch (error) {
     logger.error(`Seeding operation failed: ${error.message}`);
     process.exit(1);
   }
+
+  if (success) {
+    process.exit(0);
+  }
 };
 
-seedAdmins();
+await seedAdmins();
