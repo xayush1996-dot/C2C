@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-base: var(--bg-base);
+  --color-bg-section: var(--bg-section);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-blue: var(--accent-blue);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border-divider: var(--border);
+
+  /* Legacy remappings to prevent dashboard/modal breaks */
+  --color-cream: var(--bg-base);
+  --color-charcoal: var(--text-primary);
+  --color-rust: var(--accent-gold);
+  
+  --font-serif: var(--font-manrope), ui-serif, Georgia, Cambria, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --bg-base: #F7F5EE;
+  --bg-section: #F2EFE6;
+  --bg-elevated: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-hover: #F0EDE4;
+  --accent-gold: #C9A96E;
+  --accent-blue: #4F62D6;
+  --text-primary: #1E1E1E;
+  --text-secondary: #555555;
+  --border: #E5E3DB;
+
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Premium Noise Overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.03;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Smooth scroll styling */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* offset for sticky header */
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: #D4D1C7;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
+}
+
+/* Custom focus ring defaults */
+*:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* Accessibility contrast overrides for light theme */
+.bg-accent-gold {
+  color: #1E1E1E !important;
+}
+
+/* Globals: Scale up smaller fonts slightly for better readability */
+html {
+  font-size: 18px;
+}
+
+/* Remap custom small sizes across the entire application */
+.text-\[9px\] {
+  font-size: 12px !important;
+}
+.text-\[10px\] {
+  font-size: 13px !important;
+}
+.text-\[11px\] {
+  font-size: 14px !important;
+}
+.text-xs {
+  font-size: 0.825rem !important;
+}
+.text-sm {
+  font-size: 0.95rem !important;
+}
+
+

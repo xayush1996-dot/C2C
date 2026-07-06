@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, X, Clock, Video, Volume2, Award, ArrowRight } from "lucide-react";
+import { Play, X, Clock, Video, Volume2, ArrowRight } from "lucide-react";
 
 const videos = [
   {
@@ -91,31 +91,7 @@ export default function VideoPlayer() {
         ))}
       </div>
 
-      {/* Graphic Banner Mockup */}
-      <div className="w-full bg-surface rounded-[24px] p-8 md:p-10 text-text-primary flex flex-col md:flex-row items-center justify-between border border-border-divider/60 relative overflow-hidden shadow-sm">
-        <div className="absolute right-0 top-0 opacity-5 pointer-events-none transform translate-x-12 -translate-y-12">
-          <Award size={200} className="text-text-secondary/10" />
-        </div>
-        
-        <div className="space-y-3 max-w-xl text-left">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
-            Complimentary Training Access
-          </span>
-          <h4 className="font-serif text-xl md:text-2xl font-bold leading-tight">
-            Unpacking Conflict Patterns in Leadership
-          </h4>
-          <p className="text-xs md:text-sm text-text-secondary leading-relaxed">
-            Get early access to our private 15-minute diagnostic toolkit covering corporate burnout and partnership structural fatigue.
-          </p>
-        </div>
 
-        <button
-          onClick={() => openPlayer({ title: "Unpacking Conflict Patterns in Leadership", duration: "15:00", category: "Leadership Masterclass" })}
-          className="mt-6 md:mt-0 px-6 py-3 bg-surface-hover hover:bg-border-divider border border-border-divider text-text-primary text-xs font-bold uppercase tracking-wider rounded-full shadow-md transition-all duration-300 cursor-pointer"
-        >
-          Claim Video Guide
-        </button>
-      </div>
 
       {/* Video Overlay Modal (Pop-up Player Simulation) */}
       <AnimatePresence>

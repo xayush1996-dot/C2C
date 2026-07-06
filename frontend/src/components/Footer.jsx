@@ -1,12 +1,11 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "react-router-dom";
 import { Sparkles, Shield, Scale, Grid } from "lucide-react";
 
 export default function Footer() {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
   const isAdmin = pathname?.startsWith("/admin");
 
   if (isAdmin) return null;
@@ -68,19 +67,19 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5">
               <li>
-                <Link href="/privacy" className="text-sm text-text-secondary hover:text-accent-gold transition-colors duration-200 inline-flex items-center gap-1.5">
+                <Link to="/privacy" className="text-sm text-text-secondary hover:text-accent-gold transition-colors duration-200 inline-flex items-center gap-1.5">
                   <Shield size={14} className="opacity-75 text-accent-gold" />
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-sm text-text-secondary hover:text-accent-gold transition-colors duration-200 inline-flex items-center gap-1.5">
+                <Link to="/terms" className="text-sm text-text-secondary hover:text-accent-gold transition-colors duration-200 inline-flex items-center gap-1.5">
                   <Scale size={14} className="opacity-75 text-accent-gold" />
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="/admin" className="text-sm text-text-secondary hover:text-accent-gold transition-colors duration-200 inline-flex items-center gap-1.5">
+                <Link to="/admin" className="text-sm text-text-secondary hover:text-accent-gold transition-colors duration-200 inline-flex items-center gap-1.5">
                   <Grid size={14} className="opacity-75 text-accent-gold" />
                   Admin Dashboard
                 </Link>
