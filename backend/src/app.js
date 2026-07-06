@@ -18,6 +18,10 @@ import calendlyWebhookRoute from './routes/calendlyWebhookRoute.js';
 import adminDashboardRoutes from './routes/adminDashboardRoutes.js';
 import adminCustomerRoutes from './routes/adminCustomerRoutes.js';
 import adminReportRoutes from './routes/adminReportRoutes.js';
+import contentRoutes from './routes/contentRoutes.js';
+import adminContentRoutes from './routes/adminContentRoutes.js';
+import servicesRoutes from './routes/servicesRoutes.js';
+import adminServiceRoutes from './routes/adminServiceRoutes.js';
 import { env } from './config/env.js';
 
 const app = express();
@@ -75,6 +79,8 @@ app.use('/api/me/payments', mePaymentRoutes);
 app.use('/api/me/bookings', meBookingRoutes);
 app.use('/api/enquiries', enquiriesRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/content', contentRoutes);
+app.use('/api/services', servicesRoutes);
 
 // Administrative API routes
 app.use('/api/admin/auth', adminAuthRoutes);
@@ -84,6 +90,8 @@ app.use('/api/admin/bookings', adminBookingRoutes);
 app.use('/api/admin/dashboard', adminDashboardRoutes);
 app.use('/api/admin/customers', adminCustomerRoutes);
 app.use('/api/admin/reports', adminReportRoutes);
+app.use('/api/admin/content', adminContentRoutes);
+app.use('/api/admin/services', adminServiceRoutes);
 
 // Webhook routes
 app.use('/api/webhooks/razorpay', razorpayWebhookRoute);

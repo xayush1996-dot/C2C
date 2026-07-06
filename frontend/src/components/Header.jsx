@@ -16,6 +16,7 @@ export default function Header() {
   // Authentication states
   const [isClientLoggedIn, setIsClientLoggedIn] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [clientName, setClientName] = useState("Client");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeHash, setActiveHash] = useState("#hero");
 
@@ -55,26 +56,66 @@ export default function Header() {
       return null;
     };
 
-    const clientAuth = getCookie("c2c_client_auth") === "true";
-    const adminAuth = getCookie("c2c_auth") === "true";
+    const clientAuth = getCookie("c2c_client_auth") === "true" || (typeof window !== "undefined" && localStorage.getItem("c2c_client_auth") === "true");
+    const adminAuth = getCookie("c2c_auth") === "true" || (typeof window !== "undefined" && localStorage.getItem("c2c_auth") === "true");
 
     setIsClientLoggedIn(clientAuth);
     setIsAdminLoggedIn(adminAuth);
     setDropdownOpen(false);
+
+    if (clientAuth && typeof window !== "undefined") {
+      const storedName = localStorage.getItem("c2c_client_name");
+      if (storedName) {
+        setClientName(storedName);
+      } else {
+        const token = localStorage.getItem("c2c_client_token");
+        if (token) {
+          fetch("/api/auth/me", {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "X-Requested-With": "XMLHttpRequest"
+            },
+            credentials: "include"
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && data.user && data.user.name) {
+              setClientName(data.user.name);
+              localStorage.setItem("c2c_client_name", data.user.name);
+            }
+          })
+          .catch(err => console.error("Error retrieving name from backend:", err));
+        }
+      }
+    }
   }, [pathname]);
 
   const handleHeaderLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      const token = localStorage.getItem("c2c_client_token") || localStorage.getItem("c2c_token");
+      const isClient = localStorage.getItem("c2c_client_token") !== null;
+      const endpoint = isClient ? "/api/auth/logout" : "/api/admin/auth/logout";
+      await fetch(endpoint, { 
+        method: "POST",
+        headers: {
+          "Authorization": token ? `Bearer ${token}` : "",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        credentials: "include"
+      });
     } catch (e) {
       console.error("Logout error", e);
     }
     if (typeof window !== "undefined") {
       localStorage.removeItem("c2c_auth");
       localStorage.removeItem("c2c_client_auth");
+      localStorage.removeItem("c2c_token");
+      localStorage.removeItem("c2c_client_token");
+      localStorage.removeItem("c2c_client_name");
     }
     setIsClientLoggedIn(false);
     setIsAdminLoggedIn(false);
+    setClientName("Client");
     setDropdownOpen(false);
     router.push("/login");
   };
@@ -143,7 +184,7 @@ export default function Header() {
                   <User size={15} />
                 </div>
                 <span className="text-xs font-semibold text-text-secondary group-hover:text-accent-gold transition-colors">
-                  {isAdminLoggedIn ? "Admin" : "Sarah"}
+                  {isAdminLoggedIn ? "Admin" : clientName}
                 </span>
                 <ChevronDown 
                   size={14} 

@@ -32,22 +32,44 @@ export default function ClientPage() {
       const authLocal = localStorage.getItem("c2c_client_auth");
       const authCookie = getCookie("c2c_client_auth");
 
-      if (authLocal === "true" || authCookie === "true") {
-        setAuthorized(true);
-      } else {
-        router.push("/login");
-      }
+      const checkAuth = async () => {
+        try {
+          const token = localStorage.getItem("c2c_client_token");
+          const res = await fetch("/api/auth/me", {
+            headers: {
+              "Authorization": token ? `Bearer ${token}` : "",
+              "X-Requested-With": "XMLHttpRequest"
+            },
+            credentials: "include"
+          });
+          const data = await res.json();
+          if (data.success) {
+            setAuthorized(true);
+          } else {
+            router.push("/login");
+          }
+        } catch (err) {
+          router.push("/login");
+        }
+      };
+      checkAuth();
     }
   }, [router]);
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await fetch("/api/bookings");
+        const token = localStorage.getItem("c2c_client_token");
+        const res = await fetch("/api/me/bookings", {
+          headers: {
+            "Authorization": token ? `Bearer ${token}` : "",
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          credentials: "include"
+        });
         const data = await res.json();
         if (data.success) {
-          // Filter to Sarah Lin's bookings
-          setBookings(data.bookings.filter(b => b.name === "Sarah Lin" || b.email === "client@example.com"));
+          setBookings(data.bookings);
         }
       } catch (err) {
         console.error("Error loading bookings:", err);
@@ -60,11 +82,20 @@ export default function ClientPage() {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      const token = localStorage.getItem("c2c_client_token");
+      await fetch("/api/auth/logout", { 
+        method: "POST",
+        headers: {
+          "Authorization": token ? `Bearer ${token}` : "",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        credentials: "include"
+      });
     } catch (e) {
       console.error("Logout error", e);
     }
     localStorage.removeItem("c2c_client_auth");
+    localStorage.removeItem("c2c_client_token");
     router.push("/login");
   };
 

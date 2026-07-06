@@ -6,14 +6,15 @@ import { X, Check, CreditCard, Calendar, Clock, Sparkles, AlertCircle } from "lu
 import { useBooking } from "@/context/BookingContext";
 
 const packages = [
-  { id: "start", name: "Start Where You Are", price: "$99", duration: "45 Mins", description: "An introductory session to map out your core roadblocks." },
-  { id: "clarity", name: "Clarity Call", price: "$149", duration: "60 Mins", description: "Deep-dive session focusing on resolving a specific transition or choice." },
-  { id: "reset", name: "Reset Programme", price: "$499", duration: "4 x 60 Mins", description: "Comprehensive coaching framework over 4 weeks to rebuild core routines." },
-  { id: "couples", name: "Couples' Conversations", price: "$249", duration: "90 Mins", description: "Mediated communication strategy session for alignment and resolution." }
+  { id: "start", name: "Start Where You Are", price: "₹99", duration: "45 Mins", description: "An introductory session to map out your core roadblocks." },
+  { id: "clarity", name: "Clarity Call", price: "₹149", duration: "60 Mins", description: "Deep-dive session focusing on resolving a specific transition or choice." },
+  { id: "reset", name: "Reset Programme", price: "₹499", duration: "4 x 60 Mins", description: "Comprehensive coaching framework over 4 weeks to rebuild core routines." },
+  { id: "couples", name: "Couples' Conversations", price: "₹249", duration: "90 Mins", description: "Mediated communication strategy session for alignment and resolution." }
 ];
 
 export default function BookingModal() {
   const { isBookingOpen, selectedPackage, closeBooking } = useBooking();
+  const [modalPackages, setModalPackages] = useState(packages);
   const [step, setStep] = useState(1); // 1: Package Confirm, 2: Payment Mock, 3: Calendly Mock, 4: Booked Success
   const [activePackage, setActivePackage] = useState(null);
   
@@ -27,15 +28,73 @@ export default function BookingModal() {
   // Calendar Booking Info
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+
+  // Fetch dynamic packages from database
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await fetch("/api/services");
+        const data = await res.json();
+        if (data.success && data.services.length > 0) {
+          const merged = packages.map(pkg => {
+            const dbMatch = data.services.find(s => s.code === pkg.id);
+            if (dbMatch) {
+              return {
+                ...pkg,
+                name: dbMatch.name,
+                price: `₹${dbMatch.price}`
+              };
+            }
+            return pkg;
+          });
+          setModalPackages(merged);
+        }
+      } catch (err) {
+        console.error("Failed to load services in BookingModal", err);
+      }
+    };
+    if (isBookingOpen) {
+      fetchServices();
+    }
+  }, [isBookingOpen]);
   
   useEffect(() => {
     if (selectedPackage) {
-      const pkg = packages.find(p => p.id === selectedPackage || p.name === selectedPackage);
-      setActivePackage(pkg || packages[0]);
+      const pkg = modalPackages.find(p => p.id === selectedPackage || p.name === selectedPackage);
+      setActivePackage(pkg || modalPackages[0]);
     } else {
-      setActivePackage(packages[0]);
+      setActivePackage(modalPackages[0]);
     }
-  }, [selectedPackage, isBookingOpen]);
+  }, [selectedPackage, isBookingOpen, modalPackages]);
+  
+  useEffect(() => {
+    if (isBookingOpen) {
+      const fetchUserProfile = async () => {
+        try {
+          const token = localStorage.getItem("c2c_client_token");
+          if (token) {
+            const res = await fetch("/api/auth/me", {
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "X-Requested-With": "XMLHttpRequest"
+              },
+              credentials: "include"
+            });
+            const data = await res.json();
+            if (data.success && data.user) {
+              setEmail(data.user.email || "");
+              if (data.user.phone) {
+                setPhone(data.user.phone);
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Failed to load user profile in modal", err);
+        }
+      };
+      fetchUserProfile();
+    }
+  }, [isBookingOpen]);
 
   // Reset states when closed
   const handleClose = () => {
@@ -58,45 +117,115 @@ export default function BookingModal() {
     setIsPaying(true);
     setPaymentStep(1);
 
-    // Progressive step-by-step Razorpay flow simulations
-    setTimeout(() => setPaymentStep(2), 1000);
-    setTimeout(() => setPaymentStep(3), 2000);
-    setTimeout(() => setPaymentStep(4), 3000);
-    setTimeout(() => setPaymentStep(5), 4000);
+    try {
+      let activeToken = localStorage.getItem("c2c_client_token");
+      
+      // Auto-authenticate client if they aren't logged in yet
+      if (!activeToken) {
+        // 1. Try registration
+        try {
+          await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: "Sarah Lin", email, phone, password: "clientpassword" })
+          });
+        } catch (err) {
+          // Already registered or error, proceed to login
+        }
 
-    setTimeout(async () => {
-      try {
-        const res = await fetch("/api/bookings", {
+        // 2. Perform login
+        const logRes = await fetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: "Sarah Lin",
-            email,
-            service: activePackage.name,
-            price: activePackage.price,
-            date: selectedDate,
-            time: selectedTime
-          })
+          body: JSON.stringify({ email, password: "clientpassword" })
         });
-        const data = await res.json();
-        if (data.success) {
-          setIsPaying(false);
-          setPaymentSuccess(true);
-          setPaymentStep(0);
-          setTimeout(() => {
-            setStep(4); // Go to booked success receipt
-          }, 1000);
+        const logData = await logRes.json();
+        if (logData.success) {
+          activeToken = logData.accessToken;
+          localStorage.setItem("c2c_client_token", logData.accessToken);
+          localStorage.setItem("c2c_client_auth", "true");
+          if (logData.user && logData.user.name) {
+            localStorage.setItem("c2c_client_name", logData.user.name);
+          }
         } else {
           setIsPaying(false);
           setPaymentStep(0);
-          alert("Error creating booking: " + data.error);
+          alert("Authentication failed: Please login manually before booking.");
+          return;
         }
-      } catch (err) {
+      }
+
+      // 3. Create Razorpay order on Express backend
+      const orderRes = await fetch("/api/payments/create-order", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${activeToken}`,
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        credentials: "include",
+        body: JSON.stringify({ serviceId: activePackage.id })
+      });
+      const orderData = await orderRes.json();
+
+      if (!orderData.success) {
         setIsPaying(false);
         setPaymentStep(0);
-        alert("Failed to connect to backend server.");
+        alert("Failed to initiate order: " + (orderData.error || "Server error."));
+        return;
       }
-    }, 5000);
+
+      const { orderId } = orderData;
+
+      // Progressive step-by-step Razorpay flow simulations
+      setTimeout(() => setPaymentStep(2), 1000);
+      setTimeout(() => setPaymentStep(3), 2000);
+      setTimeout(() => setPaymentStep(4), 3000);
+      setTimeout(() => setPaymentStep(5), 4000);
+
+      setTimeout(async () => {
+        try {
+          // 4. Verify payment via backend using our sandbox bypass signature
+          const mockPaymentId = "pay_mock_" + Math.random().toString(36).substring(7);
+          const verifyRes = await fetch("/api/payments/verify", {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${activeToken}`,
+              "X-Requested-With": "XMLHttpRequest"
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              razorpay_order_id: orderId,
+              razorpay_payment_id: mockPaymentId,
+              razorpay_signature: "sandbox_bypass_signature"
+            })
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyData.success) {
+            setIsPaying(false);
+            setPaymentSuccess(true);
+            setPaymentStep(0);
+            setTimeout(() => {
+              setStep(4); // Go to booked success receipt
+            }, 1000);
+          } else {
+            setIsPaying(false);
+            setPaymentStep(0);
+            alert("Payment verification failed: " + verifyData.error);
+          }
+        } catch (err) {
+          setIsPaying(false);
+          setPaymentStep(0);
+          alert("Failed to verify payment with backend.");
+        }
+      }, 5000);
+
+    } catch (err) {
+      setIsPaying(false);
+      setPaymentStep(0);
+      alert("Failed to connect to backend server.");
+    }
   };
 
   // Generate some mockup dates for calendar (next 5 weekdays)
@@ -219,7 +348,7 @@ export default function BookingModal() {
                   <div className="space-y-3 text-left">
                     <label className="text-xs font-bold uppercase tracking-wide text-text-secondary/60">Change selected package:</label>
                     <div className="grid grid-cols-1 gap-2">
-                      {packages.map((pkg) => (
+                      {modalPackages.map((pkg) => (
                         <button
                           key={pkg.id}
                           onClick={() => setActivePackage(pkg)}

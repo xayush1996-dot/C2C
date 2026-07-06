@@ -30,7 +30,31 @@ const seedAdmins = async () => {
     });
 
     if (existingAdmin) {
-      logger.info(`Admin with email ${email} or adminId ${adminId} already exists. Skipping creation.`);
+      const targetEmail = email.trim().toLowerCase();
+      if (existingAdmin.email !== targetEmail || (existingAdmin.name && existingAdmin.name !== name) || (existingAdmin.password && existingAdmin.password !== password)) {
+        if (typeof existingAdmin.save === 'function') {
+          existingAdmin.email = targetEmail;
+          existingAdmin.password = password;
+          existingAdmin.name = name;
+          existingAdmin.isActive = true;
+          await existingAdmin.save();
+        } else {
+          await Admin.updateOne(
+            { _id: existingAdmin._id },
+            {
+              $set: {
+                email: targetEmail,
+                password: password,
+                name: name,
+                isActive: true
+              }
+            }
+          );
+        }
+        logger.info(`Updated existing Admin account successfully: ${email} / ${adminId}`);
+      } else {
+        logger.info(`Admin with email ${email} or adminId ${adminId} already exists and is up to date. Skipping creation.`);
+      }
     } else {
       // Seed Active Admin
       const activeAdmin = new Admin({

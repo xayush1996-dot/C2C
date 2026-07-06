@@ -9,27 +9,35 @@ const seedServices = async () => {
     if (count === 0) {
       await Service.create([
         {
-          code: 'consulting-1h',
-          name: '1-Hour Consulting Call',
-          description: '1-Hour one-on-one consulting call with direct advisory.',
-          price: 5000,
-          calendlyUrl: 'https://calendly.com/consultant/1h',
+          code: 'start',
+          name: 'Start Where You Are',
+          description: 'An introductory session to map out your core roadblocks.',
+          price: 99,
+          calendlyUrl: 'https://calendly.com/consultant/start',
           isActive: true
         },
         {
-          code: 'advisory-startup',
-          name: 'Startup Advisory Session',
-          description: 'Strategic advisory session tailored for startup founders.',
-          price: 15000,
-          calendlyUrl: 'https://calendly.com/consultant/startup',
+          code: 'clarity',
+          name: 'Clarity Call',
+          description: 'Deep-dive session focusing on resolving a specific transition or choice.',
+          price: 149,
+          calendlyUrl: 'https://calendly.com/consultant/clarity',
           isActive: true
         },
         {
-          code: 'code-review',
-          name: 'Full Code Review Package',
-          description: 'Deep-dive security, architecture, and quality review of your codebase.',
-          price: 30000,
-          calendlyUrl: 'https://calendly.com/consultant/code-review',
+          code: 'reset',
+          name: 'Reset Programme',
+          description: 'Comprehensive coaching framework over 4 weeks to rebuild core routines.',
+          price: 499,
+          calendlyUrl: 'https://calendly.com/consultant/reset',
+          isActive: true
+        },
+        {
+          code: 'couples',
+          name: 'Couples\' Conversations',
+          description: 'Mediated communication strategy session for alignment and resolution.',
+          price: 249,
+          calendlyUrl: 'https://calendly.com/consultant/couples',
           isActive: true
         }
       ]);

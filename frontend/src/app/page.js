@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Check, 
@@ -54,7 +54,7 @@ const servicePackages = [
   {
     id: "start",
     name: "Start Where You Are",
-    price: "$99",
+    price: "₹99",
     duration: "45 Minutes",
     tagline: "Uncover core roadblocks and mapping templates.",
     features: [
@@ -68,7 +68,7 @@ const servicePackages = [
   {
     id: "clarity",
     name: "Clarity Call",
-    price: "$149",
+    price: "₹149",
     duration: "60 Minutes",
     tagline: "Deep-dive resolution of a single major transition.",
     features: [
@@ -82,7 +82,7 @@ const servicePackages = [
   {
     id: "reset",
     name: "Reset Programme",
-    price: "$499",
+    price: "₹499",
     duration: "4 Sessions (60 Mins ea.)",
     tagline: "Rebuild routines and patterns over 4 weeks.",
     features: [
@@ -96,7 +96,7 @@ const servicePackages = [
   {
     id: "couples",
     name: "Couples' Conversations",
-    price: "$249",
+    price: "₹249",
     duration: "90 Minutes",
     tagline: "Mediated communication strategy for shared alignment.",
     features: [
@@ -126,6 +126,55 @@ export default function HomePage() {
   const { openBooking } = useBooking();
   const [downloading, setDownloading] = useState(null);
 
+  // Dynamic CMS States
+  const [services, setServices] = useState(servicePackages);
+  const [content, setContent] = useState({
+    hero_title: "From Confusion to Clarity",
+    hero_subtitle: "Premium strategic coaching for high-impact leaders, founders, and couples navigating pivotal life transitions.",
+    founder_name: "Sarah Lin",
+    founder_bio: "A former corporate strategist turned high-performance coach, Sarah has spent the last 15 years guiding leaders through intense personal and professional pivots. Her methodology blends logical frameworks with deep emotional intelligence to help clients build long-term, sustainable life clarity.",
+    track_record_years: "15+ Years Experience",
+    track_record_leaders: "200+ Leaders Coached",
+    track_record_retention: "94% Client Retention",
+    track_record_success: "98% Transition Success"
+  });
+
+  useEffect(() => {
+    const fetchCMSData = async () => {
+      try {
+        const srvRes = await fetch("/api/services");
+        const srvData = await srvRes.json();
+        if (srvData.success && srvData.services.length > 0) {
+          const merged = servicePackages.map(pkg => {
+            const dbMatch = srvData.services.find(s => s.code === pkg.id);
+            if (dbMatch) {
+              return {
+                ...pkg,
+                name: dbMatch.name,
+                price: `₹${dbMatch.price}`,
+                tagline: dbMatch.description
+              };
+            }
+            return pkg;
+          });
+          setServices(merged);
+        }
+
+        const contentRes = await fetch("/api/content");
+        const contentData = await contentRes.json();
+        if (contentData.success && Object.keys(contentData.content).length > 0) {
+          setContent(prev => ({
+            ...prev,
+            ...contentData.content
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to load CMS data:", err);
+      }
+    };
+    fetchCMSData();
+  }, []);
+
   const triggerDownload = (resourceId) => {
     setDownloading(resourceId);
     setTimeout(() => {
@@ -152,8 +201,7 @@ export default function HomePage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="font-serif text-4xl sm:text-5xl md:text-6xl font-extrabold text-text-primary leading-[1.15] tracking-tight"
             >
-              Transforming Potential <br />
-              into <span className="text-accent-gold font-serif italic font-normal">Peak Performance</span>.
+              {content.hero_title}
             </motion.h1>
 
             <motion.p
@@ -162,7 +210,7 @@ export default function HomePage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-base sm:text-lg text-text-secondary leading-relaxed max-w-xl font-medium"
             >
-              We provide professional training in Emotional Intelligence (EQ), Soft Skills, Public Speaking, Leadership, Personality Development, Career Readiness, Interview Preparation, Communication Skills, and 1-on-1 Private Coaching to help students and young professionals achieve long-term success.
+              {content.hero_subtitle}
             </motion.p>
 
             <motion.div
@@ -228,20 +276,20 @@ export default function HomePage() {
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 relative z-10 text-center">
             <div className="space-y-1">
-              <h3 className="font-serif text-3xl md:text-5xl font-extrabold text-accent-gold">5,000+</h3>
-              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Students Trained</p>
+              <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-extrabold text-accent-gold">{content.track_record_years}</h3>
+              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Global Expertise</p>
             </div>
             <div className="space-y-1">
-              <h3 className="font-serif text-3xl md:text-5xl font-extrabold text-accent-gold">150+</h3>
-              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Workshops Conducted</p>
+              <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-extrabold text-accent-gold">{content.track_record_leaders}</h3>
+              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Leaders Coached</p>
             </div>
             <div className="space-y-1">
-              <h3 className="font-serif text-3xl md:text-5xl font-extrabold text-accent-gold">95%</h3>
-              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Placement Success</p>
+              <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-extrabold text-accent-gold">{content.track_record_retention}</h3>
+              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Client Retention</p>
             </div>
             <div className="space-y-1">
-              <h3 className="font-serif text-3xl md:text-5xl font-extrabold text-accent-gold">99%</h3>
-              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Satisfaction Rate</p>
+              <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-extrabold text-accent-gold">{content.track_record_success}</h3>
+              <p className="text-[10px] uppercase font-bold text-text-secondary tracking-widest">Transition Success</p>
             </div>
           </div>
         </div>
@@ -264,11 +312,62 @@ export default function HomePage() {
         <VideoPlayer />
       </section>
 
-      {/* 04. OUR SERVICES */}
+      {/* 04. FOUNDER PROFILE */}
+      <section id="founder" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Left: Founder Avatar / Editorial Graphic */}
+          <div className="lg:col-span-5 relative group">
+            <div className="aspect-[4/5] bg-surface rounded-[24px] overflow-hidden border border-border-divider/60 shadow-xs relative flex items-center justify-center p-8">
+              {/* Premium Background styling / glow */}
+              <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-transparent to-transparent opacity-60 z-10" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-accent-gold/10 rounded-full blur-[80px] pointer-events-none" />
+              
+              <div className="relative z-20 text-center space-y-4">
+                <div className="w-32 h-32 rounded-full border border-accent-gold/40 mx-auto overflow-hidden bg-bg-elevated flex items-center justify-center">
+                  <User size={64} className="text-accent-gold" />
+                </div>
+                <div>
+                  <h4 className="font-serif text-lg font-bold text-text-primary">{content.founder_name}</h4>
+                  <p className="text-[10px] text-accent-gold uppercase tracking-widest font-bold mt-1">Founder & Executive Coach</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Biography Narrative */}
+          <div className="lg:col-span-7 space-y-6 text-left">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-accent-gold block mb-2">
+                04. FOUNDER PROFILE
+              </span>
+              <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary leading-tight">
+                Meet {content.founder_name}
+              </h2>
+            </div>
+
+            <p className="text-sm text-text-secondary leading-relaxed font-medium whitespace-pre-line">
+              {content.founder_bio}
+            </p>
+
+            <div className="pt-4 border-t border-border-divider/50 grid grid-cols-2 gap-4">
+              <div>
+                <h5 className="font-serif text-xs font-bold text-text-primary uppercase tracking-wider">Methodology</h5>
+                <p className="text-[10px] text-text-secondary mt-1 font-medium">Logical coaching frameworks integrated with emotional resilience audits.</p>
+              </div>
+              <div>
+                <h5 className="font-serif text-xs font-bold text-text-primary uppercase tracking-wider">Focus Focus</h5>
+                <p className="text-[10px] text-text-secondary mt-1 font-medium">High-impact leaders, startup founders, and high-performance corporate teams.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 05. OUR SERVICES */}
       <section id="services" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
-            04. PROGRAM PORTFOLIO
+            05. PROGRAM PORTFOLIO
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
             Our Programs & Services
@@ -314,7 +413,7 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* 05. WHY CHOOSE US */}
+      {/* 06. WHY CHOOSE US */}
       <section id="why-choose-us" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
@@ -322,7 +421,7 @@ export default function HomePage() {
           <div className="lg:col-span-6 space-y-6 text-left">
             <div>
               <span className="text-xs font-bold uppercase tracking-widest text-accent-gold block mb-2">
-                05. THE COMPETITIVE ADVANTAGE
+                06. THE COMPETITIVE ADVANTAGE
               </span>
               <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary leading-tight">
                 Why Choose Our Training Framework?
@@ -397,12 +496,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 06. LEARNING JOURNEY */}
+      {/* 07. LEARNING JOURNEY */}
       <section id="learning-journey" className="bg-bg-section border-y border-border-divider/50 py-20 px-6 md:px-12 scroll-mt-20">
         <div className="max-w-7xl mx-auto space-y-16">
           <div className="text-center max-w-2xl mx-auto space-y-4">
             <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
-              06. ROADMAP TO PERFORMANCE
+              07. ROADMAP TO PERFORMANCE
             </span>
             <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
               The Learning Journey
@@ -437,11 +536,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 07. TESTIMONIALS */}
+      {/* 08. TESTIMONIALS */}
       <section id="testimonials" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
-            07. SUCCESS STORIES
+            08. SUCCESS STORIES
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
             What Our Alumni Say
@@ -455,11 +554,11 @@ export default function HomePage() {
         <TestimonialCarousel />
       </section>
 
-      {/* 08. UPCOMING WORKSHOPS */}
+      {/* 09. UPCOMING WORKSHOPS */}
       <section id="workshops" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
-            08. ACTIVE COHORTS
+            09. ACTIVE COHORTS
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
             Upcoming Workshops & Webinars
@@ -510,11 +609,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 09. CAREER RESOURCES */}
+      {/* 10. CAREER RESOURCES */}
       <section id="resources" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
-            09. TRAINING DOWNLOADS
+            10. TRAINING DOWNLOADS
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
             Career Resources & Guides
@@ -559,11 +658,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 10. CHOOSE YOUR FRAMEWORK (PRICING) */}
+      {/* 11. CHOOSE YOUR FRAMEWORK (PRICING) */}
       <section id="pricing" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
-            10. DIRECT BOOKING
+            11. DIRECT BOOKING
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
             Choose Your Framework
@@ -581,7 +680,7 @@ export default function HomePage() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          {servicePackages.map((pkg) => (
+          {services.map((pkg) => (
             <motion.div
               key={pkg.id}
               variants={fadeInUp}
@@ -645,11 +744,11 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* 11. FAQ SECTION */}
+      {/* 12. FAQ SECTION */}
       <section id="faq" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-accent-gold">
-            11. FREQUENTLY ASKED QUESTIONS
+            12. FREQUENTLY ASKED QUESTIONS
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
             Questions & Answers
