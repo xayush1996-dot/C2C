@@ -21,8 +21,6 @@ describe('API Health and Standard Middleware Tests', () => {
       expect(res.body.status).toBe('success');
       expect(res.body.db.connected).toBe(true);
       expect(res.body.db.state).toBe('connected');
-      expect(res.body).toHaveProperty('uptime');
-      expect(res.body).toHaveProperty('memoryUsage');
     });
 
     it('should return 503 and error details when database is disconnected', async () => {

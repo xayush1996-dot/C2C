@@ -264,6 +264,7 @@ describe('Admin Dashboard, Customers & Reports API Tests', () => {
     it('should return PDF stream for customers report with correct response headers', async () => {
       jest.spyOn(Admin, 'findById').mockResolvedValue(mockAdminUser);
       jest.spyOn(User, 'find').mockReturnValue({
+        select: jest.fn().mockReturnThis(),
         sort: jest.fn().mockReturnThis(),
         limit: jest.fn().mockResolvedValue([])
       });

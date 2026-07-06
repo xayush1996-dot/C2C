@@ -9,14 +9,15 @@ import User from '../models/User.js';
 import UserRefreshToken from '../models/UserRefreshToken.js';
 
 // Precomputed dummy bcrypt hash (hashed 'dummy_password' at salt cost 12)
-const DUMMY_HASH = '$2b$12$L.y.H3vV9y.0vP0XFf8Cve.8J8e5U5V9G1G1G1G1G1G1G1G1G1G1G';
+const DUMMY_HASH = '$2b$12$Rb1Jb9xghRcRbAitpmy3qOJlk3hj3o.yvrg8heoepdtexPJHh9YuK';
 
 const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
 
 // Verify Google ID token
 const verifyGoogleToken = async (idToken) => {
   // Support mocking for test environments
-  if (env.NODE_ENV === 'test' && idToken.startsWith('mock_google_token_')) {
+  const isTestWorker = env.NODE_ENV === 'test' && process.env.JEST_WORKER_ID;
+  if (isTestWorker && idToken.startsWith('mock_google_token_')) {
     const parts = idToken.split('_');
     const email = parts[3] || 'googleuser@example.com';
     const sub = parts[4] || '123456789012345678901';
@@ -421,7 +422,8 @@ export const forgotPassword = async (req, res, next) => {
     };
 
     // Return the token in test mode so test assertions can capture it
-    if (env.NODE_ENV === 'test') {
+    const isTestWorker = env.NODE_ENV === 'test' && process.env.JEST_WORKER_ID;
+    if (isTestWorker) {
       response.resetToken = resetToken;
     }
 

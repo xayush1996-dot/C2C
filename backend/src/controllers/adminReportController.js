@@ -171,7 +171,7 @@ export const getCustomersReport = async (req, res, next) => {
 
     query.role = 'CUSTOMER';
 
-    const customers = await User.find(query).sort({ createdAt: -1 }).limit(5000);
+    const customers = await User.find(query).select('name email createdAt').sort({ createdAt: -1 }).limit(5000);
 
     const columns = [
       { header: 'Registered', x: 50, width: 80, valueGetter: (r) => new Date(r.createdAt).toLocaleDateString() },
