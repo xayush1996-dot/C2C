@@ -18,6 +18,7 @@ import {
 export default function ClientPage() {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
+  const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -39,9 +40,31 @@ export default function ClientPage() {
     }
   }, [router]);
 
-  const handleLogout = () => {
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const res = await fetch("/api/bookings");
+        const data = await res.json();
+        if (data.success) {
+          // Filter to Sarah Lin's bookings
+          setBookings(data.bookings.filter(b => b.name === "Sarah Lin" || b.email === "client@example.com"));
+        }
+      } catch (err) {
+        console.error("Error loading bookings:", err);
+      }
+    };
+    if (authorized) {
+      fetchBookings();
+    }
+  }, [authorized]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Logout error", e);
+    }
     localStorage.removeItem("c2c_client_auth");
-    document.cookie = "c2c_client_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
     router.push("/login");
   };
 
@@ -88,47 +111,70 @@ export default function ClientPage() {
               <Calendar size={18} className="text-rust" /> Upcoming Appointment
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
-              <div className="space-y-3">
-                <span className="px-2.5 py-1 rounded bg-rust/10 text-rust text-[9px] uppercase font-bold tracking-wider">
-                  Clarity Call
-                </span>
-                <h4 className="font-serif text-xl font-bold text-charcoal">Session 1: Intake & Alignment</h4>
-                <p className="text-xs text-charcoal/60 leading-relaxed">
-                  Focusing on mapping out executive barriers and designing boundaries around your product pivot.
-                </p>
-              </div>
+            {bookings.length > 0 ? (
+              (() => {
+                const upcoming = bookings[bookings.length - 1];
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                    <div className="space-y-3">
+                      <span className="px-2.5 py-1 rounded bg-rust/10 text-rust text-[9px] uppercase font-bold tracking-wider">
+                        {upcoming.service}
+                      </span>
+                      <h4 className="font-serif text-xl font-bold text-charcoal">Session 1: Intake & Alignment</h4>
+                      <p className="text-xs text-charcoal/60 leading-relaxed">
+                        Focusing on mapping out executive barriers and designing boundaries around your product pivot.
+                      </p>
+                    </div>
 
-              {/* Time Details Panel */}
-              <div className="bg-cream/40 p-4 rounded-2xl border border-rust/5 space-y-3 text-xs">
-                <div className="flex items-center gap-2 text-charcoal/80">
-                  <Calendar size={14} className="text-rust" />
-                  <span className="font-semibold">Wednesday, July 8, 2026</span>
-                </div>
-                <div className="flex items-center gap-2 text-charcoal/80">
-                  <Clock size={14} className="text-rust" />
-                  <span className="font-semibold">01:00 PM — 02:00 PM (GMT)</span>
-                </div>
+                    {/* Time Details Panel */}
+                    <div className="bg-cream/40 p-4 rounded-2xl border border-rust/5 space-y-3 text-xs">
+                      <div className="flex items-center gap-2 text-charcoal/80">
+                        <Calendar size={14} className="text-rust" />
+                        <span className="font-semibold">
+                          {new Date(upcoming.date + "T12:00:00").toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-charcoal/80">
+                        <Clock size={14} className="text-rust" />
+                        <span className="font-semibold">{upcoming.time} (GMT)</span>
+                      </div>
 
-                <a
-                  href="https://meet.google.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 bg-rust hover:bg-charcoal text-cream text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5 focus:outline-none"
-                >
-                  <Video size={12} />
-                  Join Google Meet
-                </a>
+                      {upcoming.meetActive ? (
+                        <a
+                          href="https://meet.google.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-2.5 bg-rust hover:bg-charcoal text-cream text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5 focus:outline-none"
+                        >
+                          <Video size={12} />
+                          Join Google Meet
+                        </a>
+                      ) : (
+                        <button
+                          disabled
+                          className="w-full py-2.5 bg-charcoal/10 text-charcoal/40 text-[10px] uppercase font-bold tracking-wider rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed"
+                        >
+                          <Video size={12} />
+                          Meet Link Disabled
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()
+            ) : (
+              <div className="text-center py-8 text-charcoal/40 text-xs">
+                No upcoming sessions scheduled.
               </div>
-            </div>
+            )}
           </div>
-
+ 
           {/* Billing Log */}
           <div className="bg-white rounded-3xl p-6 border border-rust/10 shadow-xs space-y-4">
             <h3 className="font-serif text-lg font-bold text-charcoal flex items-center gap-2 border-b border-rust/5 pb-3">
               <CreditCard size={18} className="text-rust" /> Invoices & Receipts
             </h3>
-
+ 
             <div className="overflow-x-auto text-xs">
               <table className="w-full text-left">
                 <thead>
@@ -140,16 +186,25 @@ export default function ClientPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-rust/5 text-charcoal/80">
-                  <tr>
-                    <td className="py-3 font-mono">2026-07-05</td>
-                    <td className="py-3 font-medium">Clarity Call Setup fee</td>
-                    <td className="py-3 font-semibold">$149.00</td>
-                    <td className="py-3 text-right">
-                      <button className="text-[10px] font-bold text-rust hover:underline inline-flex items-center gap-1 cursor-pointer">
-                        <Download size={10} /> PDF Receipt
-                      </button>
-                    </td>
-                  </tr>
+                  {bookings.map((b) => (
+                    <tr key={b.id}>
+                      <td className="py-3 font-mono">{b.date}</td>
+                      <td className="py-3 font-medium">{b.service} Setup fee</td>
+                      <td className="py-3 font-semibold">{b.paid}</td>
+                      <td className="py-3 text-right">
+                        <button className="text-[10px] font-bold text-rust hover:underline inline-flex items-center gap-1 cursor-pointer">
+                          <Download size={10} /> PDF Receipt
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {bookings.length === 0 && (
+                    <tr>
+                      <td colSpan="4" className="py-6 text-center text-charcoal/40">
+                        No transactions recorded.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

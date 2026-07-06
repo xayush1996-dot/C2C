@@ -51,14 +51,15 @@ export default function Header() {
     setDropdownOpen(false);
   }, [pathname]);
 
-  const handleHeaderLogout = () => {
+  const handleHeaderLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Logout error", e);
+    }
     if (typeof window !== "undefined") {
       localStorage.removeItem("c2c_auth");
       localStorage.removeItem("c2c_client_auth");
-      
-      // Expire auth cookies
-      document.cookie = "c2c_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
-      document.cookie = "c2c_client_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
     }
     setIsClientLoggedIn(false);
     setIsAdminLoggedIn(false);

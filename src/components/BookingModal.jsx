@@ -50,17 +50,40 @@ export default function BookingModal() {
     }, 300);
   };
 
-  const startPayment = (e) => {
+  const startPayment = async (e) => {
     e.preventDefault();
     if (!email || !phone) return;
     setIsPaying(true);
     // Simulate Razorpay Gateway processing
-    setTimeout(() => {
-      setIsPaying(false);
-      setPaymentSuccess(true);
-      setTimeout(() => {
-        setStep(4); // Go to booked success receipt
-      }, 1000);
+    setTimeout(async () => {
+      try {
+        const res = await fetch("/api/bookings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: "Sarah Lin",
+            email,
+            service: activePackage.name,
+            price: activePackage.price,
+            date: selectedDate,
+            time: selectedTime
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          setIsPaying(false);
+          setPaymentSuccess(true);
+          setTimeout(() => {
+            setStep(4); // Go to booked success receipt
+          }, 1000);
+        } else {
+          setIsPaying(false);
+          alert("Error creating booking: " + data.error);
+        }
+      } catch (err) {
+        setIsPaying(false);
+        alert("Failed to connect to backend server.");
+      }
     }, 2000);
   };
 

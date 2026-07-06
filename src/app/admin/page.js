@@ -60,8 +60,31 @@ export default function AdminPage() {
   }, [router]);
 
   const [activeTab, setActiveTab] = useState("overview"); // overview, enquiries, ledger, reports
-  const [enquiries, setEnquiries] = useState(initialEnquiries);
-  const [transactions, setTransactions] = useState(initialTransactions);
+  const [enquiries, setEnquiries] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const bookingsRes = await fetch("/api/bookings");
+        const bookingsData = await bookingsRes.json();
+        if (bookingsData.success) {
+          setTransactions(bookingsData.bookings);
+        }
+
+        const enquiriesRes = await fetch("/api/enquiries");
+        const enquiriesData = await enquiriesRes.json();
+        if (enquiriesData.success) {
+          setEnquiries(enquiriesData.enquiries);
+        }
+      } catch (err) {
+        console.error("Error loading data from API:", err);
+      }
+    };
+    if (authorized) {
+      fetchData();
+    }
+  }, [authorized]);
   
   // Search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -76,25 +99,53 @@ export default function AdminPage() {
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   // Toggle Google Meet Link status
-  const toggleMeetLink = (id) => {
-    setTransactions(
-      transactions.map((tx) =>
-        tx.id === id ? { ...tx, meetActive: !tx.meetActive } : tx
-      )
-    );
+  const toggleMeetLink = async (id) => {
+    const transaction = transactions.find(t => t.id === id);
+    if (!transaction) return;
+    const newStatus = !transaction.meetActive;
+
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, meetActive: newStatus })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTransactions(
+          transactions.map((tx) =>
+            tx.id === id ? { ...tx, meetActive: newStatus } : tx
+          )
+        );
+      }
+    } catch (e) {
+      console.error("Failed to update meet status", e);
+    }
   };
 
   // Toggle Enquiry Status
-  const toggleEnquiryStatus = (id) => {
-    setEnquiries(
-      enquiries.map((enq) => {
-        if (enq.id === id) {
-          const nextStatus = enq.status === "New" ? "Read" : enq.status === "Read" ? "Replied" : "New";
-          return { ...enq, status: nextStatus };
-        }
-        return enq;
-      })
-    );
+  const toggleEnquiryStatus = async (id) => {
+    const enquiry = enquiries.find(e => e.id === id);
+    if (!enquiry) return;
+    const nextStatus = enquiry.status === "New" ? "Read" : enquiry.status === "Read" ? "Replied" : "New";
+
+    try {
+      const res = await fetch("/api/enquiries", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: nextStatus })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEnquiries(
+          enquiries.map((enq) =>
+            enq.id === id ? { ...enq, status: nextStatus } : enq
+          )
+        );
+      }
+    } catch (e) {
+      console.error("Failed to update enquiry status", e);
+    }
   };
 
   // Simulate report download

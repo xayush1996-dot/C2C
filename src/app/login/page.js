@@ -32,34 +32,34 @@ export default function LoginPage() {
     setError("");
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    setTimeout(() => {
-      if (activeTab === "client") {
-        // Client Credentials: client@example.com / clientpassword
-        if (email.toLowerCase() === "client@example.com" && password === "clientpassword") {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, activeTab })
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (activeTab === "client") {
           localStorage.setItem("c2c_client_auth", "true");
-          document.cookie = "c2c_client_auth=true; path=/; max-age=86400; SameSite=Lax";
           router.push("/");
         } else {
-          setLoading(false);
-          setError("Invalid client credentials. Please try again.");
+          localStorage.setItem("c2c_auth", "true");
+          router.push("/");
         }
       } else {
-        // Admin Credentials: admin@c2c.com / clarity2026
-        if (email.toLowerCase() === "admin@c2c.com" && password === "clarity2026") {
-          localStorage.setItem("c2c_auth", "true");
-          document.cookie = "c2c_auth=true; path=/; max-age=86400; SameSite=Lax";
-          router.push("/");
-        } else {
-          setLoading(false);
-          setError("Invalid admin credentials. Please try again.");
-        }
+        setLoading(false);
+        setError(data.error || "Invalid credentials. Please try again.");
       }
-    }, 1200);
+    } catch (err) {
+      setLoading(false);
+      setError("An error occurred during authentication.");
+    }
   };
 
   const handleQuickLogin = () => {
