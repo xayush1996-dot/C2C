@@ -39,14 +39,14 @@ app.use(corsMiddleware);
 
 // Restrict incoming payload sizes to prevent DoS attacks, preserving raw body buffer for webhook signature checks
 app.use(express.json({
-  limit: '10kb',
+  limit: '2mb',
   verify: (req, res, buf) => {
     if (req.originalUrl.startsWith('/api/webhooks/')) {
       req.rawBody = buf;
     }
   }
 }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
 // Health Check route
 app.get('/api/health', (req, res) => {

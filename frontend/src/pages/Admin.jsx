@@ -316,6 +316,45 @@ export default function AdminPage() {
     }
   };
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 400;
+        const MAX_HEIGHT = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // compress as webp
+        const dataUrl = canvas.toDataURL('image/webp', 0.8);
+        setCmsContent({ ...cmsContent, founder_image: dataUrl });
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Toggle Google Meet Link status (simulated locally because the Express backend does not support manual updates)
   const toggleMeetLink = async (id) => {
     setTransactions(
@@ -948,6 +987,7 @@ export default function AdminPage() {
                     { key: 'hero_title', label: 'Hero Title', placeholder: 'Confusion to Clarity', rows: 1 },
                     { key: 'hero_subtitle', label: 'Hero Subtitle', placeholder: 'A scientific, 1-on-1 mentorship platform...', rows: 2 },
                     { key: 'founder_name', label: 'Founder Name', placeholder: 'Lead EQ Coach & Mentor', rows: 1 },
+                    { key: 'founder_role', label: 'Founder Role', placeholder: 'Chief Trainer, Confusion to Clarity', rows: 1 },
                     { key: 'founder_bio', label: 'Founder Biography', placeholder: 'Specializing in emotional regulation...', rows: 4 },
                     { key: 'track_record_years', label: 'Track Record: Students Advised Globally', placeholder: '10,000+', rows: 1 },
                     { key: 'track_record_success', label: 'Track Record: Admission Success Rate', placeholder: '98%', rows: 1 },
@@ -982,9 +1022,35 @@ export default function AdminPage() {
                       </div>
                     </div>
                   ))}
+                    
+                    {/* Founder Image Upload */}
+                    <div className="space-y-1.5 text-left border-b border-border-divider/20 pb-4">
+                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Founder Profile Image</label>
+                      <div className="flex gap-4 items-start">
+                        <div className="flex-1 flex items-center gap-4">
+                          {cmsContent.founder_image && (
+                            <img src={cmsContent.founder_image} alt="Preview" className="w-12 h-12 rounded-full object-cover border border-border-divider" />
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="text-xs file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-accent-gold/20 file:text-accent-gold hover:file:bg-accent-gold hover:file:text-bg-base cursor-pointer"
+                          />
+                        </div>
+                        <button
+                          onClick={() => handleSaveContent('founder_image', cmsContent.founder_image)}
+                          disabled={cmsSaving || !cmsContent.founder_image}
+                          className="px-4 py-2.5 bg-accent-gold/20 hover:bg-accent-gold text-accent-gold hover:text-bg-base font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                        >
+                          Save Image
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Sub-tab 2: Services & Pricing */}
             {cmsSubTab === "services" && (

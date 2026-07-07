@@ -732,17 +732,21 @@ export default function HomePage() {
               
               {/* Left: Founder Avatar */}
               <div className="lg:col-span-5 flex flex-col items-center justify-center text-center">
-                <div className="w-44 h-44 rounded-full bg-[#EAE7DD] border border-border-divider/30 flex items-center justify-center shadow-xs">
-                  <span className="font-sans text-5xl font-extrabold tracking-wide text-accent-gold select-none font-sans">
-                    {getInitials(cmsContent.founder_name)}
-                  </span>
+                <div className="w-44 h-44 rounded-full bg-[#EAE7DD] border border-border-divider/30 flex items-center justify-center shadow-xs overflow-hidden">
+                  {cmsContent.founder_image ? (
+                    <img src={cmsContent.founder_image} alt={cmsContent.founder_name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="font-sans text-5xl font-extrabold tracking-wide text-accent-gold select-none font-sans">
+                      {getInitials(cmsContent.founder_name)}
+                    </span>
+                  )}
                 </div>
                 <div className="mt-6 space-y-1">
                   <h4 className="font-sans text-xl font-bold text-text-primary">
                     {cmsContent.founder_name || "Lead EQ Coach & Mentor"}
                   </h4>
                   <p className="text-xs text-text-secondary/80 font-semibold tracking-wide">
-                    Chief Trainer, Confusion to Clarity
+                    {cmsContent.founder_role || "Chief Trainer, Confusion to Clarity"}
                   </p>
                 </div>
               </div>
