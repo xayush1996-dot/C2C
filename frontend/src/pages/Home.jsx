@@ -743,7 +743,7 @@ export default function HomePage() {
                 </div>
                 <div className="mt-6 space-y-1">
                   <h4 className="font-sans text-xl font-bold text-text-primary">
-                    {cmsContent.founder_name || "Lead EQ Coach & Mentor"}
+                    {cmsContent.founder_name || "Mohnish Pattwarri"}
                   </h4>
                   <p className="text-xs text-text-secondary/80 font-semibold tracking-wide">
                     {cmsContent.founder_role || "Chief Trainer, Confusion to Clarity"}

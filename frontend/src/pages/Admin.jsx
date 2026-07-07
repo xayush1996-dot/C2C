@@ -212,7 +212,7 @@ export default function AdminPage() {
         setCmsContent({
           hero_title: "Confusion to Clarity",
           hero_subtitle: "A scientific, 1-on-1 mentorship platform assisting students and professionals in mapping cognitive strengths to top global universities and career paths.",
-          founder_name: "Lead EQ Coach & Mentor",
+          founder_name: "Mohnish Pattwarri",
           founder_bio: "Specializing in emotional regulation, public presence, and organizational soft skills, our lead mentors bring direct coaching experience training Indian Oil employees, nursing students, and academic professionals to build resilience and speak with confidence.",
           track_record_years: "10,000+",
           track_record_success: "98%",
@@ -986,7 +986,7 @@ export default function AdminPage() {
                   {[
                     { key: 'hero_title', label: 'Hero Title', placeholder: 'Confusion to Clarity', rows: 1 },
                     { key: 'hero_subtitle', label: 'Hero Subtitle', placeholder: 'A scientific, 1-on-1 mentorship platform...', rows: 2 },
-                    { key: 'founder_name', label: 'Founder Name', placeholder: 'Lead EQ Coach & Mentor', rows: 1 },
+                    { key: 'founder_name', label: 'Founder Name', placeholder: 'Mohnish Pattwarri', rows: 1 },
                     { key: 'founder_role', label: 'Founder Role', placeholder: 'Chief Trainer, Confusion to Clarity', rows: 1 },
                     { key: 'founder_bio', label: 'Founder Biography', placeholder: 'Specializing in emotional regulation...', rows: 4 },
                     { key: 'track_record_years', label: 'Track Record: Students Advised Globally', placeholder: '10,000+', rows: 1 },
