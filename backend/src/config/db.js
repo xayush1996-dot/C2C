@@ -3,6 +3,7 @@ import { env } from './env.js';
 import { logger } from './logger.js';
 import Service from '../models/Service.js';
 import Admin from '../models/Admin.js';
+import TrainingVideo from '../models/TrainingVideo.js';
 
 let mongoServerInstance = null;
 
@@ -15,6 +16,7 @@ const seedServices = async () => {
           code: 'start',
           name: 'Start Where You Are',
           description: 'An introductory session to map out your core roadblocks.',
+          duration: '60 Mins',
           price: 99,
           calendlyUrl: 'https://calendly.com/consultant/start',
           isActive: true
@@ -23,6 +25,7 @@ const seedServices = async () => {
           code: 'clarity',
           name: 'Clarity Call',
           description: 'Deep-dive session focusing on resolving a specific transition or choice.',
+          duration: '45 Mins',
           price: 149,
           calendlyUrl: 'https://calendly.com/consultant/clarity',
           isActive: true
@@ -31,6 +34,7 @@ const seedServices = async () => {
           code: 'reset',
           name: 'Reset Programme',
           description: 'Comprehensive coaching framework over 4 weeks to rebuild core routines.',
+          duration: '4 Weeks',
           price: 499,
           calendlyUrl: 'https://calendly.com/consultant/reset',
           isActive: true
@@ -39,8 +43,18 @@ const seedServices = async () => {
           code: 'couples',
           name: 'Couples\' Conversations',
           description: 'Mediated communication strategy session for alignment and resolution.',
+          duration: '90 Mins',
           price: 249,
           calendlyUrl: 'https://calendly.com/consultant/couples',
+          isActive: true
+        },
+        {
+          code: 'premium_videos',
+          name: 'Premium Video Access Tier',
+          description: 'Lifetime access to the full C2C premium video masterclass archive and training tools.',
+          duration: 'Lifetime',
+          price: 1999,
+          calendlyUrl: 'https://calendly.com/mock-c2c/premium-videos',
           isActive: true
         }
       ]);
@@ -48,6 +62,59 @@ const seedServices = async () => {
     }
   } catch (error) {
     logger.error(`Error seeding default services: ${error.message}`);
+  }
+};
+
+const seedTrainingVideos = async () => {
+  try {
+    const count = await TrainingVideo.countDocuments();
+    if (count === 0) {
+      await TrainingVideo.create([
+        {
+          title: "Navigating Partners' Stagnation",
+          category: "Couples & Business",
+          duration: "4:15",
+          description: "Three structural triggers that lead to joint business partner paralysis and how to unlock dialogue.",
+          thumbnailUrl: "/video_thumbnails/partners_stagnation.png",
+          videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4"
+        },
+        {
+          title: "The 3-Second Boundary Check",
+          category: "Professional Reset",
+          duration: "2:40",
+          description: "A practical framework for high-burnout environments to evaluate requests before committing.",
+          thumbnailUrl: "/video_thumbnails/boundary_check.png",
+          videoUrl: "https://www.w3schools.com/html/movie.mp4"
+        },
+        {
+          title: "De-escalation in High Stakes",
+          category: "Communication Strategy",
+          duration: "5:10",
+          description: "Managing cortisol responses and communication patterns during active professional transitions.",
+          thumbnailUrl: "/video_thumbnails/high_stakes.png",
+          videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4"
+        },
+        {
+          title: "Strategic Positioning & Authority Signaling",
+          category: "Corporate Dominance",
+          duration: "6:30",
+          description: "Advanced techniques for establishing presence, controlling rooms, and projecting administrative authority.",
+          thumbnailUrl: "/video_thumbnails/authority_signaling.png",
+          videoUrl: "https://www.w3schools.com/html/movie.mp4"
+        },
+        {
+          title: "Designing Escape Hatches in Contracts",
+          category: "Legal Boundaries",
+          duration: "8:15",
+          description: "Understanding legal thresholds and how to structure service terms to maximize flexibility and safety.",
+          thumbnailUrl: "/video_thumbnails/escape_hatches.png",
+          videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4"
+        }
+      ]);
+      logger.info('Database seeded with default training video clips.');
+    }
+  } catch (error) {
+    logger.error(`Error seeding default training videos: ${error.message}`);
   }
 };
 
@@ -118,7 +185,7 @@ export const connectDB = async () => {
 
     let conn;
     try {
-      conn = await mongoose.connect(env.MONGO_URI, { serverSelectionTimeoutMS: 2000 });
+      conn = await mongoose.connect(env.MONGO_URI, { serverSelectionTimeoutMS: 500 });
       logger.info(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
       if (env.NODE_ENV === 'production') {
@@ -134,6 +201,9 @@ export const connectDB = async () => {
 
     // Seed default service catalog if empty
     await seedServices();
+
+    // Seed default training videos if empty
+    await seedTrainingVideos();
 
     // Auto-seed default admin credentials if running in development/testing environments
     await seedDefaultAdmin();

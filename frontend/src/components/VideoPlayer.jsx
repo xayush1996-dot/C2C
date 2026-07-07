@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, X, Clock, Video, Volume2, ArrowRight } from "lucide-react";
 
@@ -89,6 +90,15 @@ export default function VideoPlayer() {
             </div>
           </div>
         ))}
+      </div>
+      
+      <div className="flex justify-center pt-6 pb-2">
+        <Link
+          to="/premium-videos"
+          className="px-8 py-3.5 bg-accent-gold hover:bg-accent-gold/90 text-bg-base font-bold text-xs uppercase tracking-wider rounded-full shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer"
+        >
+          View All Videos & Unlock Premium Access
+        </Link>
       </div>
 
 

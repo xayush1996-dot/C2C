@@ -18,6 +18,9 @@ import {
 } from "lucide-react";
 
 export default function AdminPage() {
+  const defaultAdminEmail = import.meta.env.VITE_SEED_ADMIN_EMAIL || "confusiontoclarity7@gmail.com";
+  const defaultAdminPassword = import.meta.env.VITE_SEED_ADMIN_PASSWORD || "Confusion@2026";
+
   const navigate = useNavigate();
   const [authorized, setAuthorized] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
@@ -94,7 +97,7 @@ export default function AdminPage() {
         // Local fallback if backend returns error but credentials match demo
         const id = loginId.trim().toLowerCase();
         if (
-          (id === "confusiontoclarity@gmail.com" && password === "admin01") ||
+          (id === defaultAdminEmail.toLowerCase() && password === defaultAdminPassword) ||
           (id === "admin@example.com" && password === "AdminPassword123")
         ) {
           localStorage.setItem("c2c_auth", "true");
@@ -109,7 +112,7 @@ export default function AdminPage() {
       // Backend not deployed fallback: check locally
       const id = loginId.trim().toLowerCase();
       if (
-        (id === "confusiontoclarity@gmail.com" && password === "admin01") ||
+        (id === defaultAdminEmail.toLowerCase() && password === defaultAdminPassword) ||
         (id === "admin@example.com" && password === "AdminPassword123")
       ) {
         localStorage.setItem("c2c_auth", "true");
@@ -123,8 +126,8 @@ export default function AdminPage() {
   };
 
   const handleQuickLogin = () => {
-    setLoginId("Confusiontoclarity@gmail.com");
-    setPassword("admin01");
+    setLoginId(defaultAdminEmail);
+    setPassword(defaultAdminPassword);
   };
 
   const [activeTab, setActiveTab] = useState("overview"); // overview, enquiries, ledger, reports, cms
@@ -137,6 +140,20 @@ export default function AdminPage() {
   const [cmsSubTab, setCmsSubTab] = useState("content"); // content, services
   const [cmsSaving, setCmsSaving] = useState(false);
   const [cmsMessage, setCmsMessage] = useState("");
+
+  // CMS Video States
+  const [cmsVideos, setCmsVideos] = useState([]);
+  const [videoSearchTerm, setVideoSearchTerm] = useState("");
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [isEditingVideo, setIsEditingVideo] = useState(false);
+  const [videoForm, setVideoForm] = useState({
+    title: "",
+    category: "",
+    duration: "",
+    description: "",
+    thumbnailUrl: "",
+    videoUrl: ""
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -234,10 +251,23 @@ export default function AdminPage() {
         }
       } catch (e) {
         setCmsServices([
-          { _id: "s1", name: "Emotional Intelligence (EQ) & Self-Awareness", description: "Learn to recognize emotional triggers, map cognitive patterns, build self-awareness, and deploy empathetic response systems in corporate and social environments.", price: 2999, code: "eq" },
-          { _id: "s2", name: "Public Speaking, Leadership & Confidence Building", description: "Develop high-impact presence, construct persuasive speeches, master body posture, and overcome stage fright to lead teams with ultimate confidence.", price: 4999, code: "public" },
-          { _id: "s3", name: "Confidential 1-on-1 Private Mentorship", description: "A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews.", price: 1499, code: "private" }
+          { _id: "s1", name: "Emotional Intelligence (EQ) & Self-Awareness", description: "Learn to recognize emotional triggers, map cognitive patterns, build self-awareness, and deploy empathetic response systems in corporate and social environments.", price: 2999, duration: "60 Mins", code: "eq" },
+          { _id: "s2", name: "Public Speaking, Leadership & Confidence Building", description: "Develop high-impact presence, construct persuasive speeches, master body posture, and overcome stage fright to lead teams with ultimate confidence.", price: 4999, duration: "90 Mins", code: "public" },
+          { _id: "s3", name: "Confidential 1-on-1 Private Mentorship", description: "A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews.", price: 1499, duration: "45 Mins", code: "private" }
         ]);
+      }
+
+      // 5. Fetch training videos
+      try {
+        const videosRes = await fetch("/api/admin/videos", { headers, credentials: "include" });
+        if (videosRes.ok) {
+          const videosData = await videosRes.json();
+          if (videosData.success) {
+            setCmsVideos(videosData.videos || []);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load admin training videos:", e);
       }
     };
 
@@ -287,7 +317,7 @@ export default function AdminPage() {
     }
   };
 
-  const handleSaveService = async (id, name, description, price, calendlyUrl) => {
+  const handleSaveService = async (id, name, description, price, calendlyUrl, duration) => {
     setCmsSaving(true);
     setCmsMessage("");
     try {
@@ -300,7 +330,7 @@ export default function AdminPage() {
           "X-Requested-With": "XMLHttpRequest"
         },
         credentials: "include",
-        body: JSON.stringify({ name, description, price, calendlyUrl })
+        body: JSON.stringify({ name, description, price, calendlyUrl, duration })
       });
       const data = await res.json();
       if (data.success) {
@@ -395,6 +425,106 @@ export default function AdminPage() {
     } catch (e) {
       console.error("Failed to update enquiry status", e);
     }
+  };
+
+  const handleFetchVideos = async (search = "") => {
+    const token = localStorage.getItem("c2c_token");
+    const headers = {
+      "Authorization": token ? `Bearer ${token}` : "",
+      "X-Requested-With": "XMLHttpRequest"
+    };
+    try {
+      const url = search ? `/api/admin/videos?search=${encodeURIComponent(search)}` : "/api/admin/videos";
+      const res = await fetch(url, { headers, credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setCmsVideos(data.videos || []);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch videos:", e);
+    }
+  };
+
+  const handleSaveVideo = async (e) => {
+    e.preventDefault();
+    setCmsSaving(true);
+    setCmsMessage("");
+    const token = localStorage.getItem("c2c_token");
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": token ? `Bearer ${token}` : "",
+      "X-Requested-With": "XMLHttpRequest"
+    };
+
+    try {
+      const url = isEditingVideo ? `/api/admin/videos/${selectedVideo._id}` : "/api/admin/videos";
+      const method = isEditingVideo ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers,
+        credentials: "include",
+        body: JSON.stringify(videoForm)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCmsMessage(isEditingVideo ? "Video updated successfully." : "Video added successfully.");
+        setVideoForm({ title: "", category: "", duration: "", description: "", thumbnailUrl: "", videoUrl: "" });
+        setIsEditingVideo(false);
+        setSelectedVideo(null);
+        await handleFetchVideos();
+      } else {
+        setCmsMessage("Error: " + (data.error || "Failed to save video."));
+      }
+    } catch (err) {
+      setCmsMessage("Error: Failed to connect to server.");
+    } finally {
+      setCmsSaving(false);
+    }
+  };
+
+  const handleDeleteVideo = async (identifier) => {
+    if (!window.confirm(`Are you sure you want to delete this video?`)) return;
+    setCmsSaving(true);
+    setCmsMessage("");
+    const token = localStorage.getItem("c2c_token");
+    const headers = {
+      "Authorization": token ? `Bearer ${token}` : "",
+      "X-Requested-With": "XMLHttpRequest"
+    };
+
+    try {
+      const res = await fetch(`/api/admin/videos/${encodeURIComponent(identifier)}`, {
+        method: "DELETE",
+        headers,
+        credentials: "include"
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCmsMessage("Video deleted successfully.");
+        await handleFetchVideos();
+      } else {
+        setCmsMessage("Error: " + (data.error || "Failed to delete video."));
+      }
+    } catch (err) {
+      setCmsMessage("Error: Failed to connect to server.");
+    } finally {
+      setCmsSaving(false);
+    }
+  };
+
+  const handleEditVideoClick = (vid) => {
+    setIsEditingVideo(true);
+    setSelectedVideo(vid);
+    setVideoForm({
+      title: vid.title || "",
+      category: vid.category || "",
+      duration: vid.duration || "",
+      description: vid.description || "",
+      thumbnailUrl: vid.thumbnailUrl || "",
+      videoUrl: vid.videoUrl || ""
+    });
   };
 
   // Simulate report download
@@ -940,7 +1070,7 @@ export default function AdminPage() {
         {activeTab === "cms" && (
           <div className="space-y-6 animate-fadeIn">
             {/* CMS Inner Navigation */}
-            <div className="flex bg-surface/40 p-1.5 rounded-xl border border-border-divider/50 max-w-sm">
+            <div className="flex bg-surface/40 p-1.5 rounded-xl border border-border-divider/50 max-w-md">
               <button
                 type="button"
                 onClick={() => setCmsSubTab("content")}
@@ -962,6 +1092,17 @@ export default function AdminPage() {
                 }`}
               >
                 Services & Pricing
+              </button>
+              <button
+                type="button"
+                onClick={() => { setCmsSubTab("videos"); setCmsMessage(""); }}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  cmsSubTab === "videos"
+                    ? "bg-bg-elevated text-accent-gold shadow-sm border border-accent-gold/20"
+                    : "text-text-secondary hover:text-text-primary"
+                }`}
+              >
+                Training Videos
               </button>
             </div>
 
@@ -1055,12 +1196,20 @@ export default function AdminPage() {
             {/* Sub-tab 2: Services & Pricing */}
             {cmsSubTab === "services" && (
               <div className="space-y-6">
+                <div className="bg-surface p-6 rounded-2xl border border-border-divider/60 shadow-xs text-left">
+                  <h3 className="font-serif text-lg font-bold text-text-primary border-b border-border-divider/50 pb-2">
+                    C2C Service Section CMS
+                  </h3>
+                  <p className="text-xs text-text-secondary mt-1">
+                    Manage service package titles, price, and duration settings.
+                  </p>
+                </div>
                 {cmsServices.map((service) => (
                   <div key={service._id} className="bg-surface p-6 rounded-2xl border border-border-divider/60 space-y-4 shadow-xs text-left">
                     <div className="flex justify-between items-center border-b border-border-divider/50 pb-2">
                       <span className="text-xs font-bold text-accent-gold uppercase tracking-wider font-mono">CODE: {service.code}</span>
                       <button
-                        onClick={() => handleSaveService(service._id, service.name, service.description, service.price, service.calendlyUrl)}
+                        onClick={() => handleSaveService(service._id, service.name, service.description, service.price, service.calendlyUrl, service.duration)}
                         disabled={cmsSaving}
                         className="px-4 py-2 bg-accent-gold hover:bg-accent-gold/90 text-bg-base font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
                       >
@@ -1068,9 +1217,9 @@ export default function AdminPage() {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-text-secondary">Service Package Name</label>
+                        <label className="text-xs font-semibold text-text-secondary">Service Package Name (Title)</label>
                         <input
                           type="text"
                           value={service.name || ""}
@@ -1080,7 +1229,17 @@ export default function AdminPage() {
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-text-secondary">Price (INR)</label>
+                        <label className="text-xs font-semibold text-text-secondary">Duration (Time)</label>
+                        <input
+                          type="text"
+                          value={service.duration || ""}
+                          onChange={(e) => setCmsServices(cmsServices.map(s => s._id === service._id ? { ...s, duration: e.target.value } : s))}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/30 text-text-primary focus:outline-none focus:border-accent-gold/45"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-text-secondary">Price (Money)</label>
                         <input
                           type="number"
                           value={service.price || 0}
@@ -1111,6 +1270,242 @@ export default function AdminPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Sub-tab 3: Training Videos */}
+            {cmsSubTab === "videos" && (
+              <div className="space-y-6">
+                
+                {/* Search & Direct Delete Section */}
+                <div className="bg-surface p-6 rounded-2xl border border-border-divider/60 shadow-xs text-left space-y-4">
+                  <h3 className="font-serif text-lg font-bold text-text-primary border-b border-border-divider/50 pb-2">
+                    Search & Quick Actions
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Live Search */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Search / Filter Videos</label>
+                      <input
+                        type="text"
+                        placeholder="Search title, category, ID..."
+                        value={videoSearchTerm}
+                        onChange={(e) => {
+                          setVideoSearchTerm(e.target.value);
+                          handleFetchVideos(e.target.value);
+                        }}
+                        className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/30 text-text-primary focus:outline-none focus:border-accent-gold/45 font-medium"
+                      />
+                    </div>
+
+                    {/* Quick Delete */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Quick Delete by Database ID or Title</label>
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const identifier = e.target.deleteIdentifier.value.trim();
+                          if (identifier) {
+                            handleDeleteVideo(identifier);
+                            e.target.deleteIdentifier.value = "";
+                          }
+                        }}
+                        className="flex gap-2"
+                      >
+                        <input
+                          name="deleteIdentifier"
+                          type="text"
+                          placeholder="Paste database ID or exact Title..."
+                          className="flex-1 text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/30 text-text-primary focus:outline-none focus:border-accent-gold/45 font-medium"
+                        />
+                        <button
+                          type="submit"
+                          disabled={cmsSaving}
+                          className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Videos Table */}
+                <div className="bg-surface rounded-2xl border border-border-divider/60 shadow-xs overflow-hidden">
+                  <div className="p-6 border-b border-border-divider/50 text-left">
+                    <h3 className="font-serif text-lg font-bold text-text-primary">Current Training Videos</h3>
+                    <p className="text-xs text-text-secondary mt-1">Total clips: {cmsVideos.length}</p>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-bg-elevated/40 border-b border-border-divider/50 text-[10px] uppercase tracking-wider font-bold text-text-secondary">
+                          <th className="py-4 px-6">Database ID</th>
+                          <th className="py-4 px-6">Title & Category</th>
+                          <th className="py-4 px-6">Duration</th>
+                          <th className="py-4 px-6">Urls Excerpt</th>
+                          <th className="py-4 px-6 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border-divider/30 text-xs text-left">
+                        {cmsVideos.length > 0 ? (
+                          cmsVideos.map((vid) => (
+                            <tr key={vid._id} className="hover:bg-bg-elevated/20 transition-colors">
+                              <td className="py-4 px-6 font-mono text-[10px] text-text-secondary">
+                                {vid._id}
+                              </td>
+                              <td className="py-4 px-6 space-y-1">
+                                <p className="font-bold text-text-primary">{vid.title}</p>
+                                <span className="inline-block px-2 py-0.5 rounded bg-bg-base text-text-secondary text-[9px] uppercase font-semibold">
+                                  {vid.category}
+                                </span>
+                              </td>
+                              <td className="py-4 px-6 font-medium text-text-secondary">
+                                {vid.duration}
+                              </td>
+                              <td className="py-4 px-6 max-w-xs space-y-0.5 text-text-secondary/70 text-[10px] font-mono truncate">
+                                <p className="truncate">Thumbnail: {vid.thumbnailUrl || "None"}</p>
+                                <p className="truncate">Video: {vid.videoUrl}</p>
+                              </td>
+                              <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
+                                <button
+                                  onClick={() => handleEditVideoClick(vid)}
+                                  className="px-3 py-1.5 bg-accent-gold/20 hover:bg-accent-gold text-accent-gold hover:text-bg-base font-bold text-[9px] uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteVideo(vid._id)}
+                                  className="px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-[9px] uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="5" className="py-8 text-center text-text-secondary text-xs">
+                              No training videos found. Add one below!
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Add/Edit Video Form */}
+                <div className="bg-surface p-6 rounded-2xl border border-border-divider/60 space-y-6 shadow-xs text-left">
+                  <h3 className="font-serif text-lg font-bold text-text-primary border-b border-border-divider/50 pb-2">
+                    {isEditingVideo ? "Edit Training Video Clip" : "Add New Training Video Clip"}
+                  </h3>
+                  
+                  <form onSubmit={handleSaveVideo} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Title */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-text-secondary">Video Title</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Navigating Partners' Stagnation"
+                          value={videoForm.title}
+                          onChange={(e) => setVideoForm({ ...videoForm, title: e.target.value })}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/30 text-text-primary focus:outline-none focus:border-accent-gold/45 font-medium"
+                        />
+                      </div>
+
+                      {/* Category */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-text-secondary">Category</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Couples & Business"
+                          value={videoForm.category}
+                          onChange={(e) => setVideoForm({ ...videoForm, category: e.target.value })}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/30 text-text-primary focus:outline-none focus:border-accent-gold/45 font-medium"
+                        />
+                      </div>
+
+                      {/* Duration */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-text-secondary">Duration</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. 4:15"
+                          value={videoForm.duration}
+                          onChange={(e) => setVideoForm({ ...videoForm, duration: e.target.value })}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/30 text-text-primary focus:outline-none focus:border-accent-gold/45 font-medium"
+                        />
+                      </div>
+
+                      {/* Description */}
+                      <div className="space-y-1.5 md:col-span-3">
+                        <label className="text-xs font-semibold text-text-secondary">Description</label>
+                        <textarea
+                          rows={3}
+                          placeholder="Brief description of the lesson..."
+                          value={videoForm.description}
+                          onChange={(e) => setVideoForm({ ...videoForm, description: e.target.value })}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/30 text-text-primary focus:outline-none focus:border-accent-gold/45 leading-relaxed font-medium"
+                        />
+                      </div>
+
+                      {/* Thumbnail URL */}
+                      <div className="space-y-1.5 md:col-span-3">
+                        <label className="text-xs font-semibold text-text-secondary">Thumbnail URL</label>
+                        <input
+                          type="text"
+                          placeholder="/video_thumbnails/custom_thumb.png or https://example.com/thumb.jpg"
+                          value={videoForm.thumbnailUrl}
+                          onChange={(e) => setVideoForm({ ...videoForm, thumbnailUrl: e.target.value })}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/30 text-text-primary focus:outline-none focus:border-accent-gold/45 font-mono text-[11px]"
+                        />
+                      </div>
+
+                      {/* Video URL */}
+                      <div className="space-y-1.5 md:col-span-3">
+                        <label className="text-xs font-semibold text-text-secondary">Video URL</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="https://example.com/video.mp4"
+                          value={videoForm.videoUrl}
+                          onChange={(e) => setVideoForm({ ...videoForm, videoUrl: e.target.value })}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/30 text-text-primary focus:outline-none focus:border-accent-gold/45 font-mono text-[11px]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4 pt-2">
+                      <button
+                        type="submit"
+                        disabled={cmsSaving}
+                        className="px-6 py-2.5 bg-accent-gold hover:bg-accent-gold/90 text-bg-base font-bold text-xs uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                      >
+                        {isEditingVideo ? "Save Changes" : "Create Video Lesson"}
+                      </button>
+
+                      {isEditingVideo && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsEditingVideo(false);
+                            setSelectedVideo(null);
+                            setVideoForm({ title: "", category: "", duration: "", description: "", thumbnailUrl: "", videoUrl: "" });
+                          }}
+                          className="px-6 py-2.5 border border-border-divider hover:bg-bg-elevated text-text-primary font-bold text-xs uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                        >
+                          Cancel Edit
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </div>
+
               </div>
             )}
           </div>

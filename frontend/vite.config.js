@@ -20,8 +20,25 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://127.0.0.1:5000',
         changeOrigin: true,
+        configure: (proxy, _options) => {
+          const originalOn = proxy.on.bind(proxy);
+          proxy.on = function (event, listener, ...args) {
+            if (event === 'error') return proxy;
+            return originalOn(event, listener, ...args);
+          };
+          originalOn('error', (err, _req, res) => {
+            if (err.code === 'ECONNREFUSED') {
+              if (res && !res.headersSent && typeof res.writeHead === 'function') {
+                res.writeHead(502, { 'Content-Type': 'text/plain' });
+                res.end('Backend server is starting up. Please refresh in a moment.');
+              }
+              return;
+            }
+            console.error('Proxy error:', err);
+          });
+        }
       },
     },
   },

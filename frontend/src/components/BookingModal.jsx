@@ -70,7 +70,8 @@ export default function BookingModal() {
               return {
                 ...pkg,
                 name: dbMatch.name,
-                price: `₹${dbMatch.price}`
+                price: `₹${dbMatch.price}`,
+                duration: dbMatch.duration || pkg.duration
               };
             }
             return pkg;

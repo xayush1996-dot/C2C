@@ -22,6 +22,8 @@ import contentRoutes from './routes/contentRoutes.js';
 import adminContentRoutes from './routes/adminContentRoutes.js';
 import servicesRoutes from './routes/servicesRoutes.js';
 import adminServiceRoutes from './routes/adminServiceRoutes.js';
+import videoRoutes from './routes/videoRoutes.js';
+import adminVideoRoutes from './routes/adminVideoRoutes.js';
 import { env } from './config/env.js';
 
 const app = express();
@@ -81,6 +83,7 @@ app.use('/api/enquiries', enquiriesRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/services', servicesRoutes);
+app.use('/api/videos', videoRoutes);
 
 // Administrative API routes
 app.use('/api/admin/auth', adminAuthRoutes);
@@ -92,6 +95,7 @@ app.use('/api/admin/customers', adminCustomerRoutes);
 app.use('/api/admin/reports', adminReportRoutes);
 app.use('/api/admin/content', adminContentRoutes);
 app.use('/api/admin/services', adminServiceRoutes);
+app.use('/api/admin/videos', adminVideoRoutes);
 
 // Webhook routes
 app.use('/api/webhooks/razorpay', razorpayWebhookRoute);

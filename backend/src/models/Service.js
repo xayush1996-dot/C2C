@@ -18,6 +18,12 @@ const serviceSchema = new mongoose.Schema(
       type: String,
       trim: true
     },
+    duration: {
+      type: String,
+      required: true,
+      trim: true,
+      default: '60 Mins'
+    },
     price: {
       type: Number,
       required: true // Price in INR

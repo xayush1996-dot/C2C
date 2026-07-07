@@ -5,7 +5,7 @@ import { logger } from '../config/logger.js';
 let transporter = null;
 
 // Only initialize nodemailer transporter if we are not using mock credentials
-const isMockEmail = env.EMAIL_USER === 'mock_email_user@gmail.com' && env.EMAIL_PASS === 'mock_email_pass_1234';
+const isMockEmail = (env.EMAIL_USER === 'mock_email_user@gmail.com' && env.EMAIL_PASS === 'mock_email_pass_1234') || env.NODE_ENV === 'test';
 
 if (!isMockEmail) {
   transporter = nodemailer.createTransport({

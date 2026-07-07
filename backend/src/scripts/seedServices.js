@@ -19,6 +19,7 @@ const defaultServices = [
     code: 'eq',
     name: 'Emotional Intelligence (EQ) & Self-Awareness',
     description: 'Learn to recognize emotional triggers, map cognitive patterns, build self-awareness, and deploy empathetic response systems in corporate and social environments.',
+    duration: '60 Mins',
     price: 2999,
     calendlyUrl: 'https://calendly.com/mock-c2c/eq-session',
     isActive: true
@@ -27,6 +28,7 @@ const defaultServices = [
     code: 'public',
     name: 'Public Speaking, Leadership & Confidence Building',
     description: 'Develop high-impact presence, construct persuasive speeches, master body posture, and overcome stage fright to lead teams with ultimate confidence.',
+    duration: '90 Mins',
     price: 4999,
     calendlyUrl: 'https://calendly.com/mock-c2c/public-speaking',
     isActive: true
@@ -35,8 +37,18 @@ const defaultServices = [
     code: 'private',
     name: 'Confidential 1-on-1 Private Mentorship',
     description: 'A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews.',
+    duration: '45 Mins',
     price: 1499,
     calendlyUrl: 'https://calendly.com/mock-c2c/private-mentorship',
+    isActive: true
+  },
+  {
+    code: 'premium_videos',
+    name: 'Premium Video Access Tier',
+    description: 'Lifetime access to the full C2C premium video masterclass archive and training tools.',
+    duration: 'Lifetime',
+    price: 1999,
+    calendlyUrl: 'https://calendly.com/mock-c2c/premium-videos',
     isActive: true
   }
 ];

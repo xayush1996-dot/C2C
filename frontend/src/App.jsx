@@ -13,6 +13,7 @@ import ClientPage from '@/pages/Client';
 import LoginPage from '@/pages/Login';
 import PrivacyPage from '@/pages/Privacy';
 import TermsPage from '@/pages/Terms';
+import PremiumVideos from '@/pages/PremiumVideos';
 
 function AppLayout() {
   const [showPreloader, setShowPreloader] = React.useState(true);
@@ -83,6 +84,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
+          <Route path="/premium-videos" element={<PremiumVideos />} />
         </Route>
       </Routes>
     </BrowserRouter>

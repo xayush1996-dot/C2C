@@ -16,7 +16,7 @@ export const getServices = async (req, res, next) => {
 export const updateService = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, description, price, calendlyUrl, isActive } = req.body;
+    const { name, description, price, calendlyUrl, isActive, duration } = req.body;
 
     const service = await Service.findById(id);
     if (!service) {
@@ -25,6 +25,7 @@ export const updateService = async (req, res, next) => {
 
     if (name !== undefined) service.name = name;
     if (description !== undefined) service.description = description;
+    if (duration !== undefined) service.duration = duration;
     if (price !== undefined) {
       const numPrice = Number(price);
       if (isNaN(numPrice) || numPrice < 0) {
