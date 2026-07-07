@@ -28,6 +28,28 @@ export default function BookingModal() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isBookingOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isBookingOpen]);
+
   // Fetch dynamic packages from database
   useEffect(() => {
     const fetchServices = async () => {
@@ -264,7 +286,7 @@ export default function BookingModal() {
         <>
           {/* Dark Backdrop Overlay */}
           <motion.div
-            className="fixed inset-0 bg-[#0B0D14]/80 backdrop-blur-xs z-50 cursor-pointer"
+            className="fixed inset-0 bg-[#0B0D14]/80 lg:backdrop-blur-xs backdrop-blur-none z-50 cursor-pointer"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -277,7 +299,11 @@ export default function BookingModal() {
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 220 }}
+            transition={
+              isMobile
+                ? { type: "tween", ease: "easeOut", duration: 0.22 }
+                : { type: "spring", damping: 25, stiffness: 220 }
+            }
           >
             {/* Header */}
             <div className="p-6 border-b border-border-divider/60 flex items-center justify-between bg-surface/30">

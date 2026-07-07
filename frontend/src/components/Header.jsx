@@ -29,6 +29,18 @@ export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeHash, setActiveHash] = useState("#hero");
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   // Don't show public header on admin route
   const isAdmin = pathname?.startsWith("/admin");
 
@@ -252,7 +264,7 @@ export default function Header() {
       {/* Mobile Navigation Drawer */}
       {/* Backdrop overlay */}
       <div
-        className={`fixed inset-0 bg-[#0B0D14]/40 backdrop-blur-xs z-45 lg:hidden transition-opacity duration-150 ease-out ${
+        className={`fixed inset-0 bg-[#0B0D14]/40 z-45 lg:hidden transition-opacity duration-150 ease-out ${
           mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setMobileMenuOpen(false)}
@@ -342,7 +354,9 @@ export default function Header() {
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  openBooking();
+                  setTimeout(() => {
+                    openBooking();
+                  }, 200);
                 }}
                 className="w-full py-3 bg-accent-gold hover:bg-accent-gold/90 text-bg-base font-bold text-xs uppercase tracking-wider rounded-full shadow-sm cursor-pointer transition-colors duration-300 focus:outline-none"
               >

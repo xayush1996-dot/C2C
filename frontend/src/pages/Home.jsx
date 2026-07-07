@@ -263,23 +263,6 @@ export default function HomePage() {
 
       <div className="space-y-24 md:space-y-32 pb-24 bg-bg-base w-full pt-24 md:pt-32">
 
-        {/* 03. MEDIA & TRAINING */}
-        <section id="media-training" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
-          <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
-              03. MEDIA & TRAINING
-            </span>
-            <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
-              Video Lessons & Banners
-            </h2>
-            <p className="text-sm text-text-secondary leading-relaxed font-medium">
-              Preview our methodology with free training clips and download guides tailored for leadership transitions.
-            </p>
-          </div>
-
-          <VideoPlayer />
-        </section>
-
         {/* 04. THE DIFFERENCE */}
         <section id="difference" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -346,6 +329,23 @@ export default function HomePage() {
             </div>
 
           </div>
+        </section>
+
+        {/* 03. MEDIA & TRAINING */}
+        <section id="media-training" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
+          <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
+            <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
+              03. MEDIA & TRAINING
+            </span>
+            <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-text-primary">
+              Video Lessons & Banners
+            </h2>
+            <p className="text-sm text-text-secondary leading-relaxed font-medium">
+              Preview our methodology with free training clips and download guides tailored for leadership transitions.
+            </p>
+          </div>
+
+          <VideoPlayer />
         </section>
 
         {/* 05. THE ROAD TO CLARITY */}
