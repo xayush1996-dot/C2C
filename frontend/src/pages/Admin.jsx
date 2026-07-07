@@ -576,8 +576,9 @@ export default function AdminPage() {
 
           {/* Header */}
           <div className="text-left space-y-1.5">
-            <h2 className="font-serif text-3xl font-bold tracking-tight text-text-primary">C2C Admin.</h2>
-            <h2 className="font-serif text-3xl font-bold tracking-tight text-text-primary">Welcome back.</h2>
+            <h2 className="font-serif text-3xl font-bold tracking-tight text-text-primary">
+              Confusion to <span className="text-accent-gold">Clarity.</span>
+            </h2>
             <p className="text-xs text-text-secondary mt-1">
               Sign in to access the security console.
             </p>
