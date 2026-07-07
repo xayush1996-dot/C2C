@@ -112,8 +112,8 @@ export default function AdminPage() {
   };
 
   const handleQuickLogin = () => {
-    setLoginId("admin@example.com");
-    setPassword("AdminPassword123");
+    setLoginId("Confusiontoclarity@gmail.com");
+    setPassword("admin01");
   };
 
   const [activeTab, setActiveTab] = useState("overview"); // overview, enquiries, ledger, reports, cms
@@ -199,14 +199,14 @@ export default function AdminPage() {
         }
       } catch (e) {
         setCmsContent({
-          hero_title: "From Confusion to Clarity",
-          hero_subtitle: "Strategic leadership coaching helping you navigate partnership stagnation and reset boundaries.",
-          founder_name: "Sarah Lin",
-          founder_bio: "Executive leadership strategist with over a decade of experience guiding high-growth startups and venture-backed founders.",
-          track_record_years: "5,000+",
-          track_record_leaders: "150+",
-          track_record_retention: "95%",
-          track_record_success: "99%"
+          hero_title: "Confusion to Clarity",
+          hero_subtitle: "A scientific, 1-on-1 mentorship platform assisting students and professionals in mapping cognitive strengths to top global universities and career paths.",
+          founder_name: "Lead EQ Coach & Mentor",
+          founder_bio: "Specializing in emotional regulation, public presence, and organizational soft skills, our lead mentors bring direct coaching experience training Indian Oil employees, nursing students, and academic professionals to build resilience and speak with confidence.",
+          track_record_years: "10,000+",
+          track_record_success: "98%",
+          track_record_retention: "₹4.5Cr+",
+          track_record_leaders: "15+"
         });
       }
 
@@ -223,8 +223,9 @@ export default function AdminPage() {
         }
       } catch (e) {
         setCmsServices([
-          { _id: "s1", name: "Clarity Call", description: "1-on-1 strategy call to outline challenges", price: 149, code: "CC" },
-          { _id: "s2", name: "Reset Programme", description: "Complete organizational reset for founders", price: 499, code: "RP" }
+          { _id: "s1", name: "Emotional Intelligence (EQ) & Self-Awareness", description: "Learn to recognize emotional triggers, map cognitive patterns, build self-awareness, and deploy empathetic response systems in corporate and social environments.", price: 2999, code: "eq" },
+          { _id: "s2", name: "Public Speaking, Leadership & Confidence Building", description: "Develop high-impact presence, construct persuasive speeches, master body posture, and overcome stage fright to lead teams with ultimate confidence.", price: 4999, code: "public" },
+          { _id: "s3", name: "Confidential 1-on-1 Private Mentorship", description: "A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews.", price: 1499, code: "private" }
         ]);
       }
     };
@@ -804,10 +805,9 @@ export default function AdminPage() {
                     className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/50 text-text-primary focus:outline-none focus:border-accent-gold/45"
                   >
                     <option value="all">All Packages</option>
-                    <option value="Start Where You Are">Start Where You Are</option>
-                    <option value="Clarity Call">Clarity Call</option>
-                    <option value="Reset Programme">Reset Programme</option>
-                    <option value="Couples' Conversations">Couples' Conversations</option>
+                    <option value="Emotional Intelligence (EQ) & Self-Awareness">Emotional Intelligence (EQ) & Self-Awareness</option>
+                    <option value="Public Speaking, Leadership & Confidence Building">Public Speaking, Leadership & Confidence Building</option>
+                    <option value="Confidential 1-on-1 Private Mentorship">Confidential 1-on-1 Private Mentorship</option>
                   </select>
                 </div>
 
@@ -934,14 +934,14 @@ export default function AdminPage() {
                 
                 <div className="space-y-4">
                   {[
-                    { key: 'hero_title', label: 'Hero Title', placeholder: 'From Confusion to Clarity', rows: 1 },
-                    { key: 'hero_subtitle', label: 'Hero Subtitle', placeholder: 'Strategic leadership coaching...', rows: 2 },
-                    { key: 'founder_name', label: 'Founder Name', placeholder: 'Sarah Lin', rows: 1 },
-                    { key: 'founder_bio', label: 'Founder Biography', placeholder: 'Founder profile bio...', rows: 4 },
-                    { key: 'track_record_years', label: 'Track Record: Students Trained', placeholder: '5,000+', rows: 1 },
-                    { key: 'track_record_leaders', label: 'Track Record: Workshops Conducted', placeholder: '150+', rows: 1 },
-                    { key: 'track_record_retention', label: 'Track Record: Placement Success', placeholder: '95%', rows: 1 },
-                    { key: 'track_record_success', label: 'Track Record: Satisfaction Rate', placeholder: '99%', rows: 1 }
+                    { key: 'hero_title', label: 'Hero Title', placeholder: 'Confusion to Clarity', rows: 1 },
+                    { key: 'hero_subtitle', label: 'Hero Subtitle', placeholder: 'A scientific, 1-on-1 mentorship platform...', rows: 2 },
+                    { key: 'founder_name', label: 'Founder Name', placeholder: 'Lead EQ Coach & Mentor', rows: 1 },
+                    { key: 'founder_bio', label: 'Founder Biography', placeholder: 'Specializing in emotional regulation...', rows: 4 },
+                    { key: 'track_record_years', label: 'Track Record: Students Advised Globally', placeholder: '10,000+', rows: 1 },
+                    { key: 'track_record_success', label: 'Track Record: Admission Success Rate', placeholder: '98%', rows: 1 },
+                    { key: 'track_record_retention', label: 'Track Record: Scholarships Secured', placeholder: '₹4.5Cr+', rows: 1 },
+                    { key: 'track_record_leaders', label: 'Track Record: Target Countries', placeholder: '15+', rows: 1 }
                   ].map((field) => (
                     <div key={field.key} className="space-y-1.5 text-left border-b border-border-divider/20 pb-4">
                       <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">{field.label}</label>

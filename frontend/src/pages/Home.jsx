@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Check, Mail, Phone, Play, Award, Globe, Users, MessageSquare, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
 import VideoPlayer from "@/components/VideoPlayer";
@@ -86,6 +86,43 @@ export default function HomePage() {
   const { openBooking } = useBooking();
   const [activeTab, setActiveTab] = useState(0);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [cmsContent, setCmsContent] = useState({});
+  const [services, setServices] = useState([]);
+
+  useEffect(() => {
+    const fetchCMSData = async () => {
+      try {
+        const [contentRes, servicesRes] = await Promise.all([
+          fetch("/api/content"),
+          fetch("/api/services")
+        ]);
+        if (contentRes.ok) {
+          const contentData = await contentRes.json();
+          if (contentData && contentData.success) {
+            setCmsContent(contentData.content);
+          }
+        }
+        if (servicesRes.ok) {
+          const servicesData = await servicesRes.json();
+          if (servicesData && servicesData.success) {
+            setServices(servicesData.services);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch CMS data:", err);
+      }
+    };
+    fetchCMSData();
+  }, []);
+
+  const getInitials = (name) => {
+    if (!name) return "LM";
+    const parts = name.split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
 
   const handlePrevTestimonial = () => {
     setActiveTestimonial((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
@@ -107,8 +144,20 @@ export default function HomePage() {
             {/* Large Header */}
             <div className="lg:col-span-7 text-left">
               <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.05] text-text-primary">
-                Confusion to<br />
-                <span className="text-accent-gold">Clarity</span>
+                {cmsContent.hero_title ? (
+                  cmsContent.hero_title.includes("Clarity") ? (
+                    <>
+                      {cmsContent.hero_title.split("Clarity")[0]}
+                      <span className="text-accent-gold">Clarity</span>
+                      {cmsContent.hero_title.split("Clarity")[1]}
+                    </>
+                  ) : cmsContent.hero_title
+                ) : (
+                  <>
+                    Confusion to<br />
+                    <span className="text-accent-gold">Clarity</span>
+                  </>
+                )}
               </h1>
             </div>
             
@@ -124,7 +173,7 @@ export default function HomePage() {
                 </span>
               </div>
               <p className="text-sm text-text-secondary leading-relaxed font-medium max-w-md">
-                A scientific, 1-on-1 mentorship platform assisting students and professionals in mapping cognitive strengths to top global universities and career paths.
+                {cmsContent.hero_subtitle || "A scientific, 1-on-1 mentorship platform assisting students and professionals in mapping cognitive strengths to top global universities and career paths."}
               </p>
             </div>
           </div>
@@ -375,52 +424,82 @@ export default function HomePage() {
 
           {/* 3 cards grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                tag: "MAPPING POTENTIAL",
-                title: "Emotional Intelligence (EQ) & Self-Awareness",
-                desc: "Learn to recognize emotional triggers, map cognitive patterns, build self-awareness, and deploy empathetic response systems in corporate and social environments.",
-                price: "₹2999"
-              },
-              {
-                tag: "GLOBAL ADMISSIONS",
-                title: "Public Speaking, Leadership & Confidence Building",
-                desc: "Develop high-impact presence, construct persuasive speeches, master body posture, and overcome stage fright to lead teams with ultimate confidence.",
-                price: "₹4999"
-              },
-              {
-                tag: "DIRECT CONSULTING",
-                title: "Confidential 1-on-1 Private Mentorship",
-                desc: "A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews.",
-                price: "₹1499"
-              }
-            ].map((pkg, idx) => (
-              <div key={idx} className="bg-surface rounded-[24px] p-6 border border-border-divider/50 shadow-2xs hover:shadow-xs transition-shadow duration-300 flex flex-col justify-between text-left space-y-6">
-                <div className="space-y-3">
-                  <span className="text-[10px] font-bold text-text-secondary/60 uppercase tracking-wider block">
-                    {pkg.tag}
-                  </span>
-                  <h4 className="font-serif text-lg font-bold text-text-primary leading-snug">
-                    {pkg.title}
-                  </h4>
-                  <p className="text-xs text-text-secondary font-medium leading-relaxed">
-                    {pkg.desc}
-                  </p>
-                </div>
+            {services.length > 0 ? (
+              services.map((pkg, idx) => (
+                <div key={pkg._id || idx} className="bg-surface rounded-[24px] p-6 border border-border-divider/50 shadow-2xs hover:shadow-xs transition-shadow duration-300 flex flex-col justify-between text-left space-y-6">
+                  <div className="space-y-3">
+                    <span className="text-[10px] font-bold text-text-secondary/60 uppercase tracking-wider block">
+                      {pkg.code === "eq" ? "MAPPING POTENTIAL" : pkg.code === "public" ? "GLOBAL ADMISSIONS" : "DIRECT CONSULTING"}
+                    </span>
+                    <h4 className="font-serif text-lg font-bold text-text-primary leading-snug">
+                      {pkg.name}
+                    </h4>
+                    <p className="text-xs text-text-secondary font-medium leading-relaxed">
+                      {pkg.description}
+                    </p>
+                  </div>
 
-                <div className="pt-4 border-t border-border-divider/50 flex items-center justify-between">
-                  <span className="text-lg font-extrabold text-text-primary">
-                    {pkg.price}
-                  </span>
-                  <button
-                    onClick={() => openBooking()}
-                    className="text-xs font-bold text-accent-gold uppercase tracking-wider hover:text-accent-gold/80 transition-colors flex items-center gap-1 focus:outline-none cursor-pointer"
-                  >
-                    Book Now <ArrowRight size={12} />
-                  </button>
+                  <div className="pt-4 border-t border-border-divider/50 flex items-center justify-between">
+                    <span className="text-lg font-extrabold text-text-primary">
+                      ₹{pkg.price}
+                    </span>
+                    <button
+                      onClick={() => openBooking(pkg.code)}
+                      className="text-xs font-bold text-accent-gold uppercase tracking-wider hover:text-accent-gold/80 transition-colors flex items-center gap-1 focus:outline-none cursor-pointer"
+                    >
+                      Book Now <ArrowRight size={12} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              [
+                {
+                  tag: "MAPPING POTENTIAL",
+                  title: "Emotional Intelligence (EQ) & Self-Awareness",
+                  desc: "Learn to recognize emotional triggers, map cognitive patterns, build self-awareness, and deploy empathetic response systems in corporate and social environments.",
+                  price: "₹2999"
+                },
+                {
+                  tag: "GLOBAL ADMISSIONS",
+                  title: "Public Speaking, Leadership & Confidence Building",
+                  desc: "Develop high-impact presence, construct persuasive speeches, master body posture, and overcome stage fright to lead teams with ultimate confidence.",
+                  price: "₹4999"
+                },
+                {
+                  tag: "DIRECT CONSULTING",
+                  title: "Confidential 1-on-1 Private Mentorship",
+                  desc: "A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews.",
+                  price: "₹1499"
+                }
+              ].map((pkg, idx) => (
+                <div key={idx} className="bg-surface rounded-[24px] p-6 border border-border-divider/50 shadow-2xs hover:shadow-xs transition-shadow duration-300 flex flex-col justify-between text-left space-y-6">
+                  <div className="space-y-3">
+                    <span className="text-[10px] font-bold text-text-secondary/60 uppercase tracking-wider block">
+                      {pkg.tag}
+                    </span>
+                    <h4 className="font-serif text-lg font-bold text-text-primary leading-snug">
+                      {pkg.title}
+                    </h4>
+                    <p className="text-xs text-text-secondary font-medium leading-relaxed">
+                      {pkg.desc}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-border-divider/50 flex items-center justify-between">
+                    <span className="text-lg font-extrabold text-text-primary">
+                      {pkg.price}
+                    </span>
+                    <button
+                      onClick={() => openBooking()}
+                      className="text-xs font-bold text-accent-gold uppercase tracking-wider hover:text-accent-gold/80 transition-colors flex items-center gap-1 focus:outline-none cursor-pointer"
+                    >
+                      Book Now <ArrowRight size={12} />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </section>
 
@@ -499,10 +578,10 @@ export default function HomePage() {
           {/* 4 Stat Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { val: "10,000+", sub: "Students Advised Globally" },
-              { val: "98%", sub: "Admission Success Rate" },
-              { val: "₹4.5Cr+", sub: "Scholarships Secured" },
-              { val: "15+", sub: "Target Countries" }
+              { val: cmsContent.track_record_years || "10,000+", sub: cmsContent.track_record_years ? "Global Expertise" : "Students Advised Globally" },
+              { val: cmsContent.track_record_success || "98%", sub: cmsContent.track_record_success ? "Transition Success" : "Admission Success Rate" },
+              { val: cmsContent.track_record_retention || "₹4.5Cr+", sub: cmsContent.track_record_retention ? "Client Retention" : "Scholarships Secured" },
+              { val: cmsContent.track_record_leaders || "15+", sub: cmsContent.track_record_leaders ? "Leaders Coached" : "Target Countries" }
             ].map((stat, idx) => (
               <div key={idx} className="bg-surface rounded-2xl p-6 border border-border-divider/50 shadow-2xs hover:shadow-xs transition-shadow duration-300 text-center space-y-1.5">
                 <h3 className="font-sans text-2xl sm:text-3xl font-extrabold text-text-primary leading-none">
@@ -599,13 +678,13 @@ export default function HomePage() {
               {/* Left: Founder Avatar */}
               <div className="lg:col-span-5 flex flex-col items-center justify-center text-center">
                 <div className="w-44 h-44 rounded-full bg-[#EAE7DD] border border-border-divider/30 flex items-center justify-center shadow-xs">
-                  <span className="font-sans text-5xl font-extrabold tracking-wide text-accent-gold select-none">
-                    AS
+                  <span className="font-sans text-5xl font-extrabold tracking-wide text-accent-gold select-none font-sans">
+                    {getInitials(cmsContent.founder_name)}
                   </span>
                 </div>
                 <div className="mt-6 space-y-1">
                   <h4 className="font-sans text-xl font-bold text-text-primary">
-                    Lead EQ Coach & Mentor
+                    {cmsContent.founder_name || "Lead EQ Coach & Mentor"}
                   </h4>
                   <p className="text-xs text-text-secondary/80 font-semibold tracking-wide">
                     Chief Trainer, Confusion to Clarity
@@ -620,12 +699,12 @@ export default function HomePage() {
                     THE FOUNDER
                   </span>
                   <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-accent-gold leading-tight">
-                    Meet Our Founder
+                    Meet {cmsContent.founder_name || "Our Founder"}
                   </h2>
                 </div>
 
                 <p className="text-sm md:text-base text-text-secondary leading-relaxed font-medium">
-                  Specializing in emotional regulation, public presence, and organizational soft skills, our lead mentors bring direct coaching experience training Indian Oil employees, nursing students, and academic professionals to build resilience and speak with confidence.
+                  {cmsContent.founder_bio || "Specializing in emotional regulation, public presence, and organizational soft skills, our lead mentors bring direct coaching experience training Indian Oil employees, nursing students, and academic professionals to build resilience and speak with confidence."}
                 </p>
 
                 {/* Vertical Quote block with gold line on the left */}

@@ -4,47 +4,39 @@ import Content from '../models/Content.js';
 import { logger } from '../config/logger.js';
 
 const defaultContent = [
-  { key: 'hero_title', value: 'From Confusion to Clarity' },
-  { key: 'hero_subtitle', value: 'Premium strategic coaching for high-impact leaders, founders, and couples navigating pivotal life transitions.' },
-  { key: 'founder_name', value: 'Sarah Lin' },
-  { key: 'founder_bio', value: 'A former corporate strategist turned high-performance coach, Sarah has spent the last 15 years guiding leaders through intense personal and professional pivots. Her methodology blends logical frameworks with deep emotional intelligence to help clients build long-term, sustainable life clarity.' },
-  { key: 'track_record_years', value: '5,000+' },
-  { key: 'track_record_leaders', value: '150+' },
-  { key: 'track_record_retention', value: '95%' },
-  { key: 'track_record_success', value: '99%' }
+  { key: 'hero_title', value: 'Confusion to Clarity' },
+  { key: 'hero_subtitle', value: 'A scientific, 1-on-1 mentorship platform assisting students and professionals in mapping cognitive strengths to top global universities and career paths.' },
+  { key: 'founder_name', value: 'Lead EQ Coach & Mentor' },
+  { key: 'founder_bio', value: 'Specializing in emotional regulation, public presence, and organizational soft skills, our lead mentors bring direct coaching experience training Indian Oil employees, nursing students, and academic professionals to build resilience and speak with confidence.' },
+  { key: 'track_record_years', value: '10,000+' },
+  { key: 'track_record_success', value: '98%' },
+  { key: 'track_record_retention', value: '₹4.5Cr+' },
+  { key: 'track_record_leaders', value: '15+' }
 ];
 
 const defaultServices = [
   {
-    code: 'start',
-    name: 'Start Where You Are',
-    description: 'Uncover core roadblocks and mapping templates.',
-    price: 99,
-    calendlyUrl: 'https://calendly.com/mock-c2c/start-session',
+    code: 'eq',
+    name: 'Emotional Intelligence (EQ) & Self-Awareness',
+    description: 'Learn to recognize emotional triggers, map cognitive patterns, build self-awareness, and deploy empathetic response systems in corporate and social environments.',
+    price: 2999,
+    calendlyUrl: 'https://calendly.com/mock-c2c/eq-session',
     isActive: true
   },
   {
-    code: 'clarity',
-    name: 'Clarity Call',
-    description: 'Deep-dive resolution of a single major transition.',
-    price: 149,
-    calendlyUrl: 'https://calendly.com/mock-c2c/clarity-session',
+    code: 'public',
+    name: 'Public Speaking, Leadership & Confidence Building',
+    description: 'Develop high-impact presence, construct persuasive speeches, master body posture, and overcome stage fright to lead teams with ultimate confidence.',
+    price: 4999,
+    calendlyUrl: 'https://calendly.com/mock-c2c/public-speaking',
     isActive: true
   },
   {
-    code: 'reset',
-    name: 'Reset Programme',
-    description: 'Rebuild routines and patterns over 4 weeks.',
-    price: 499,
-    calendlyUrl: 'https://calendly.com/mock-c2c/reset-session',
-    isActive: true
-  },
-  {
-    code: 'couples',
-    name: "Couples' Conversations",
-    description: 'Align goals and co-create relationship strategy blueprints.',
-    price: 249,
-    calendlyUrl: 'https://calendly.com/mock-c2c/couples-session',
+    code: 'private',
+    name: 'Confidential 1-on-1 Private Mentorship',
+    description: 'A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews.',
+    price: 1499,
+    calendlyUrl: 'https://calendly.com/mock-c2c/private-mentorship',
     isActive: true
   }
 ];
@@ -54,22 +46,16 @@ const seedServicesAndContent = async () => {
     await connectDB();
 
     // 1. Seed Content Keys
+    await Content.deleteMany({});
     for (const item of defaultContent) {
-      await Content.findOneAndUpdate(
-        { key: item.key },
-        { value: item.value },
-        { upsert: true, new: true }
-      );
+      await Content.create(item);
     }
     logger.info('Website text content successfully seeded.');
 
     // 2. Seed Services
+    await Service.deleteMany({});
     for (const srv of defaultServices) {
-      await Service.findOneAndUpdate(
-        { code: srv.code },
-        srv,
-        { upsert: true, new: true }
-      );
+      await Service.create(srv);
     }
     logger.info('Website services successfully seeded.');
 

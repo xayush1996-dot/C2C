@@ -25,9 +25,10 @@ const seedAdmins = async () => {
     await connectDB();
 
     // Prevent duplicate admin creation
-    const existingAdmin = await Admin.findOne({
-      $or: [{ email: email.trim().toLowerCase() }, { adminId: adminId.trim().toLowerCase() }]
-    });
+    const existingAdmin = await Admin.findOne(
+      { $or: [{ email: email.trim().toLowerCase() }, { adminId: adminId.trim().toLowerCase() }] },
+      '+password'
+    );
 
     if (existingAdmin) {
       const targetEmail = email.trim().toLowerCase();

@@ -61,6 +61,8 @@ describe('seedAdmin script security and correctness tests', () => {
     process.env.RAZORPAY_WEBHOOK_SECRET = 'realWebhookSecret789';
     process.env.CALENDLY_WEBHOOK_SECRET = 'realCalendlyWebhookSecret123';
     process.env.CORS_ORIGIN = 'https://c2c.consulting.com';
+    process.env.EMAIL_USER = 'real_email_user@gmail.com';
+    process.env.EMAIL_PASS = 'real_email_pass_1234';
 
     await expect(runSeedScript()).rejects.toThrow('process.exit called with 1');
     expect(processExitSpy).toHaveBeenCalledWith(1);

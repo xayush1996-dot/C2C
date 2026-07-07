@@ -7,6 +7,32 @@ import { logger } from '../config/logger.js';
 import { AppError } from '../middleware/errorHandler.js';
 import User from '../models/User.js';
 import UserRefreshToken from '../models/UserRefreshToken.js';
+import { sendVerificationCode } from '../services/emailService.js';
+import { exec } from 'child_process';
+import path from 'path';
+
+// Helper to generate secure OTP using Rust binary with JavaScript fallback
+const generateOTPWithRust = () => {
+  return new Promise((resolve) => {
+    // Look for the pre-compiled Rust binary in backend/rust-agent/target/release
+    const binaryPath = path.join(process.cwd(), 'rust-agent', 'target', 'release', 'c2c-security-agent');
+    
+    exec(`"${binaryPath}" generate_otp`, (error, stdout) => {
+      if (!error && stdout) {
+        const code = stdout.trim();
+        if (code.length === 6 && !isNaN(code)) {
+          logger.info(`[Rust Agent] Successfully generated secure OTP: ${code}`);
+          return resolve(code);
+        }
+      }
+      
+      // Fallback to JS if Rust binary is not compiled, not found, or fails execution
+      const fallbackCode = Math.floor(100000 + Math.random() * 900000).toString();
+      logger.info(`[Rust Agent Fallback] Rust binary not found or execution failed. Generated fallback JS OTP: ${fallbackCode}`);
+      resolve(fallbackCode);
+    });
+  });
+};
 
 // Precomputed dummy bcrypt hash (hashed 'dummy_password' at salt cost 12)
 const DUMMY_HASH = '$2b$12$Rb1Jb9xghRcRbAitpmy3qOJlk3hj3o.yvrg8heoepdtexPJHh9YuK';
@@ -15,7 +41,7 @@ const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
 
 // Verify Google ID token
 const verifyGoogleToken = async (idToken) => {
-  // Support mocking for test environments
+  // Support mocking ONLY for Jest test environments
   const isTestWorker = env.NODE_ENV === 'test' && process.env.JEST_WORKER_ID;
   if (isTestWorker && idToken.startsWith('mock_google_token_')) {
     const parts = idToken.split('_');
@@ -407,24 +433,27 @@ export const forgotPassword = async (req, res, next) => {
       });
     }
 
-    // Generate secure reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    // Generate secure 6-digit OTP code using Rust agent (with JS fallback)
+    const resetCode = await generateOTPWithRust();
+    const hashedCode = crypto.createHash('sha256').update(resetCode).digest('hex');
 
-    // Set expiration to 10 minutes
-    user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpire = new Date(Date.now() + 10 * 60 * 1000);
+    // Set expiration to 5 minutes (OTP standard lifetime)
+    user.resetPasswordToken = hashedCode;
+    user.resetPasswordExpire = new Date(Date.now() + 5 * 60 * 1000);
     await user.save();
+
+    // Dispatch the email containing the OTP
+    await sendVerificationCode(user.email, resetCode);
 
     const response = {
       success: true,
-      message: genericSuccessMessage
+      message: 'Verification code sent successfully. Please check your email.'
     };
 
     // Return the token in test mode so test assertions can capture it
     const isTestWorker = env.NODE_ENV === 'test' && process.env.JEST_WORKER_ID;
     if (isTestWorker) {
-      response.resetToken = resetToken;
+      response.resetToken = resetCode;
     }
 
     res.status(200).json(response);
@@ -435,22 +464,29 @@ export const forgotPassword = async (req, res, next) => {
 
 export const resetPassword = async (req, res, next) => {
   try {
-    const { token, password } = req.body;
+    const { token, code, email, password } = req.body;
+    const searchCode = code || token;
 
-    if (!token || !password) {
-      return next(new AppError('Reset token and new password are required', 400));
+    if (!searchCode || !password) {
+      return next(new AppError('Reset verification code and new password are required', 400));
     }
 
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const hashedToken = crypto.createHash('sha256').update(searchCode).digest('hex');
 
     // Query for user with active reset token
-    const user = await User.findOne({
+    const query = {
       resetPasswordToken: hashedToken,
       resetPasswordExpire: { $gt: Date.now() }
-    }).select('+resetPasswordToken +resetPasswordExpire');
+    };
+
+    if (email) {
+      query.email = email.toLowerCase().trim();
+    }
+
+    const user = await User.findOne(query).select('+resetPasswordToken +resetPasswordExpire');
 
     if (!user) {
-      return next(new AppError('Invalid or expired reset token', 400));
+      return next(new AppError('Invalid or expired reset verification code', 400));
     }
 
     // Update password and clear reset fields

@@ -40,7 +40,9 @@ describe('Environment Variables and CORS Validation Tests (M-1 & M-5)', () => {
       RAZORPAY_KEY_ID: 'rzp_live_realKeyId123',
       RAZORPAY_KEY_SECRET: 'realKeySecret4567890123',
       RAZORPAY_WEBHOOK_SECRET: 'realWebhookSecret78901234567',
-      CALENDLY_WEBHOOK_SECRET: 'realCalendlyWebhookSecret1234567'
+      CALENDLY_WEBHOOK_SECRET: 'realCalendlyWebhookSecret1234567',
+      EMAIL_USER: 'real_email_user@gmail.com',
+      EMAIL_PASS: 'real_email_pass_1234'
     };
 
     it('should successfully parse when all secrets are real and CORS is explicit', () => {

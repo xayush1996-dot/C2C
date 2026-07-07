@@ -6,10 +6,9 @@ import { X, Check, CreditCard, Calendar, Clock, Sparkles, AlertCircle } from "lu
 import { useBooking } from "@/context/BookingContext";
 
 const packages = [
-  { id: "start", name: "Start Where You Are", price: "₹99", duration: "45 Mins", description: "An introductory session to map out your core roadblocks." },
-  { id: "clarity", name: "Clarity Call", price: "₹149", duration: "60 Mins", description: "Deep-dive session focusing on resolving a specific transition or choice." },
-  { id: "reset", name: "Reset Programme", price: "₹499", duration: "4 x 60 Mins", description: "Comprehensive coaching framework over 4 weeks to rebuild core routines." },
-  { id: "couples", name: "Couples' Conversations", price: "₹249", duration: "90 Mins", description: "Mediated communication strategy session for alignment and resolution." }
+  { id: "eq", name: "Emotional Intelligence (EQ) & Self-Awareness", price: "₹2999", duration: "60 Mins", description: "Learn to recognize emotional triggers, map cognitive patterns, build self-awareness, and deploy empathetic response systems in corporate and social environments." },
+  { id: "public", name: "Public Speaking, Leadership & Confidence Building", price: "₹4999", duration: "90 Mins", description: "Develop high-impact presence, construct persuasive speeches, master body posture, and overcome stage fright to lead teams with ultimate confidence." },
+  { id: "private", name: "Confidential 1-on-1 Private Mentorship", price: "₹1499", duration: "45 Mins", description: "A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews." }
 ];
 
 export default function BookingModal() {

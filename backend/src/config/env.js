@@ -29,7 +29,11 @@ export const envSchema = z.object({
   RAZORPAY_KEY_ID: z.string().default('rzp_test_mockKeyId123'),
   RAZORPAY_KEY_SECRET: z.string().default('mockKeySecret456'),
   RAZORPAY_WEBHOOK_SECRET: z.string().default('mockWebhookSecret789'),
-  CALENDLY_WEBHOOK_SECRET: z.string().default('mockCalendlyWebhookSecret123')
+  CALENDLY_WEBHOOK_SECRET: z.string().default('mockCalendlyWebhookSecret123'),
+  EMAIL_HOST: z.string().default('smtp.gmail.com'),
+  EMAIL_PORT: z.coerce.number().default(587),
+  EMAIL_USER: z.string().default('mock_email_user@gmail.com'),
+  EMAIL_PASS: z.string().default('mock_email_pass_1234')
 }).superRefine((data, ctx) => {
   if (data.NODE_ENV === 'production') {
     const mockSecrets = {
@@ -37,7 +41,9 @@ export const envSchema = z.object({
       RAZORPAY_KEY_ID: 'rzp_test_mockKeyId123',
       RAZORPAY_KEY_SECRET: 'mockKeySecret456',
       RAZORPAY_WEBHOOK_SECRET: 'mockWebhookSecret789',
-      CALENDLY_WEBHOOK_SECRET: 'mockCalendlyWebhookSecret123'
+      CALENDLY_WEBHOOK_SECRET: 'mockCalendlyWebhookSecret123',
+      EMAIL_USER: 'mock_email_user@gmail.com',
+      EMAIL_PASS: 'mock_email_pass_1234'
     };
 
     for (const [key, defaultValue] of Object.entries(mockSecrets)) {
