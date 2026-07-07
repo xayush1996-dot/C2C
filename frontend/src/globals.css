@@ -113,3 +113,46 @@ html {
 }
 
 
+
+/* Preloader Animations */
+@keyframes drawWidth {
+  from { width: 0; }
+  to { width: 80px; }
+}
+@keyframes fadeOutPreloader {
+  from { opacity: 1; pointer-events: all; }
+  to { opacity: 0; pointer-events: none; }
+}
+
+/* Infinite Scrolling Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  width: 100%;
+}
+
+.marquee-track {
+  display: inline-flex;
+  gap: 80px;
+  animation: marquee 25s linear infinite;
+  width: max-content;
+}
+
+/* Scroll Reveal Animations */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

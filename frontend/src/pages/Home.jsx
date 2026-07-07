@@ -115,6 +115,30 @@ export default function HomePage() {
     fetchCMSData();
   }, []);
 
+  // Scroll reveal observer on mount
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px"
+    });
+
+    const timeout = setTimeout(() => {
+      const elements = document.querySelectorAll('.reveal-on-scroll');
+      elements.forEach(el => observer.observe(el));
+    }, 100);
+
+    return () => {
+      clearTimeout(timeout);
+      observer.disconnect();
+    };
+  }, []);
+
   const getInitials = (name) => {
     if (!name) return "LM";
     const parts = name.split(" ");
@@ -261,10 +285,36 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* University Partner Marquee */}
+      <section style={{ padding: '30px 0', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-bg-section)', overflow: 'hidden' }}>
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '30px', overflow: 'hidden' }}>
+            <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap', zIndex: 2, background: 'var(--color-bg-section)', paddingRight: '10px' }}>
+              TRUSTED BY:
+            </span>
+            <div className="marquee-container" style={{ flexGrow: 1, overflow: 'hidden' }}>
+              <div className="marquee-track">
+                {['Indian Oil Employees', 'Seth MR Jaipuria School', 'Assam Medical College', 'Arts & Commerce College'].map((univ, i) => (
+                  <span key={i} style={{ fontSize: '15px', fontWeight: '800', color: 'var(--color-text-secondary)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ color: 'var(--color-accent-gold)' }}>✦</span> {univ}
+                  </span>
+                ))}
+                {['Indian Oil Employees', 'Seth MR Jaipuria School', 'Assam Medical College', 'Arts & Commerce College'].map((univ, i) => (
+                  <span key={i + 10} style={{ fontSize: '15px', fontWeight: '800', color: 'var(--color-text-secondary)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ color: 'var(--color-accent-gold)' }}>✦</span> {univ}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="space-y-24 md:space-y-32 pb-24 bg-bg-base w-full pt-24 md:pt-32">
 
+
         {/* 04. THE DIFFERENCE */}
-        <section id="difference" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
+        <section id="difference" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20 reveal-on-scroll">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
             {/* Left side text */}
@@ -349,7 +399,7 @@ export default function HomePage() {
         </section>
 
         {/* 05. THE ROAD TO CLARITY */}
-        <section id="process" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
+        <section id="process" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20 reveal-on-scroll">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
             {/* Left Column: Heading and description */}
@@ -407,7 +457,7 @@ export default function HomePage() {
         </section>
 
         {/* 06. COUNSELING STREAMS */}
-        <section id="streams" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
+        <section id="streams" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20 reveal-on-scroll">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 text-left">
             <div className="space-y-4 max-w-2xl">
               <span className="inline-block px-3 py-1 bg-bg-elevated border border-border-divider rounded-full text-[9px] uppercase font-bold tracking-widest text-text-secondary">
@@ -509,7 +559,7 @@ export default function HomePage() {
         </section>
 
         {/* 07. CONSULTING AREAS */}
-        <section id="areas" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
+        <section id="areas" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20 reveal-on-scroll">
           <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
             <span className="inline-block px-3 py-1 bg-bg-elevated border border-border-divider rounded-full text-[9px] uppercase font-bold tracking-widest text-text-secondary">
               CONSULTING AREAS
@@ -578,7 +628,7 @@ export default function HomePage() {
         </section>
 
         {/* 08. STATS & SUCCESS */}
-        <section id="success" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20 space-y-24">
+        <section id="success" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20 space-y-24 reveal-on-scroll">
           
           {/* 4 Stat Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -676,7 +726,7 @@ export default function HomePage() {
         </section>
 
         {/* 09. THE FOUNDER */}
-        <section id="founder" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
+        <section id="founder" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20 reveal-on-scroll">
           <div className="bg-surface border border-border-divider/50 rounded-[24px] p-8 md:p-12 shadow-xs max-w-5xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-center">
               
@@ -735,7 +785,7 @@ export default function HomePage() {
         </section>
 
         {/* 10. FAQ SECTION */}
-        <section id="faq" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
+        <section id="faq" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20 reveal-on-scroll">
           <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
             <span className="inline-block px-3 py-1 bg-bg-elevated border border-border-divider rounded-full text-[9px] uppercase font-bold tracking-widest text-text-secondary">
               FAQ
@@ -752,7 +802,7 @@ export default function HomePage() {
         </section>
 
         {/* 13. CONTACT / WHATSAPP SECTION */}
-        <section id="contact" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20">
+        <section id="contact" className="px-6 md:px-12 max-w-7xl mx-auto scroll-mt-20 reveal-on-scroll">
           <div className="bg-surface rounded-[24px] p-8 md:p-12 border border-border-divider/60 shadow-xs">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
               
