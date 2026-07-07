@@ -6,6 +6,30 @@
       "destination": "https://c2c-backend.up.railway.app/api/$1"
     },
     {
+      "source": "/admin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/client",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/client/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/sanctuary",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

@@ -253,7 +253,8 @@ export default function AdminPage() {
         setCmsServices([
           { _id: "s1", name: "Emotional Intelligence (EQ) & Self-Awareness", description: "Learn to recognize emotional triggers, map cognitive patterns, build self-awareness, and deploy empathetic response systems in corporate and social environments.", price: 2999, duration: "60 Mins", code: "eq" },
           { _id: "s2", name: "Public Speaking, Leadership & Confidence Building", description: "Develop high-impact presence, construct persuasive speeches, master body posture, and overcome stage fright to lead teams with ultimate confidence.", price: 4999, duration: "90 Mins", code: "public" },
-          { _id: "s3", name: "Confidential 1-on-1 Private Mentorship", description: "A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews.", price: 1499, duration: "45 Mins", code: "private" }
+          { _id: "s3", name: "Confidential 1-on-1 Private Mentorship", description: "A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews.", price: 1499, duration: "45 Mins", code: "private" },
+          { _id: "s4", name: "Premium Video Access Tier", description: "Lifetime access to the full C2C premium video masterclass archive and training tools.", price: 1999, duration: "Lifetime", code: "premium_videos", calendlyUrl: "https://calendly.com/mock-c2c/premium-videos" }
         ]);
       }
 
@@ -1277,6 +1278,42 @@ export default function AdminPage() {
             {cmsSubTab === "videos" && (
               <div className="space-y-6">
                 
+                {/* Premium Video Price Settings */}
+                {(() => {
+                  const premiumVideoService = cmsServices.find(s => s.code === "premium_videos");
+                  if (!premiumVideoService) return null;
+                  return (
+                    <div className="bg-surface p-6 rounded-2xl border border-border-divider/60 shadow-xs text-left space-y-4">
+                      <div className="flex justify-between items-center border-b border-border-divider/50 pb-2">
+                        <h3 className="font-serif text-lg font-bold text-text-primary">
+                          Premium Video Access Pricing
+                        </h3>
+                        <span className="text-[10px] bg-bg-elevated px-2 py-0.5 rounded text-accent-gold border border-accent-gold/20 font-bold uppercase tracking-wider">
+                          Service Configuration
+                        </span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row items-end gap-4">
+                        <div className="space-y-1.5 flex-1">
+                          <label className="text-xs font-semibold text-text-secondary">Premium Access Price (INR)</label>
+                          <input
+                            type="number"
+                            value={premiumVideoService.price || 0}
+                            onChange={(e) => setCmsServices(cmsServices.map(s => s.code === "premium_videos" ? { ...s, price: Number(e.target.value) } : s))}
+                            className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/30 text-text-primary focus:outline-none focus:border-accent-gold/45"
+                          />
+                        </div>
+                        <button
+                          onClick={() => handleSaveService(premiumVideoService._id, premiumVideoService.name, premiumVideoService.description, premiumVideoService.price, premiumVideoService.calendlyUrl, premiumVideoService.duration)}
+                          disabled={cmsSaving}
+                          className="px-6 py-2.5 bg-accent-gold hover:bg-accent-gold/90 text-bg-base font-bold text-xs uppercase tracking-wider rounded-lg transition-colors cursor-pointer focus:outline-none"
+                        >
+                          Save Price Changes
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* Search & Direct Delete Section */}
                 <div className="bg-surface p-6 rounded-2xl border border-border-divider/60 shadow-xs text-left space-y-4">
                   <h3 className="font-serif text-lg font-bold text-text-primary border-b border-border-divider/50 pb-2">

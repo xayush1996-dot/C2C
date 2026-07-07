@@ -773,15 +773,6 @@ export default function HomePage() {
                   </p>
                 </div>
 
-                {/* Outline CTA Button */}
-                <div className="pt-2">
-                  <button
-                    onClick={() => openBooking()}
-                    className="px-6 py-2.5 border border-border-divider hover:border-text-primary/40 bg-surface/50 hover:bg-surface text-text-primary font-bold text-xs uppercase tracking-wider rounded-full shadow-2xs transition-colors cursor-pointer focus:outline-none"
-                  >
-                    Read Founder Story
-                  </button>
-                </div>
               </div>
 
             </div>

@@ -4,6 +4,7 @@ import { logger } from './logger.js';
 import Service from '../models/Service.js';
 import Admin from '../models/Admin.js';
 import TrainingVideo from '../models/TrainingVideo.js';
+import User from '../models/User.js';
 
 let mongoServerInstance = null;
 
@@ -178,6 +179,26 @@ const seedDefaultAdmin = async () => {
   }
 };
 
+const seedDefaultCustomer = async () => {
+  if (env.NODE_ENV === 'production') {
+    return;
+  }
+  try {
+    const count = await User.countDocuments();
+    if (count === 0) {
+      await User.create({
+        email: 'client@example.com',
+        password: 'clientpassword',
+        name: 'Sarah Lin',
+        role: 'CUSTOMER'
+      });
+      logger.info('Database seeded with default demo customer (client@example.com / clientpassword).');
+    }
+  } catch (error) {
+    logger.error(`Error seeding default customer: ${error.message}`);
+  }
+};
+
 export const connectDB = async () => {
   try {
     // Suppress mongoose strictQuery deprecation warning
@@ -207,6 +228,9 @@ export const connectDB = async () => {
 
     // Auto-seed default admin credentials if running in development/testing environments
     await seedDefaultAdmin();
+
+    // Auto-seed default customer/client credentials
+    await seedDefaultCustomer();
 
     return conn;
   } catch (error) {

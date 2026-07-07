@@ -226,18 +226,23 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-left space-y-1.5">
           <h2 className="font-serif text-3xl font-bold tracking-tight text-text-primary">
-            {isForgotPassword ? "Reset Password." : "C2C Mentorship."}
+            {isForgotPassword ? (
+              "Reset Password."
+            ) : (
+              <>
+                Confusion to <span className="text-accent-gold">Clarity.</span>
+              </>
+            )}
           </h2>
-          {!isForgotPassword && (
-            <h2 className="font-serif text-3xl font-bold tracking-tight text-text-primary">Welcome back.</h2>
-          )}
-          <p className="text-xs text-text-secondary mt-1">
-            {isForgotPassword 
-              ? (forgotStep === 1 
-                  ? "Enter your email to receive a 6-digit verification code." 
-                  : "Enter the verification code sent to your email and your new password.") 
-              : (isRegistering ? "Create your client account to get started." : "Sign in to continue to your workspace.")}
-          </p>
+          {isForgotPassword || isRegistering ? (
+            <p className="text-xs text-text-secondary mt-1">
+              {isForgotPassword 
+                ? (forgotStep === 1 
+                    ? "Enter your email to receive a 6-digit verification code." 
+                    : "Enter the verification code sent to your email and your new password.") 
+                : "Create your client account to get started."}
+            </p>
+          ) : null}
         </div>
 
         {isForgotPassword ? (

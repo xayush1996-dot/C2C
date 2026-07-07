@@ -2,6 +2,8 @@ import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals
 import mongoose from 'mongoose';
 import Admin from '../models/Admin.js';
 import Service from '../models/Service.js';
+import TrainingVideo from '../models/TrainingVideo.js';
+import User from '../models/User.js';
 
 describe('seedAdmin script security and correctness tests', () => {
   let originalEnv;
@@ -32,11 +34,14 @@ describe('seedAdmin script security and correctness tests', () => {
     });
     disconnectSpy = jest.spyOn(mongoose, 'disconnect').mockResolvedValue(true);
     countDocumentsSpy = jest.spyOn(Service, 'countDocuments').mockResolvedValue(3);
+    jest.spyOn(TrainingVideo, 'countDocuments').mockResolvedValue(5);
+    jest.spyOn(User, 'countDocuments').mockResolvedValue(1);
   });
 
   afterEach(() => {
     // Restore environment variables
     process.env = originalEnv;
+    jest.restoreAllMocks();
   });
 
   const runSeedScript = async () => {

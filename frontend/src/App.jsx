@@ -14,6 +14,7 @@ import LoginPage from '@/pages/Login';
 import PrivacyPage from '@/pages/Privacy';
 import TermsPage from '@/pages/Terms';
 import PremiumVideos from '@/pages/PremiumVideos';
+import SanctuaryPage from '@/pages/Sanctuary';
 
 function AppLayout() {
   const [showPreloader, setShowPreloader] = React.useState(true);
@@ -85,6 +86,7 @@ export default function App() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/premium-videos" element={<PremiumVideos />} />
+          <Route path="/sanctuary" element={<SanctuaryPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -10,6 +10,7 @@ const navigationItems = [
   { name: "Home", href: "/" },
   { name: "About", href: "/#difference" },
   { name: "Programs", href: "/#streams" },
+  { name: "Sanctuary", href: "/sanctuary" },
   { name: "Success Stories", href: "/#success" },
   { name: "Blog", href: "/#areas" },
   { name: "Contact", href: "/#contact" }
@@ -156,8 +157,10 @@ export default function Header() {
           {/* Central Navigation Links (Desktop only) */}
           <nav className="hidden lg:flex items-center space-x-1 bg-surface/50 border border-border-divider rounded-full px-1.5 py-1 select-none">
             {navigationItems.map((item) => {
-              const itemHash = item.href.includes("#") ? item.href.substring(item.href.indexOf("#")) : "#hero";
-              const isActive = activeHash === itemHash;
+              const isSanctuary = item.href === "/sanctuary";
+              const isActive = isSanctuary
+                ? pathname === "/sanctuary"
+                : (pathname === "/" && activeHash === (item.href.includes("#") ? item.href.substring(item.href.indexOf("#")) : "#hero"));
               return (
                 <Link
                   key={item.name}
@@ -296,8 +299,10 @@ export default function Header() {
         {/* Drawer Navigation Links */}
         <nav className="flex flex-col gap-2 pt-2">
           {navigationItems.map((item) => {
-            const itemHash = item.href.includes("#") ? item.href.substring(item.href.indexOf("#")) : "#hero";
-            const isActive = activeHash === itemHash;
+            const isSanctuary = item.href === "/sanctuary";
+            const isActive = isSanctuary
+              ? pathname === "/sanctuary"
+              : (pathname === "/" && activeHash === (item.href.includes("#") ? item.href.substring(item.href.indexOf("#")) : "#hero"));
             return (
               <Link
                 key={item.name}

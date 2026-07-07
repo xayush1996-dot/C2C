@@ -57,6 +57,11 @@ export default function Footer() {
                   Career Readiness & Placement
                 </a>
               </li>
+              <li>
+                <Link to="/sanctuary" className="text-sm text-accent-gold hover:text-accent-gold/80 font-bold transition-colors duration-200">
+                  ✦ Private Sanctuary (1:1)
+                </Link>
+              </li>
             </ul>
           </div>
 
