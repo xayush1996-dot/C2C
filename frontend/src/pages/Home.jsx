@@ -145,7 +145,12 @@ export default function HomePage() {
             <div className="lg:col-span-7 text-left">
               <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.05] text-text-primary">
                 {cmsContent.hero_title ? (
-                  cmsContent.hero_title.includes("Clarity") ? (
+                  cmsContent.hero_title.includes("to Clarity") ? (
+                    <>
+                      {cmsContent.hero_title.split("to Clarity")[0]}to<br />
+                      <span className="text-accent-gold">Clarity</span>
+                    </>
+                  ) : cmsContent.hero_title.includes("Clarity") ? (
                     <>
                       {cmsContent.hero_title.split("Clarity")[0]}
                       <span className="text-accent-gold">Clarity</span>
