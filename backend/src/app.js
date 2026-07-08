@@ -50,6 +50,14 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
+// Root path route for default service/health checks
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'API is running'
+  });
+});
+
 // Health Check route
 app.get('/api/health', (req, res) => {
   const dbState = mongoose.connection.readyState;
