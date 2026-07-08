@@ -3,7 +3,9 @@ import cors from 'cors';
 import { env } from '../config/env.js';
 import { AppError } from './errorHandler.js';
 
-export const helmetMiddleware = helmet();
+export const helmetMiddleware = helmet({
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
+});
 
 // Configures origins parsed from environmental configuration (e.g. comma-separated lists)
 const parseCorsOrigins = (originString) => {

@@ -4,6 +4,7 @@ import Service from '../models/Service.js';
 import Booking from '../models/Booking.js';
 import Payment from '../models/Payment.js';
 import { createRazorpayOrder } from '../services/razorpayService.js';
+import { sendCalendlyLinkEmail } from '../services/emailService.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { logger } from '../config/logger.js';
 import { env } from '../config/env.js';
@@ -165,7 +166,14 @@ export const verifyPayment = async (req, res, next) => {
     }
 
     // Mark associated Booking as CONFIRMED
-    await Booking.findByIdAndUpdate(updatedPayment.booking, { $set: { status: 'CONFIRMED' } });
+    const updatedBooking = await Booking.findByIdAndUpdate(updatedPayment.booking, { $set: { status: 'CONFIRMED' } }, { new: true }).populate('service');
+
+    if (updatedBooking && updatedBooking.service && updatedBooking.service.code !== 'premium_videos' && updatedBooking.service.calendlyUrl) {
+      // Fire-and-forget email delivery
+      sendCalendlyLinkEmail(req.user.email, updatedBooking.service.name, updatedBooking.service.calendlyUrl).catch(err => {
+        logger.error(`Failed to send background calendly email: ${err.message}`);
+      });
+    }
 
     logger.info(`[Security Alert] Payment verified successfully. Order ID: ${razorpay_order_id}, Payment ID: ${razorpay_payment_id}`);
 

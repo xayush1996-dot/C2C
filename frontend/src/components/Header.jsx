@@ -11,8 +11,7 @@ const navigationItems = [
   { name: "About", href: "/#difference" },
   { name: "Programs", href: "/#streams" },
   { name: "Sanctuary", href: "/sanctuary" },
-  { name: "Success Stories", href: "/#success" },
-  { name: "Blog", href: "/#areas" },
+  { name: "Training Clips", href: "/premium-videos" },
   { name: "Contact", href: "/#contact" }
 ];
 
@@ -157,17 +156,18 @@ export default function Header() {
           {/* Central Navigation Links (Desktop only) */}
           <nav className="hidden lg:flex items-center space-x-1 bg-surface/50 border border-border-divider rounded-full px-1.5 py-1 select-none">
             {navigationItems.map((item) => {
-              const isSanctuary = item.href === "/sanctuary";
-              const isActive = isSanctuary
-                ? pathname === "/sanctuary"
-                : (pathname === "/" && activeHash === (item.href.includes("#") ? item.href.substring(item.href.indexOf("#")) : "#hero"));
+              const isActive = item.href.startsWith("/#")
+                ? (pathname === "/" && activeHash === item.href.replace("/", ""))
+                : item.href === "/"
+                  ? (pathname === "/" && activeHash === "#hero")
+                  : pathname === item.href;
               return (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-300 ${
                     isActive
-                      ? "bg-[#1A1D26] text-accent-gold border border-accent-gold/30"
+                      ? "bg-accent-gold text-bg-base shadow-sm"
                       : "text-text-secondary hover:text-accent-gold border border-transparent"
                   }`}
                 >
@@ -299,10 +299,11 @@ export default function Header() {
         {/* Drawer Navigation Links */}
         <nav className="flex flex-col gap-2 pt-2">
           {navigationItems.map((item) => {
-            const isSanctuary = item.href === "/sanctuary";
-            const isActive = isSanctuary
-              ? pathname === "/sanctuary"
-              : (pathname === "/" && activeHash === (item.href.includes("#") ? item.href.substring(item.href.indexOf("#")) : "#hero"));
+            const isActive = item.href.startsWith("/#")
+                ? (pathname === "/" && activeHash === item.href.replace("/", ""))
+                : item.href === "/"
+                  ? (pathname === "/" && activeHash === "#hero")
+                  : pathname === item.href;
             return (
               <Link
                 key={item.name}
@@ -310,7 +311,7 @@ export default function Header() {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`w-full px-4 py-3 rounded-xl text-left text-sm font-bold tracking-wide transition-all duration-300 ${
                   isActive
-                    ? "bg-[#F2EFE6] text-text-primary"
+                    ? "bg-accent-gold text-bg-base shadow-sm"
                     : "text-text-secondary hover:text-accent-gold"
                 }`}
               >

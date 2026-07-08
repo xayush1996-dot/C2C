@@ -152,7 +152,8 @@ export default function AdminPage() {
     duration: "",
     description: "",
     thumbnailUrl: "",
-    videoUrl: ""
+    videoUrl: "",
+    isHomePreview: false
   });
 
   useEffect(() => {
@@ -524,7 +525,8 @@ export default function AdminPage() {
       duration: vid.duration || "",
       description: vid.description || "",
       thumbnailUrl: vid.thumbnailUrl || "",
-      videoUrl: vid.videoUrl || ""
+      videoUrl: vid.videoUrl || "",
+      isHomePreview: vid.isHomePreview || false
     });
   };
 

@@ -52,7 +52,7 @@ export const getTrainingVideos = async (req, res, next) => {
     // Sanitize output for non-premium users to protect video files
     const sanitizedVideos = videos.map(vid => {
       const v = vid.toObject();
-      if (!hasAccess) {
+      if (!hasAccess && !v.isHomePreview) {
         v.videoUrl = ''; // Hide URL
         v.isLocked = true;
       } else {
@@ -100,7 +100,7 @@ export const getAdminTrainingVideos = async (req, res, next) => {
 
 export const createTrainingVideo = async (req, res, next) => {
   try {
-    const { title, category, duration, description, thumbnailUrl, videoUrl } = req.body;
+    const { title, category, duration, description, thumbnailUrl, videoUrl, isHomePreview } = req.body;
     if (!title || !category || !duration || !videoUrl) {
       return next(new AppError('Title, category, duration, and videoUrl are required', 400));
     }
@@ -110,7 +110,8 @@ export const createTrainingVideo = async (req, res, next) => {
       duration,
       description,
       thumbnailUrl,
-      videoUrl
+      videoUrl,
+      isHomePreview: isHomePreview || false
     });
     res.status(201).json({
       success: true,
@@ -127,7 +128,7 @@ export const updateTrainingVideo = async (req, res, next) => {
     if (!mongoose.isValidObjectId(id)) {
       return next(new AppError('Invalid training video ID format', 400));
     }
-    const { title, category, duration, description, thumbnailUrl, videoUrl } = req.body;
+    const { title, category, duration, description, thumbnailUrl, videoUrl, isHomePreview } = req.body;
     const video = await TrainingVideo.findById(id);
     if (!video) {
       return next(new AppError('Training video not found', 404));
@@ -138,6 +139,7 @@ export const updateTrainingVideo = async (req, res, next) => {
     if (description !== undefined) video.description = description;
     if (thumbnailUrl !== undefined) video.thumbnailUrl = thumbnailUrl;
     if (videoUrl) video.videoUrl = videoUrl;
+    if (isHomePreview !== undefined) video.isHomePreview = isHomePreview;
 
     await video.save();
 

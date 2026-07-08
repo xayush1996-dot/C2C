@@ -63,6 +63,9 @@ function AppLayout() {
         </div>
       )}
 
+      {/* Premium Noise Overlay for entire app */}
+      <div className="noise-overlay" />
+
       <Header />
       <main className="flex-1 flex flex-col pt-20">
         <Outlet />

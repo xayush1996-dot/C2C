@@ -22,16 +22,25 @@
 }
 
 :root {
-  --bg-base: #F7F5EE;
-  --bg-section: #F2EFE6;
+  /* Crisp Monochrome + Slate palette */
+  --bg-base: #FFFFFF;
+  --bg-section: #F8FAFC;
+  
+  /* Solid flat surfaces */
   --bg-elevated: #FFFFFF;
   --surface: #FFFFFF;
-  --surface-hover: #F0EDE4;
-  --accent-gold: #C9A96E;
-  --accent-blue: #4F62D6;
-  --text-primary: #1E1E1E;
-  --text-secondary: #555555;
-  --border: #E5E3DB;
+  --surface-hover: #F1F5F9;
+  
+  /* Accents */
+  --accent-gold: #B8905B; /* Refined metallic bronze */
+  --accent-blue: #0F172A; /* Deep navy/slate */
+  
+  /* Typography */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  
+  /* Sharp borders */
+  --border: #E2E8F0;
 
   --background: var(--bg-base);
   --foreground: var(--text-primary);
@@ -45,17 +54,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Premium Noise Overlay */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.03;
-  z-index: 9999;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+/* Sharp, authoritative card design */
+.bg-surface, .bg-bg-elevated {
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.bg-surface:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* Smooth scroll styling */
@@ -72,7 +80,7 @@ html {
   background: var(--bg-base);
 }
 ::-webkit-scrollbar-thumb {
-  background: #D4D1C7;
+  background: #CBD5E1;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -85,9 +93,9 @@ html {
   outline-offset: 2px;
 }
 
-/* Accessibility contrast overrides for light theme */
+/* Accessibility contrast overrides */
 .bg-accent-gold {
-  color: #1E1E1E !important;
+  color: #FFFFFF !important;
 }
 
 /* Globals: Scale up smaller fonts slightly for better readability */
@@ -96,13 +104,13 @@ html {
 }
 
 /* Remap custom small sizes across the entire application */
-.text-\[9px\] {
+.text-\\[9px\\] {
   font-size: 12px !important;
 }
-.text-\[10px\] {
+.text-\\[10px\\] {
   font-size: 13px !important;
 }
-.text-\[11px\] {
+.text-\\[11px\\] {
   font-size: 14px !important;
 }
 .text-xs {
@@ -111,8 +119,6 @@ html {
 .text-sm {
   font-size: 0.95rem !important;
 }
-
-
 
 /* Preloader Animations */
 @keyframes drawWidth {
@@ -149,9 +155,7 @@ html {
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
 }
-
 .reveal-on-scroll.is-visible {
   opacity: 1;
   transform: translateY(0);

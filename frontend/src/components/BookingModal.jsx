@@ -14,7 +14,7 @@ const packages = [
 export default function BookingModal() {
   const { isBookingOpen, selectedPackage, closeBooking } = useBooking();
   const [modalPackages, setModalPackages] = useState(packages);
-  const [step, setStep] = useState(1); // 1: Package Confirm, 2: Payment Mock, 3: Calendly Mock, 4: Booked Success
+  const [step, setStep] = useState(1); // 1: Package Confirm, 2: Checkout, 3: Booked Success
   const [activePackage, setActivePackage] = useState(null);
   
   // Payment Form Info
@@ -236,7 +236,7 @@ export default function BookingModal() {
             setPaymentSuccess(true);
             setPaymentStep(0);
             setTimeout(() => {
-              setStep(4); // Go to booked success receipt
+              setStep(3); // Go to booked success receipt
             }, 1000);
           } else {
             setIsPaying(false);
@@ -328,27 +328,20 @@ export default function BookingModal() {
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               
               {/* Stepper Progress Bar */}
-              {step < 4 && (
-                <div className="flex items-center justify-between px-4 pb-2 border-b border-border-divider/30">
+              {step < 3 && (
+                <div className="flex items-center justify-center gap-4 px-4 pb-2 border-b border-border-divider/30">
                   <div className="flex flex-col items-center">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${step >= 1 ? "bg-text-primary text-bg-base" : "bg-surface text-text-secondary/40 border border-border-divider"}`}>
                       {step > 1 ? <Check size={12} /> : "1"}
                     </div>
                     <span className="text-[10px] mt-1 font-medium text-text-secondary">Confirm</span>
                   </div>
-                  <div className={`flex-1 h-0.5 mx-2 ${step > 1 ? "bg-text-primary" : "bg-border-divider"}`} />
+                  <div className={`w-16 h-0.5 ${step > 1 ? "bg-text-primary" : "bg-border-divider"}`} />
                   <div className="flex flex-col items-center">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${step >= 2 ? "bg-text-primary text-bg-base" : "bg-surface text-text-secondary/40 border border-border-divider"}`}>
-                      {step > 2 ? <Check size={12} /> : "2"}
+                      2
                     </div>
-                    <span className="text-[10px] mt-1 font-medium text-text-secondary">Schedule</span>
-                  </div>
-                  <div className={`flex-1 h-0.5 mx-2 ${step > 2 ? "bg-text-primary" : "bg-border-divider"}`} />
-                  <div className="flex flex-col items-center">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${step >= 3 ? "bg-text-primary text-bg-base" : "bg-surface text-text-secondary/40 border border-border-divider"}`}>
-                      3
-                    </div>
-                    <span className="text-[10px] mt-1 font-medium text-text-secondary">Payment</span>
+                    <span className="text-[10px] mt-1 font-medium text-text-secondary">Checkout</span>
                   </div>
                 </div>
               )}
@@ -410,89 +403,13 @@ export default function BookingModal() {
                     onClick={() => setStep(2)}
                     className="w-full py-3.5 bg-accent-gold hover:bg-accent-gold/90 text-bg-base font-bold text-xs uppercase tracking-wider rounded-full shadow-sm cursor-pointer transition-colors duration-300 focus:outline-none text-center"
                   >
-                    Proceed to Schedule
+                    Proceed to Checkout
                   </button>
                 </motion.div>
               )}
 
-              {/* STEP 2: Calendly Mockup */}
-              {step === 2 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-6"
-                >
-                  <div className="bg-surface p-5 rounded-2xl border border-border-divider shadow-xs space-y-4 text-left">
-                    <div className="flex items-center gap-2 text-xs text-accent-gold font-bold uppercase tracking-wider">
-                      <Calendar size={14} /> Schedule Session
-                    </div>
-                    <p className="text-xs text-text-secondary">
-                      Choose an open slot to establish your coaching schedule.
-                    </p>
-
-                    {/* Date Picker Grid */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-text-secondary">Select Date:</label>
-                      <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
-                        {getMockDates().map((dt) => (
-                          <button
-                            key={dt.value}
-                            type="button"
-                            onClick={() => setSelectedDate(dt.value)}
-                            className={`p-2 rounded-lg border text-center text-xs font-medium cursor-pointer transition-all duration-200 ${
-                              selectedDate === dt.value
-                                ? "bg-text-primary border-text-primary text-bg-base shadow-xs"
-                                : "bg-bg-elevated border-border-divider hover:border-text-primary/30 text-text-primary"
-                            }`}
-                          >
-                            {dt.label.split(',')[0]}
-                            <span className="block text-[9px] opacity-75">{dt.label.split(',')[1]}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Time Picker Grid */}
-                    {selectedDate && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        className="space-y-2 border-t border-border-divider/50 pt-3"
-                      >
-                        <label className="text-xs font-semibold text-text-secondary">Select Time Zone & Slot:</label>
-                        <div className="grid grid-cols-2 gap-2">
-                          {mockTimes.map((tm) => (
-                            <button
-                              key={tm}
-                              type="button"
-                              onClick={() => setSelectedTime(tm)}
-                              className={`py-2 px-3 rounded-lg border text-center text-xs cursor-pointer transition-all duration-200 ${
-                                selectedTime === tm
-                                  ? "bg-text-primary border-text-primary text-bg-base"
-                                  : "bg-bg-elevated border-border-divider hover:border-text-primary/30 text-text-primary"
-                              }`}
-                            >
-                              {tm}
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </div>
-
-                  {/* CTA */}
-                  <button
-                    onClick={() => setStep(3)}
-                    disabled={!selectedDate || !selectedTime}
-                    className="w-full py-3.5 bg-accent-gold hover:bg-accent-gold/90 text-bg-base font-bold text-xs uppercase tracking-wider rounded-full shadow-sm cursor-pointer transition-colors duration-300 disabled:opacity-45 disabled:cursor-not-allowed focus:outline-none"
-                  >
-                    Proceed to Payment
-                  </button>
-                </motion.div>
-              )}
-
-              {/* STEP 3: Mock Razorpay Payment Screen */}
-              {step === 3 && activePackage && (
+              {/* STEP 2: Mock Razorpay Payment Screen */}
+              {step === 2 && activePackage && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -579,6 +496,12 @@ export default function BookingModal() {
                     </motion.div>
                   ) : (
                     <form onSubmit={startPayment} className="space-y-4 bg-surface p-5 rounded-2xl border border-border-divider text-left">
+                      <div className="bg-accent-gold/10 p-3 rounded-lg border border-accent-gold/20 flex items-start gap-3 text-xs mb-2">
+                        <AlertCircle size={16} className="text-accent-gold shrink-0 mt-0.5" />
+                        <p className="text-text-secondary leading-relaxed">
+                          <strong className="text-text-primary">Next Step: Scheduling.</strong> After your payment is completed securely via Razorpay, you will instantly receive your Calendly link on the next screen to choose your exact session date and time.
+                        </p>
+                      </div>
                       <h5 className="font-semibold text-xs text-text-primary border-b border-border-divider/50 pb-2">Billing Contact Details</h5>
                       
                       <div className="space-y-1">
@@ -633,8 +556,8 @@ export default function BookingModal() {
                 </motion.div>
               )}
 
-              {/* STEP 4: Booking Success Screen */}
-              {step === 4 && (
+              {/* STEP 3: Booking Success Screen */}
+              {step === 3 && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -645,32 +568,24 @@ export default function BookingModal() {
                   </div>
 
                   <div className="space-y-2">
-                    <h4 className="font-serif text-2xl font-bold text-text-primary">Session Confirmed!</h4>
+                    <h4 className="font-serif text-2xl font-bold text-text-primary">Payment Successful!</h4>
                     <p className="text-xs text-text-secondary leading-relaxed max-w-sm mx-auto">
-                      Your booking has been saved. A calendar invitation with the Google Meet link was dispatched to <strong className="text-text-primary font-semibold">{email}</strong>.
+                      Your transaction was processed. A backup calendar link has been sent to <strong className="text-text-primary font-semibold">{email}</strong>.
                     </p>
                   </div>
 
-                  <div className="bg-surface p-5 rounded-2xl border border-border-divider text-left space-y-3.5 max-w-sm mx-auto text-xs">
-                    <p className="font-bold border-b border-border-divider/50 pb-1.5 uppercase text-text-secondary/60 tracking-wider">Booking Receipt</p>
-                    <div className="flex justify-between">
-                      <span className="text-text-secondary">Service Package:</span>
-                      <span className="font-semibold text-text-primary">{activePackage?.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-text-secondary">Date:</span>
-                      <span className="font-semibold text-text-primary">
-                        {new Date(selectedDate + "T12:00:00").toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-text-secondary">Time Slot:</span>
-                      <span className="font-semibold text-text-primary">{selectedTime} (GMT)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-text-secondary">Session Platform:</span>
-                      <span className="font-semibold text-accent-gold">Google Meet (Link enclosed in invite)</span>
-                    </div>
+                  <div className="bg-surface p-5 rounded-2xl border border-border-divider text-center space-y-4 max-w-sm mx-auto">
+                    <p className="text-xs text-text-secondary font-medium">
+                      Please click the button below to secure your 1-on-1 time slot on our calendar:
+                    </p>
+                    <a
+                      href={activePackage?.calendlyUrl || "https://calendly.com/mock-c2c"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full block py-3.5 bg-text-primary hover:bg-text-secondary text-bg-base font-bold text-xs uppercase tracking-wider rounded-full shadow-sm cursor-pointer transition-colors duration-300 focus:outline-none"
+                    >
+                      Schedule Your Session
+                    </a>
                   </div>
 
                   <button

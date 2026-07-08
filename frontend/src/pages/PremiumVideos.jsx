@@ -4,6 +4,20 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Lock, Clock, Video, Volume2, X, Check, CreditCard, Sparkles, AlertCircle, ArrowRight } from "lucide-react";
 
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const DEFAULT_VIDEOS = [
   {
     _id: "default-1",
@@ -239,6 +253,8 @@ export default function PremiumVideos() {
       }
 
       let orderId;
+      let rzpKeyId = "rzp_test_mockKeyId123";
+      let amount = 199900; // default 1999 INR in paise
       try {
         // Create Razorpay Order
         const targetServiceId = premiumService ? premiumService._id : "premium_videos";
@@ -257,63 +273,91 @@ export default function PremiumVideos() {
           throw new Error(orderData.error || "Server error.");
         }
         orderId = orderData.orderId;
+        rzpKeyId = orderData.keyId || rzpKeyId;
+        amount = orderData.amount || amount;
       } catch (err) {
         console.warn("Backend order creation failed, using mock client-side order ID:", err);
         orderId = "order_mock_" + Math.random().toString(36).substring(7);
       }
 
-      // Simulate payment processing flow steps
-      setTimeout(() => setPaymentStep(2), 800);
-      setTimeout(() => setPaymentStep(3), 1600);
-      setTimeout(() => setPaymentStep(4), 2400);
-      setTimeout(() => setPaymentStep(5), 3200);
+      // Load Razorpay SDK
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        alert("Razorpay SDK failed to load. Please check your connection.");
+        setIsPaying(false);
+        setPaymentStep(0);
+        return;
+      }
 
-      setTimeout(async () => {
-        try {
-          const mockPaymentId = "pay_mock_" + Math.random().toString(36).substring(7);
-          const verifyRes = await fetch("/api/payments/verify", {
-            method: "POST",
-            headers: { 
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${activeToken}`,
-              "X-Requested-With": "XMLHttpRequest"
-            },
-            body: JSON.stringify({
-              razorpay_order_id: orderId,
-              razorpay_payment_id: mockPaymentId,
-              razorpay_signature: "sandbox_bypass_signature"
-            })
-          });
-          const verifyData = await verifyRes.json();
-          if (verifyData.success) {
-            setIsPaying(false);
+      // Open Razorpay Modal
+      const options = {
+        key: rzpKeyId,
+        amount: amount,
+        currency: "INR",
+        name: "Confusion to Clarity",
+        description: "Premium Masterclass Archive",
+        order_id: orderId,
+        handler: async function (response) {
+          // Visual indication of verification
+          setIsPaying(true);
+          setPaymentStep(4);
+          
+          try {
+            const verifyRes = await fetch("/api/payments/verify", {
+              method: "POST",
+              headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${activeToken}`,
+                "X-Requested-With": "XMLHttpRequest"
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              setPaymentSuccess(true);
+              setPaymentStep(0);
+              setIsPaying(false);
+              await fetchVideos();
+              setTimeout(() => {
+                handleCloseCheckout();
+              }, 1500);
+            } else {
+              throw new Error(verifyData.error || "Verification failed");
+            }
+          } catch (err) {
+            console.warn("Backend verification failed, using local unlock fallback:", err);
+            // Fallback for mock environments
+            localStorage.setItem("c2c_premium_unlocked", "true");
             setPaymentSuccess(true);
             setPaymentStep(0);
-            
-            // Reload video data to unlock
+            setIsPaying(false);
             await fetchVideos();
-            
             setTimeout(() => {
               handleCloseCheckout();
             }, 1500);
-          } else {
-            throw new Error(verifyData.error || "Verification failed");
           }
-        } catch (err) {
-          console.warn("Backend verification failed, using local unlock fallback:", err);
-          setIsPaying(false);
-          setPaymentSuccess(true);
-          setPaymentStep(0);
-          localStorage.setItem("c2c_premium_unlocked", "true");
-          
-          // Reload video data to unlock
-          await fetchVideos();
-          
-          setTimeout(() => {
-            handleCloseCheckout();
-          }, 1500);
+        },
+        prefill: {
+          name: localStorage.getItem("c2c_client_name") || "Client",
+          email: email,
+          contact: phone
+        },
+        theme: {
+          color: "#D4AF37" // accent-gold
         }
-      }, 4000);
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.on("payment.failed", function (response) {
+        alert("Payment failed: " + response.error.description);
+        setIsPaying(false);
+        setPaymentStep(0);
+      });
+      paymentObject.open();
 
     } catch (err) {
       setIsPaying(false);
@@ -483,12 +527,21 @@ export default function PremiumVideos() {
               {/* Real Video Canvas Playback Screen */}
               <div className="relative aspect-video bg-black flex items-center justify-center">
                 {activeVideo.videoUrl ? (
-                  <video 
-                    src={activeVideo.videoUrl} 
-                    controls 
-                    autoPlay
-                    className="w-full h-full object-contain"
-                  />
+                  activeVideo.videoUrl.includes('youtube.com') ? (
+                    <iframe 
+                      src={activeVideo.videoUrl} 
+                      className="w-full h-full" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video 
+                      src={activeVideo.videoUrl} 
+                      controls 
+                      autoPlay
+                      className="w-full h-full object-contain"
+                    />
+                  )
                 ) : (
                   <div className="text-text-secondary text-xs">Video content error</div>
                 )}

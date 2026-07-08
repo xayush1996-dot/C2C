@@ -29,6 +29,10 @@ const trainingVideoSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true
+    },
+    isHomePreview: {
+      type: Boolean,
+      default: false
     }
   },
   {

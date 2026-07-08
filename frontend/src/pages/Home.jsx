@@ -88,13 +88,15 @@ export default function HomePage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [cmsContent, setCmsContent] = useState({});
   const [services, setServices] = useState([]);
+  const [freeVideos, setFreeVideos] = useState([]);
 
   useEffect(() => {
     const fetchCMSData = async () => {
       try {
-        const [contentRes, servicesRes] = await Promise.all([
+        const [contentRes, servicesRes, videosRes] = await Promise.all([
           fetch("/api/content"),
-          fetch("/api/services")
+          fetch("/api/services"),
+          fetch("/api/videos")
         ]);
         if (contentRes.ok) {
           const contentData = await contentRes.json();
@@ -106,6 +108,13 @@ export default function HomePage() {
           const servicesData = await servicesRes.json();
           if (servicesData && servicesData.success) {
             setServices(servicesData.services);
+          }
+        }
+        if (videosRes.ok) {
+          const videosData = await videosRes.json();
+          if (videosData && videosData.success && videosData.videos) {
+            const homeVideos = videosData.videos.filter(v => v.isHomePreview).slice(0, 3);
+            setFreeVideos(homeVideos);
           }
         }
       } catch (err) {
@@ -793,7 +802,59 @@ export default function HomePage() {
             </p>
           </div>
 
-          <FAQSection />
+          
+        {/* FREE VIDEOS PREVIEW SECTION */}
+        {freeVideos.length > 0 && (
+          <section className="px-6 md:px-12 max-w-7xl mx-auto py-16 reveal-on-scroll">
+            <div className="text-center space-y-6 mb-12">
+              <span className="inline-block px-3 py-1 bg-bg-elevated border border-border-divider rounded-full text-[9px] uppercase font-bold tracking-widest text-text-secondary">
+                TRAINING PREVIEWS
+              </span>
+              <h2 className="font-serif text-3xl md:text-5xl font-bold text-text-primary leading-tight">
+                Unlock <span className="text-accent-gold">Clarity</span> Instantly
+              </h2>
+              <p className="text-xs md:text-sm text-text-secondary max-w-2xl mx-auto leading-relaxed">
+                Watch a few of our premium training clips completely free. If these resonate with you, our full library holds the complete blueprints.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {freeVideos.map(video => (
+                <div key={video._id} className="bg-surface border border-border-divider rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-shadow duration-300">
+                  <div className="aspect-video w-full bg-bg-base relative">
+                    {video.videoUrl && video.videoUrl.includes('youtube.com') ? (
+                      <iframe 
+                        src={video.videoUrl} 
+                        className="w-full h-full" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video 
+                        src={video.videoUrl} 
+                        controls 
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="p-5 space-y-2 text-left">
+                    <span className="text-[9px] uppercase tracking-wider font-bold text-accent-gold">
+                      {video.category}
+                    </span>
+                    <h4 className="font-serif text-lg font-bold text-text-primary line-clamp-1">
+                      {video.title}
+                    </h4>
+                    <p className="text-[10px] text-text-secondary line-clamp-2 leading-relaxed">
+                      {video.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <FAQSection />
         </section>
 
         {/* 13. CONTACT / WHATSAPP SECTION */}

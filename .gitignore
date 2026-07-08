@@ -46,5 +46,4 @@ next-env.d.ts
 
 # Track backend environment template & local dev env
 !backend/.env.example
-!backend/.env
 
