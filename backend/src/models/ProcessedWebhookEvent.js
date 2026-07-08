@@ -8,10 +8,32 @@ const processedWebhookEventSchema = new mongoose.Schema(
       unique: true,
       index: true
     },
-    processedAt: {
+    eventType: {
+      type: String
+    },
+    status: {
+      type: String,
+      required: true,
+      enum: ['PROCESSING', 'PROCESSED', 'FAILED'],
+      default: 'PROCESSING'
+    },
+    attemptCount: {
+      type: Number,
+      default: 1
+    },
+    lockedAt: {
       type: Date,
-      default: Date.now,
-      required: true
+      default: Date.now
+    },
+    lastAttemptAt: {
+      type: Date,
+      default: Date.now
+    },
+    processedAt: {
+      type: Date
+    },
+    safeLastError: {
+      type: String
     }
   },
   {

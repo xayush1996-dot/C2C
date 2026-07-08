@@ -37,10 +37,57 @@ const paymentSchema = new mongoose.Schema(
     razorpaySignature: {
       type: String
     },
+    paymentMethod: {
+      type: String
+    },
+    failureReason: {
+      type: String
+    },
+    failedAttempts: [
+      {
+        razorpayPaymentId: {
+          type: String
+        },
+        failureReason: {
+          type: String
+        },
+        failedAt: {
+          type: Date,
+          default: Date.now
+        }
+      }
+    ],
+    refundedAmount: {
+      type: Number,
+      default: 0
+    },
+    processedRefunds: [
+      {
+        refundId: {
+          type: String
+        },
+        amount: {
+          type: Number
+        },
+        processedAt: {
+          type: Date,
+          default: Date.now
+        }
+      }
+    ],
+    signatureVerifiedAt: {
+      type: Date
+    },
+    providerVerifiedAt: {
+      type: Date
+    },
+    paidAt: {
+      type: Date
+    },
     status: {
       type: String,
       required: true,
-      enum: ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'],
+      enum: ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED', 'PARTIALLY_REFUNDED'],
       default: 'PENDING'
     }
   },
