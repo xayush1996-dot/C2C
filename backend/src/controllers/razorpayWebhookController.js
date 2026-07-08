@@ -169,8 +169,8 @@ export const handleRazorpayWebhook = async (req, res, next) => {
       }
       if (claimResult.status === 'PROCESSING_CONCURRENT') {
         logger.info(`[Security Alert] Webhook event actively processing. Retrying later. Event ID: ${eventId}`);
-        return res.status(429).json({
-          success: false,
+        return res.status(200).json({
+          success: true,
           message: 'Webhook event is currently processing'
         });
       }

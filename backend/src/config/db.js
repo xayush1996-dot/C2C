@@ -120,7 +120,8 @@ const seedTrainingVideos = async () => {
 };
 
 const seedDefaultAdmin = async () => {
-  if (env.NODE_ENV === 'production') {
+  const currentEnv = (process.env.NODE_ENV || env.NODE_ENV || 'development').trim().toLowerCase();
+  if (currentEnv === 'production' || env.NODE_ENV === 'production') {
     return;
   }
 
@@ -180,7 +181,8 @@ const seedDefaultAdmin = async () => {
 };
 
 const seedDefaultCustomer = async () => {
-  if (env.NODE_ENV === 'production') {
+  const currentEnv = (process.env.NODE_ENV || env.NODE_ENV || 'development').trim().toLowerCase();
+  if (currentEnv === 'production' || env.NODE_ENV === 'production') {
     return;
   }
   try {
@@ -209,7 +211,10 @@ export const connectDB = async () => {
       conn = await mongoose.connect(env.MONGO_URI, { serverSelectionTimeoutMS: 500 });
       logger.info(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
-      if (env.NODE_ENV === 'production') {
+      const currentEnv = (process.env.NODE_ENV || env.NODE_ENV || 'development').trim().toLowerCase();
+      const isPermittedFallbackEnv = currentEnv === 'development' || currentEnv === 'test';
+      if (currentEnv === 'production' || !isPermittedFallbackEnv) {
+        logger.error(`Database connection error in production/non-dev mode: ${error.message}`);
         throw error;
       }
       logger.warn(`⚠️ Local MongoDB connection refused (${error.message}). Starting in-memory MongoDB server for development...`);
@@ -235,7 +240,8 @@ export const connectDB = async () => {
     return conn;
   } catch (error) {
     logger.error(`Database connection error: ${error.message}`);
-    if (env.NODE_ENV !== 'test') {
+    const currentEnv = (process.env.NODE_ENV || env.NODE_ENV || 'development').trim().toLowerCase();
+    if (currentEnv !== 'test') {
       process.exit(1);
     }
     throw error;

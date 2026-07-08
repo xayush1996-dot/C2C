@@ -20,7 +20,7 @@ if (isTestExecution) {
 export const envSchema = z.object({
   PORT: z.coerce.number().default(5000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  MONGO_URI: z.string().url({ message: 'MONGO_URI must be a valid MongoDB connection string' }),
+  MONGO_URI: z.string().min(1, { message: 'MONGO_URI is required' }).refine((val) => val.startsWith('mongodb://') || val.startsWith('mongodb+srv://') || (() => { try { new URL(val); return true; } catch { return false; } })(), { message: 'MONGO_URI must be a valid MongoDB connection string' }),
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
   JWT_SECRET: z.string().min(8, { message: 'JWT_SECRET must be at least 8 characters long' }),
   JWT_REFRESH_SECRET: z.string().min(8, { message: 'JWT_REFRESH_SECRET must be at least 8 characters long' }),
