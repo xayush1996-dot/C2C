@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import dbJson from "@/data/db.json";
+import { apiFetch } from "@/lib/api";
 import { 
   Users, 
   CreditCard, 
@@ -133,7 +134,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("overview"); // overview, enquiries, ledger, reports, cms
   const [enquiries, setEnquiries] = useState([]);
   const [transactions, setTransactions] = useState([]);
-
+  const [dashboardSummary, setDashboardSummary] = useState(null);
   // CMS Content States
   const [cmsContent, setCmsContent] = useState({});
   const [cmsServices, setCmsServices] = useState([]);
@@ -164,9 +165,22 @@ export default function AdminPage() {
         "X-Requested-With": "XMLHttpRequest"
       };
 
+      // 0. Fetch dashboard summary
+      try {
+        const summaryRes = await apiFetch("/api/admin/dashboard/summary", { headers, credentials: "include" });
+        if (summaryRes.ok) {
+          const summaryData = await summaryRes.json();
+          if (summaryData.success) {
+            setDashboardSummary(summaryData.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load dashboard summary:", err);
+      }
+
       // 1. Fetch bookings (fallback to dbJson.transactions)
       try {
-        const bookingsRes = await fetch("/api/admin/bookings", { headers, credentials: "include" });
+        const bookingsRes = await apiFetch("/api/admin/bookings", { headers, credentials: "include" });
         if (bookingsRes.ok) {
           const bookingsData = await bookingsRes.json();
           if (bookingsData.success) {
@@ -202,7 +216,7 @@ export default function AdminPage() {
 
       // 2. Fetch enquiries (fallback to dbJson.enquiries)
       try {
-        const enquiriesRes = await fetch("/api/admin/enquiries", { headers, credentials: "include" });
+        const enquiriesRes = await apiFetch("/api/admin/enquiries", { headers, credentials: "include" });
         if (enquiriesRes.ok) {
           const enquiriesData = await enquiriesRes.json();
           if (enquiriesData.success) {
@@ -217,7 +231,7 @@ export default function AdminPage() {
 
       // 3. Fetch CMS content
       try {
-        const contentRes = await fetch("/api/content", { headers });
+        const contentRes = await apiFetch("/api/content", { headers });
         if (contentRes.ok) {
           const contentData = await contentRes.json();
           if (contentData.success) {
@@ -241,7 +255,7 @@ export default function AdminPage() {
 
       // 4. Fetch services
       try {
-        const servicesRes = await fetch("/api/services", { headers });
+        const servicesRes = await apiFetch("/api/services", { headers });
         if (servicesRes.ok) {
           const servicesData = await servicesRes.json();
           if (servicesData.success) {
@@ -406,7 +420,7 @@ export default function AdminPage() {
 
     try {
       const token = localStorage.getItem("c2c_token");
-      const res = await fetch(`/api/admin/enquiries/${id}/status`, {
+      const res = await apiFetch(`/api/admin/enquiries/${id}/status`, {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",
@@ -437,7 +451,7 @@ export default function AdminPage() {
     };
     try {
       const url = search ? `/api/admin/videos?search=${encodeURIComponent(search)}` : "/api/admin/videos";
-      const res = await fetch(url, { headers, credentials: "include" });
+      const res = await apiFetch(url, { headers, credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
@@ -497,7 +511,7 @@ export default function AdminPage() {
     };
 
     try {
-      const res = await fetch(`/api/admin/videos/${encodeURIComponent(identifier)}`, {
+      const res = await apiFetch(`/api/admin/videos/${encodeURIComponent(identifier)}`, {
         method: "DELETE",
         headers,
         credentials: "include"
@@ -530,17 +544,42 @@ export default function AdminPage() {
     });
   };
 
-  // Simulate report download
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     setDownloading(true);
     setDownloadSuccess(false);
-    setTimeout(() => {
-      setDownloading(false);
+    try {
+      const token = localStorage.getItem("c2c_token");
+      const base = import.meta.env.VITE_API_BASE_URL || "";
+      const url = `${base}/api/admin/reports/bookings?startDate=${startDate}&endDate=${endDate}`;
+      
+      const res = await fetch(url, {
+        headers: {
+          "Authorization": token ? `Bearer ${token}` : "",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        credentials: "include"
+      });
+      
+      if (!res.ok) throw new Error("Failed to compile PDF report");
+      
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.setAttribute("download", `report_bookings_${Date.now()}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+      
       setDownloadSuccess(true);
-      setTimeout(() => {
-        setDownloadSuccess(false);
-      }, 4000);
-    }, 2000);
+      setTimeout(() => setDownloadSuccess(false), 4000);
+    } catch (err) {
+      console.error(err);
+      alert("Error: " + err.message);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   // Filter tables
@@ -794,8 +833,12 @@ export default function AdminPage() {
                   <span className="text-xs uppercase font-bold tracking-wider">Gross Revenue</span>
                   <CreditCard size={18} className="text-accent-gold" />
                 </div>
-                <p className="font-serif text-3xl font-bold text-text-primary">₹996.00</p>
-                <span className="text-[10px] text-emerald-400 font-semibold">4 sandbox transactions completed</span>
+                <p className="font-serif text-3xl font-bold text-text-primary">
+                  ₹{(dashboardSummary ? dashboardSummary.payments.totalRevenue : transactions.reduce((acc, t) => acc + (parseFloat(t.paid.replace("₹", "")) || 0), 0)).toFixed(2)}
+                </p>
+                <span className="text-[10px] text-emerald-400 font-semibold">
+                  {dashboardSummary ? dashboardSummary.payments.successful : transactions.filter(t => parseFloat(t.paid.replace("₹", "")) > 0).length} sandbox transactions completed
+                </span>
               </div>
 
               <div className="bg-surface p-6 rounded-2xl border border-border-divider/60 shadow-xs space-y-2">

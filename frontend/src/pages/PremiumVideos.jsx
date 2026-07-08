@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Lock, Clock, Video, Volume2, X, Check, CreditCard, Sparkles, AlertCircle, ArrowRight } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -94,8 +95,7 @@ export default function PremiumVideos() {
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
-      
-      const res = await fetch("/api/videos", { headers });
+      const res = await apiFetch("/api/videos", { headers });
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
@@ -124,7 +124,7 @@ export default function PremiumVideos() {
 
   const fetchServiceDetails = async () => {
     try {
-      const res = await fetch("/api/services");
+      const res = await apiFetch("/api/services");
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.services) {
@@ -161,7 +161,7 @@ export default function PremiumVideos() {
         try {
           const token = localStorage.getItem("c2c_client_token");
           if (token) {
-            const res = await fetch("/api/auth/me", {
+            const res = await apiFetch("/api/auth/me", {
               headers: {
                 "Authorization": `Bearer ${token}`,
                 "X-Requested-With": "XMLHttpRequest"
@@ -207,23 +207,24 @@ export default function PremiumVideos() {
     if (!email || !phone) return;
     setIsPaying(true);
     setPaymentStep(1);
-
     try {
       let activeToken = localStorage.getItem("c2c_client_token");
       
       // Auto-authenticate client if they aren't logged in yet
       if (!activeToken) {
+        // 1. Try registration
         try {
-          await fetch("/api/auth/register", {
+          await apiFetch("/api/auth/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: " Sarah Lin", email, phone, password: "clientpassword" })
+            body: JSON.stringify({ name: "Sarah Lin", email, phone, password: "clientpassword" })
           });
         } catch (err) {
-          // Proceed to login
+          // Already registered or error, proceed to login
         }
 
-        const logRes = await fetch("/api/auth/login", {
+        // 2. Perform login
+        const logRes = await apiFetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password: "clientpassword" })
@@ -237,48 +238,35 @@ export default function PremiumVideos() {
             localStorage.setItem("c2c_client_name", logData.user.name);
           }
         } else {
-          // Local fallback client token if backend returns error
-          if (email.trim().toLowerCase() === "client@example.com") {
-            activeToken = "mock_client_token";
-            localStorage.setItem("c2c_client_token", "mock_client_token");
-            localStorage.setItem("c2c_client_auth", "true");
-            localStorage.setItem("c2c_client_name", "Sarah Lin");
-          } else {
-            setIsPaying(false);
-            setPaymentStep(0);
-            alert("Authentication failed. Please login manually first.");
-            return;
-          }
+          setIsPaying(false);
+          setPaymentStep(0);
+          alert("Authentication failed: Please login manually before booking.");
+          return;
         }
       }
 
-      let orderId;
-      let rzpKeyId = "rzp_test_mockKeyId123";
-      let amount = 199900; // default 1999 INR in paise
-      try {
-        // Create Razorpay Order
-        const targetServiceId = premiumService ? premiumService._id : "premium_videos";
-        const orderRes = await fetch("/api/payments/create-order", {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${activeToken}`,
-            "X-Requested-With": "XMLHttpRequest"
-          },
-          body: JSON.stringify({ serviceId: targetServiceId })
-        });
-        const orderData = await orderRes.json();
+      // 3. Create Razorpay order on Express backend
+      const targetServiceId = premiumService ? premiumService._id : "premium_videos";
+      const orderRes = await apiFetch("/api/payments/create-order", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${activeToken}`,
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        credentials: "include",
+        body: JSON.stringify({ serviceId: targetServiceId })
+      });
+      const orderData = await orderRes.json();
 
-        if (!orderData.success) {
-          throw new Error(orderData.error || "Server error.");
-        }
-        orderId = orderData.orderId;
-        rzpKeyId = orderData.keyId || rzpKeyId;
-        amount = orderData.amount || amount;
-      } catch (err) {
-        console.warn("Backend order creation failed, using mock client-side order ID:", err);
-        orderId = "order_mock_" + Math.random().toString(36).substring(7);
+      if (!orderData.success) {
+        setIsPaying(false);
+        setPaymentStep(0);
+        alert("Failed to initiate order: " + (orderData.error || "Server error."));
+        return;
       }
+
+      const { orderId, amount, keyId } = orderData;
 
       // Load Razorpay SDK
       const scriptLoaded = await loadRazorpayScript();
@@ -291,25 +279,25 @@ export default function PremiumVideos() {
 
       // Open Razorpay Modal
       const options = {
-        key: rzpKeyId,
+        key: keyId,
         amount: amount,
         currency: "INR",
         name: "Confusion to Clarity",
         description: "Premium Masterclass Archive",
         order_id: orderId,
         handler: async function (response) {
-          // Visual indication of verification
           setIsPaying(true);
           setPaymentStep(4);
           
           try {
-            const verifyRes = await fetch("/api/payments/verify", {
+            const verifyRes = await apiFetch("/api/payments/verify", {
               method: "POST",
               headers: { 
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${activeToken}`,
                 "X-Requested-With": "XMLHttpRequest"
               },
+              credentials: "include",
               body: JSON.stringify({
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -329,16 +317,10 @@ export default function PremiumVideos() {
               throw new Error(verifyData.error || "Verification failed");
             }
           } catch (err) {
-            console.warn("Backend verification failed, using local unlock fallback:", err);
-            // Fallback for mock environments
-            localStorage.setItem("c2c_premium_unlocked", "true");
-            setPaymentSuccess(true);
-            setPaymentStep(0);
+            console.error("Verification failed:", err);
+            alert("Verification failed: " + err.message);
             setIsPaying(false);
-            await fetchVideos();
-            setTimeout(() => {
-              handleCloseCheckout();
-            }, 1500);
+            setPaymentStep(0);
           }
         },
         prefill: {

@@ -260,7 +260,8 @@ export const verifyPayment = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'Payment verified successfully',
-      paymentStatus: 'SUCCESS'
+      paymentStatus: 'SUCCESS',
+      bookingReference: payment.booking ? payment.booking.bookingReference : undefined
     });
   } catch (error) {
     next(error);

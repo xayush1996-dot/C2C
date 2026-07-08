@@ -4,11 +4,27 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, CreditCard, Calendar, Clock, Sparkles, AlertCircle } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
+import { apiFetch } from "@/lib/api";
+
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 const packages = [
   { id: "eq", name: "Emotional Intelligence (EQ) & Self-Awareness", price: "₹2999", duration: "60 Mins", description: "Learn to recognize emotional triggers, map cognitive patterns, build self-awareness, and deploy empathetic response systems in corporate and social environments." },
   { id: "public", name: "Public Speaking, Leadership & Confidence Building", price: "₹4999", duration: "90 Mins", description: "Develop high-impact presence, construct persuasive speeches, master body posture, and overcome stage fright to lead teams with ultimate confidence." },
-  { id: "private", name: "Confidential 1-on-1 Private Mentorship", price: "₹1499", duration: "45 Mins", description: "A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews." }
+  { id: "private", name: "Confidential 1-on-1 Private Mentorship", price: "₹1499", duration: "45 Mins", description: "A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews." },
+  { id: "resume", name: "Resume Overhaul & LinkedIn Optimization", price: "₹3499", duration: "75 Mins", description: "Transform your CV with high-conversion frameworks, optimize your LinkedIn presence, and learn the secret to beating the ATS (Applicant Tracking System) for dream roles." }
 ];
 
 export default function BookingModal() {
@@ -18,6 +34,7 @@ export default function BookingModal() {
   const [activePackage, setActivePackage] = useState(null);
   
   // Payment Form Info
+  const [bookingRef, setBookingRef] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isPaying, setIsPaying] = useState(false);
@@ -49,12 +66,11 @@ export default function BookingModal() {
       document.body.style.overflow = "";
     };
   }, [isBookingOpen]);
-
   // Fetch dynamic packages from database
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await fetch("/api/services");
+        const res = await apiFetch("/api/services");
         if (!res.ok) {
           throw new Error(`Services fetch returned status ${res.status}`);
         }
@@ -69,9 +85,11 @@ export default function BookingModal() {
             if (dbMatch) {
               return {
                 ...pkg,
+                _id: dbMatch._id,
                 name: dbMatch.name,
                 price: `₹${dbMatch.price}`,
-                duration: dbMatch.duration || pkg.duration
+                duration: dbMatch.duration || pkg.duration,
+                calendlyUrl: dbMatch.calendlyUrl
               };
             }
             return pkg;
@@ -102,7 +120,7 @@ export default function BookingModal() {
         try {
           const token = localStorage.getItem("c2c_client_token");
           if (token) {
-            const res = await fetch("/api/auth/me", {
+            const res = await apiFetch("/api/auth/me", {
               headers: {
                 "Authorization": `Bearer ${token}`,
                 "X-Requested-With": "XMLHttpRequest"
@@ -145,7 +163,6 @@ export default function BookingModal() {
     if (!email || !phone) return;
     setIsPaying(true);
     setPaymentStep(1);
-
     try {
       let activeToken = localStorage.getItem("c2c_client_token");
       
@@ -153,7 +170,7 @@ export default function BookingModal() {
       if (!activeToken) {
         // 1. Try registration
         try {
-          await fetch("/api/auth/register", {
+          await apiFetch("/api/auth/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: "Sarah Lin", email, phone, password: "clientpassword" })
@@ -163,7 +180,7 @@ export default function BookingModal() {
         }
 
         // 2. Perform login
-        const logRes = await fetch("/api/auth/login", {
+        const logRes = await apiFetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password: "clientpassword" })
@@ -185,7 +202,7 @@ export default function BookingModal() {
       }
 
       // 3. Create Razorpay order on Express backend
-      const orderRes = await fetch("/api/payments/create-order", {
+      const orderRes = await apiFetch("/api/payments/create-order", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -204,58 +221,89 @@ export default function BookingModal() {
         return;
       }
 
-      const { orderId } = orderData;
+      const { orderId, amount, keyId, bookingReference } = orderData;
+      setBookingRef(bookingReference || "");
 
-      // Progressive step-by-step Razorpay flow simulations
-      setTimeout(() => setPaymentStep(2), 1000);
-      setTimeout(() => setPaymentStep(3), 2000);
-      setTimeout(() => setPaymentStep(4), 3000);
-      setTimeout(() => setPaymentStep(5), 4000);
+      // Load Razorpay SDK
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        alert("Razorpay SDK failed to load. Please check your connection.");
+        setIsPaying(false);
+        setPaymentStep(0);
+        return;
+      }
 
-      setTimeout(async () => {
-        try {
-          // 4. Verify payment via backend using our sandbox bypass signature
-          const mockPaymentId = "pay_mock_" + Math.random().toString(36).substring(7);
-          const verifyRes = await fetch("/api/payments/verify", {
-            method: "POST",
-            headers: { 
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${activeToken}`,
-              "X-Requested-With": "XMLHttpRequest"
-            },
-            credentials: "include",
-            body: JSON.stringify({
-              razorpay_order_id: orderId,
-              razorpay_payment_id: mockPaymentId,
-              razorpay_signature: "sandbox_bypass_signature"
-            })
-          });
-          const verifyData = await verifyRes.json();
-          if (verifyData.success) {
+      // Open Razorpay Modal
+      const options = {
+        key: keyId,
+        amount: amount,
+        currency: "INR",
+        name: "Confusion to Clarity",
+        description: activePackage.name,
+        order_id: orderId,
+        handler: async function (response) {
+          setIsPaying(true);
+          setPaymentStep(4);
+          
+          try {
+            const verifyRes = await apiFetch("/api/payments/verify", {
+              method: "POST",
+              headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${activeToken}`,
+                "X-Requested-With": "XMLHttpRequest"
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              if (verifyData.bookingReference) {
+                setBookingRef(verifyData.bookingReference);
+              }
+              setIsPaying(false);
+              setPaymentSuccess(true);
+              setPaymentStep(0);
+              setTimeout(() => {
+                setStep(3); // Go to booked success receipt
+              }, 1000);
+            } else {
+              throw new Error(verifyData.error || "Verification failed");
+            }
+          } catch (err) {
+            console.error("Payment verification failed", err);
+            alert("Payment verification failed: " + err.message);
             setIsPaying(false);
-            setPaymentSuccess(true);
             setPaymentStep(0);
-            setTimeout(() => {
-              setStep(3); // Go to booked success receipt
-            }, 1000);
-          } else {
-            setIsPaying(false);
-            setPaymentStep(0);
-            alert("Payment verification failed: " + verifyData.error);
           }
-        } catch (err) {
-          setIsPaying(false);
-          setPaymentStep(0);
-          alert("Failed to verify payment with backend.");
+        },
+        prefill: {
+          name: localStorage.getItem("c2c_client_name") || "Client",
+          email: email,
+          contact: phone
+        },
+        theme: {
+          color: "#D4AF37"
         }
-      }, 5000);
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.on("payment.failed", function (response) {
+        alert("Payment failed: " + response.error.description);
+        setIsPaying(false);
+        setPaymentStep(0);
+      });
+      paymentObject.open();
 
     } catch (err) {
       setIsPaying(false);
       setPaymentStep(0);
       alert("Failed to connect to backend server.");
-    }
-  };
+    }  };
 
   // Generate some mockup dates for calendar (next 5 weekdays)
   const getMockDates = () => {
@@ -579,7 +627,7 @@ export default function BookingModal() {
                       Please click the button below to secure your 1-on-1 time slot on our calendar:
                     </p>
                     <a
-                      href={activePackage?.calendlyUrl || "https://calendly.com/mock-c2c"}
+                      href={activePackage?.calendlyUrl ? `${activePackage.calendlyUrl}?utm_campaign=${bookingRef}` : "https://calendly.com/mock-c2c"}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full block py-3.5 bg-text-primary hover:bg-text-secondary text-bg-base font-bold text-xs uppercase tracking-wider rounded-full shadow-sm cursor-pointer transition-colors duration-300 focus:outline-none"

@@ -12,12 +12,13 @@ import {
   CheckCircle,
   HelpCircle
 } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 export default function ClientPage() {
   const navigate = useNavigate();
   const [authorized, setAuthorized] = useState(false);
   const [bookings, setBookings] = useState([]);
-
+  const [clientName, setClientName] = useState("Sarah Lin");
   useEffect(() => {
     if (typeof window !== "undefined") {
       const getCookie = (name) => {
@@ -29,15 +30,16 @@ export default function ClientPage() {
 
       const authLocal = localStorage.getItem("c2c_client_auth");
       const authCookie = getCookie("c2c_client_auth");
-
       const checkAuth = async () => {
         try {
           const token = localStorage.getItem("c2c_client_token");
           if (token === "mock_client_token") {
             setAuthorized(true);
+            const cachedName = localStorage.getItem("c2c_client_name");
+            if (cachedName) setClientName(cachedName);
             return;
           }
-          const res = await fetch("/api/auth/me", {
+          const res = await apiFetch("/api/auth/me", {
             headers: {
               "Authorization": token ? `Bearer ${token}` : "",
               "X-Requested-With": "XMLHttpRequest"
@@ -45,11 +47,17 @@ export default function ClientPage() {
             credentials: "include"
           });
           const data = await res.json();
-          if (data.success) {
+          if (data.success && data.user) {
             setAuthorized(true);
+            if (data.user.name) {
+              setClientName(data.user.name);
+              localStorage.setItem("c2c_client_name", data.user.name);
+            }
           } else {
             if (localStorage.getItem("c2c_client_auth") === "true") {
               setAuthorized(true);
+              const cachedName = localStorage.getItem("c2c_client_name");
+              if (cachedName) setClientName(cachedName);
             } else {
               navigate("/login");
             }
@@ -57,6 +65,8 @@ export default function ClientPage() {
         } catch (err) {
           if (localStorage.getItem("c2c_client_auth") === "true") {
             setAuthorized(true);
+            const cachedName = localStorage.getItem("c2c_client_name");
+            if (cachedName) setClientName(cachedName);
           } else {
             navigate("/login");
           }
@@ -74,16 +84,17 @@ export default function ClientPage() {
           setBookings([
             {
               id: "b1",
-              service: "EQ & Self-Awareness Coaching",
-              paid: "₹2999.00",
+              service: { name: "EQ & Self-Awareness Coaching", price: 2999 },
+              paymentStatus: "SUCCESS",
               date: "2026-07-10",
               time: "14:00",
-              meetActive: true
+              meetActive: true,
+              bookingReference: "booking_123"
             }
           ]);
           return;
         }
-        const res = await fetch("/api/me/bookings", {
+        const res = await apiFetch("/api/me/bookings", {
           headers: {
             "Authorization": token ? `Bearer ${token}` : "",
             "X-Requested-With": "XMLHttpRequest"
@@ -96,18 +107,6 @@ export default function ClientPage() {
         }
       } catch (err) {
         console.error("Error loading bookings:", err);
-        if (localStorage.getItem("c2c_client_token") === "mock_client_token") {
-          setBookings([
-            {
-              id: "b1",
-              service: "EQ & Self-Awareness Coaching",
-              paid: "₹2999.00",
-              date: "2026-07-10",
-              time: "14:00",
-              meetActive: true
-            }
-          ]);
-        }
       }
     };
     if (authorized) {
@@ -118,7 +117,7 @@ export default function ClientPage() {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("c2c_client_token");
-      await fetch("/api/auth/logout", { 
+      await apiFetch("/api/auth/logout", { 
         method: "POST",
         headers: {
           "Authorization": token ? `Bearer ${token}` : "",
@@ -155,7 +154,7 @@ export default function ClientPage() {
             <Sparkles size={16} />
           </div>
           <div>
-            <h1 className="font-serif text-2xl font-bold text-text-primary">Welcome, Sarah Lin</h1>
+            <h1 className="font-serif text-2xl font-bold text-text-primary">Welcome, {clientName}</h1>
             <p className="text-xs text-text-secondary mt-0.5">Your personal coaching space.</p>
           </div>
         </div>
@@ -180,49 +179,92 @@ export default function ClientPage() {
             {bookings.length > 0 ? (
               (() => {
                 const upcoming = bookings[bookings.length - 1];
+                const serviceName = upcoming.service?.name || "Coaching Service";
+                const isPaid = upcoming.paymentStatus === 'SUCCESS';
+                const isScheduled = !!upcoming.scheduledTime;
+                
                 return (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
                     <div className="space-y-3">
                       <span className="px-2.5 py-1 rounded bg-surface-hover text-text-primary text-[9px] uppercase font-bold tracking-wider border border-border-divider">
-                        {upcoming.service}
+                        {serviceName}
                       </span>
-                      <h4 className="font-serif text-xl font-bold text-text-primary">Session 1: Intake & Alignment</h4>
+                      <h4 className="font-serif text-xl font-bold text-text-primary">
+                        {isScheduled ? "Coaching Session Scheduled" : isPaid ? "Payment Verified — Action Required" : "Payment Pending Checkout"}
+                      </h4>
                       <p className="text-xs text-text-secondary leading-relaxed font-medium">
-                        Focusing on mapping out executive barriers and designing boundaries around your product pivot.
+                        {isScheduled 
+                          ? "Your 1-on-1 advisor seat is secured. Please join the Meet link at the scheduled time."
+                          : isPaid 
+                            ? "Please schedule your session on Calendly to claim your 1-on-1 time slot."
+                            : "Your order is created, but payment is still pending. Please check your billing logs below to complete checkout."}
                       </p>
                     </div>
 
                     {/* Time Details Panel */}
                     <div className="bg-bg-elevated/40 p-4 rounded-2xl border border-border-divider/50 space-y-3 text-xs">
-                      <div className="flex items-center gap-2 text-text-primary">
-                        <Calendar size={14} className="text-text-secondary" />
-                        <span className="font-semibold">
-                          {new Date(upcoming.date + "T12:00:00").toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-text-primary">
-                        <Clock size={14} className="text-text-secondary" />
-                        <span className="font-semibold">{upcoming.time} (GMT)</span>
-                      </div>
-
-                      {upcoming.meetActive ? (
-                        <a
-                          href="https://meet.google.com"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full py-2.5 bg-surface-hover hover:bg-border-divider text-text-primary text-[10px] uppercase font-bold tracking-wider border border-border-divider rounded-lg transition-colors flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer"
-                        >
-                          <Video size={12} />
-                          Join Google Meet
-                        </a>
+                      {isScheduled ? (
+                        <>
+                          <div className="flex items-center gap-2 text-text-primary">
+                            <Calendar size={14} className="text-text-secondary" />
+                            <span className="font-semibold">
+                              {new Date(upcoming.scheduledTime).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-text-primary">
+                            <Clock size={14} className="text-text-secondary" />
+                            <span className="font-semibold">
+                              {new Date(upcoming.scheduledTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <a
+                            href="https://meet.google.com/c2c-session"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full py-2.5 bg-surface-hover hover:bg-border-divider text-text-primary text-[10px] uppercase font-bold tracking-wider border border-border-divider rounded-lg transition-colors flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer"
+                          >
+                            <Video size={12} />
+                            Join Google Meet
+                          </a>
+                        </>
+                      ) : isPaid ? (
+                        <>
+                          <div className="text-text-primary font-semibold flex items-center gap-2">
+                            <Clock size={14} className="text-text-secondary animate-pulse" />
+                            Unscheduled
+                          </div>
+                          {upcoming.unlockedCalendlyUrl ? (
+                            <a
+                              href={upcoming.unlockedCalendlyUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full py-2.5 bg-accent-gold hover:bg-accent-gold/90 text-bg-base text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer"
+                            >
+                              <Calendar size={12} />
+                              Schedule on Calendly
+                            </a>
+                          ) : (
+                            <button
+                              disabled
+                              className="w-full py-2.5 bg-bg-base/30 text-text-secondary/40 border border-border-divider text-[10px] uppercase font-bold tracking-wider rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed"
+                            >
+                              Calendly Link Locked
+                            </button>
+                          )}
+                        </>
                       ) : (
-                        <button
-                          disabled
-                          className="w-full py-2.5 bg-bg-base/30 text-text-secondary/40 border border-border-divider text-[10px] uppercase font-bold tracking-wider rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed"
-                        >
-                          <Video size={12} />
-                          Meet Link Disabled
-                        </button>
+                        <>
+                          <div className="text-text-secondary/50 font-semibold flex items-center gap-2">
+                            <CreditCard size={14} className="text-text-secondary" />
+                            Unpaid
+                          </div>
+                          <button
+                            disabled
+                            className="w-full py-2.5 bg-bg-base/30 text-text-secondary/40 border border-border-divider text-[10px] uppercase font-bold tracking-wider rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed"
+                          >
+                            Checkout Pending
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -253,10 +295,16 @@ export default function ClientPage() {
                 </thead>
                 <tbody className="divide-y divide-border-divider/30 text-text-secondary">
                   {bookings.map((b) => (
-                    <tr key={b.id}>
-                      <td className="py-3 font-mono text-text-primary">{b.date}</td>
-                      <td className="py-3 font-medium text-text-primary">{b.service} Setup fee</td>
-                      <td className="py-3 font-semibold text-text-primary">{b.paid}</td>
+                    <tr key={b._id || b.id}>
+                      <td className="py-3 font-mono text-text-primary">
+                        {b.createdAt ? new Date(b.createdAt).toLocaleDateString('en-US') : "N/A"}
+                      </td>
+                      <td className="py-3 font-medium text-text-primary">
+                        {b.service?.name || "Coaching Service"} Setup fee
+                      </td>
+                      <td className="py-3 font-semibold text-text-primary">
+                        ₹{b.service?.price || 0}
+                      </td>
                       <td className="py-3 text-right">
                         <button className="text-[10px] font-bold text-text-secondary hover:text-text-primary hover:underline inline-flex items-center gap-1 cursor-pointer">
                           <Download size={10} /> PDF Receipt
