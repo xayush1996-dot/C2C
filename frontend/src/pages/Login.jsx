@@ -20,6 +20,14 @@ export default function LoginPage() {
   const [newPassword, setNewPassword] = useState("");
   const [forgotStep, setForgotStep] = useState(1); // 1: enter email, 2: enter code & password
   const [forgotSuccess, setForgotSuccess] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timerId = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timerId);
+    }
+  }, [resendTimer]);
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
@@ -38,6 +46,7 @@ export default function LoginPage() {
       const data = await res.json();
       if (data.success) {
         setForgotStep(2);
+        setResendTimer(60);
         setLoading(false);
         if (data.resetToken) {
           console.log("OTP Code (Dev simulation):", data.resetToken);
@@ -148,42 +157,18 @@ export default function LoginPage() {
         }
         navigate("/");
       } else {
-        // Local fallback if backend returns error but credentials match demo
-        if (!isRegistering && email.trim().toLowerCase() === "client@example.com" && password === "clientpassword") {
-          localStorage.setItem("c2c_client_auth", "true");
-          localStorage.setItem("c2c_client_token", "mock_client_token");
-          localStorage.setItem("c2c_client_name", "Sarah Lin");
-          navigate("/");
-          return;
-        }
+
         setLoading(false);
         setError(data.error || "Invalid credentials. Please try again.");
       }
     } catch (err) {
       // Backend not deployed fallback: verify client locally
-      if (isRegistering) {
-        localStorage.setItem("c2c_client_auth", "true");
-        localStorage.setItem("c2c_client_token", "mock_client_token");
-        localStorage.setItem("c2c_client_name", name || "Client");
-        navigate("/");
-      } else {
-        if (email.trim().toLowerCase() === "client@example.com" && password === "clientpassword") {
-          localStorage.setItem("c2c_client_auth", "true");
-          localStorage.setItem("c2c_client_token", "mock_client_token");
-          localStorage.setItem("c2c_client_name", "Sarah Lin");
-          navigate("/");
-        } else {
-          setLoading(false);
-          setError("Invalid client credentials. Please try again.");
-        }
-      }
+        setLoading(false);
+        setError("Invalid credentials. Please try again.");
     }
   };
 
-  const handleQuickLogin = () => {
-    setEmail("client@example.com");
-    setPassword("clientpassword");
-  };
+
 
   const handleGoogleSuccess = async (credentialResponse) => {
     setError("");
@@ -324,6 +309,17 @@ export default function LoginPage() {
                     </>
                   ) : "Confirm Reset Password"}
                 </button>
+                
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    onClick={handleSendOtp}
+                    disabled={resendTimer > 0 || loading}
+                    className={`text-xs font-medium transition-all duration-150 ${resendTimer > 0 ? "text-text-secondary/50 cursor-not-allowed" : "text-text-secondary hover:text-text-primary hover:underline cursor-pointer"}`}
+                  >
+                    {resendTimer > 0 ? `Resend code in ${resendTimer}s` : "Resend Verification Code"}
+                  </button>
+                </div>
               </div>
             )}
 
@@ -479,16 +475,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Quick Login Link */}
-            <div className="text-center pt-2">
-              <button
-                type="button"
-                onClick={handleQuickLogin}
-                className="text-[10px] uppercase font-bold tracking-wider text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
-              >
-                Use Quick Demo credentials
-              </button>
-            </div>
+
           </>
         )}
       </div>

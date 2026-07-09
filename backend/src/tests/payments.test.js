@@ -420,7 +420,7 @@ describe('Razorpay Payment Integration Tests', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(bookingSpy).toHaveBeenCalledWith(mockBookingDoc, { $set: { status: 'CONFIRMED' } });
+      expect(bookingSpy).toHaveBeenCalledWith(mockBookingDoc, { $set: { status: 'CONFIRMED' } }, { new: true });
     });
 
     it('should reject webhook requests with invalid cryptographic signatures', async () => {

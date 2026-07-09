@@ -25,19 +25,14 @@ export const getTrainingVideos = async (req, res, next) => {
         } else if (decoded.role === 'CUSTOMER') {
           const user = await User.findById(decoded.id);
           if (user && !(user.lockoutUntil && user.lockoutUntil > new Date())) {
-            // Check for premium videos purchase
-            const premiumService = await Service.findOne({ code: 'premium_videos' });
-            if (premiumService) {
-              const booking = await Booking.findOne({
-                user: user._id,
-                service: premiumService._id,
-                status: 'CONFIRMED'
-              });
-              if (booking) {
-                const payment = await Payment.findOne({ booking: booking._id, status: 'SUCCESS' });
-                if (payment) {
-                  hasAccess = true;
-                }
+            // Check for premium videos purchase using user schema
+            if (user.isPremium && user.premiumExpiryDate) {
+              if (user.premiumExpiryDate > new Date()) {
+                hasAccess = true;
+              } else {
+                // Subscription has expired; auto-revoke
+                user.isPremium = false;
+                await user.save().catch(err => console.error('Failed to auto-revoke premium', err));
               }
             }
           }

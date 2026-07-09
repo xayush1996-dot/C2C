@@ -71,6 +71,21 @@ const seedServicesAndContent = async () => {
     }
     logger.info('Website services successfully seeded.');
 
+    // 3. Seed Admin Account
+    const Admin = (await import('../models/Admin.js')).default;
+    const defaultAdminEmail = 'confusiontoclarity7@gmail.com';
+    const existingAdmin = await Admin.findOne({ email: defaultAdminEmail });
+    if (!existingAdmin) {
+      await Admin.create({
+        email: defaultAdminEmail,
+        adminId: 'admin_c2c',
+        password: 'Confusion@2026',
+        name: 'Lead Admin',
+        isActive: true
+      });
+      logger.info('Default Admin account seeded successfully.');
+    }
+
     await disconnectDB();
     logger.info('CMS Seeding completed successfully.');
     process.exit(0);

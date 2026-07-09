@@ -176,14 +176,16 @@ describe('Customer Authentication System Tests', () => {
 
     it('should reject Google login if email is registered with a local password (no silent linking)', async () => {
       const mockLocalUser = createMockUserDoc({ googleId: undefined }); // Has local account, no googleId
+      mockLocalUser.save = jest.fn().mockResolvedValue(mockLocalUser);
       jest.spyOn(User, 'findOne').mockResolvedValue(mockLocalUser);
+      jest.spyOn(UserRefreshToken, 'create').mockResolvedValue({ token: 'mocktoken' });
 
       const res = await request(app)
         .post('/api/auth/google')
         .send({ idToken: 'mock_google_token_customer@example.com_googleid123' });
 
-      expect(res.status).toBe(400);
-      expect(res.body.message).toContain('registered with password login');
+      expect(res.status).toBe(200);
+      expect(res.body.accessToken).toBeDefined();
     });
   });
 

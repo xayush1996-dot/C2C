@@ -46,6 +46,13 @@ const userSchema = new mongoose.Schema(
     },
     lockoutUntil: {
       type: Date
+    },
+    isPremium: {
+      type: Boolean,
+      default: false
+    },
+    premiumExpiryDate: {
+      type: Date
     }
   },
   {

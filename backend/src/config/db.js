@@ -211,13 +211,15 @@ const seedDefaultCustomer = async () => {
   try {
     const count = await User.countDocuments();
     if (count === 0) {
-      await User.create({
-        email: 'client@example.com',
-        password: 'clientpassword',
-        name: 'Sarah Lin',
-        role: 'CUSTOMER'
-      });
-      logger.info('Database seeded with default demo customer (client@example.com / clientpassword).');
+      await User.create([
+        {
+          email: 'client@example.com',
+          password: 'clientpassword',
+          name: 'Sarah Lin',
+          role: 'CUSTOMER'
+        }
+      ]);
+      logger.info('Database seeded with default demo customer (client@example.com).');
     }
   } catch (error) {
     logger.error(`Error seeding default customer: ${error.message}`);

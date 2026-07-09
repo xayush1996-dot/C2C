@@ -4,6 +4,7 @@ import ProcessedWebhookEvent from '../models/ProcessedWebhookEvent.js';
 import { verifyWebhookSignature } from '../services/razorpayService.js';
 import { processPaymentSuccessSideEffects } from './paymentController.js';
 import { AppError } from '../middleware/errorHandler.js';
+
 import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
 
@@ -230,7 +231,8 @@ export const handleRazorpayWebhook = async (req, res, next) => {
         );
 
         if (updatedPayment) {
-          await Booking.findByIdAndUpdate(updatedPayment.booking, { $set: { status: 'CONFIRMED' } });
+          const updatedBooking = await Booking.findByIdAndUpdate(updatedPayment.booking, { $set: { status: 'CONFIRMED' } }, { new: true });
+
           logger.info(`[Security Alert] Webhook reconciled successfully. Order ID: ${orderId}, Payment ID: ${paymentId}`);
           processPaymentSuccessSideEffects(updatedPayment._id).catch(err => {
             logger.error(`Failed to execute webhook payment side-effects: ${err.message}`);

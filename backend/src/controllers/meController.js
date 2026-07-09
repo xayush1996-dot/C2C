@@ -11,7 +11,9 @@ export const getProfile = async (req, res, next) => {
         id: req.user._id,
         name: req.user.name,
         email: req.user.email,
-        role: req.user.role
+        role: req.user.role,
+        isPremium: req.user.isPremium,
+        premiumExpiryDate: req.user.premiumExpiryDate
       }
     });
   } catch (error) {
@@ -74,7 +76,9 @@ export const updateProfile = async (req, res, next) => {
         id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
-        role: updatedUser.role
+        role: updatedUser.role,
+        isPremium: updatedUser.isPremium,
+        premiumExpiryDate: updatedUser.premiumExpiryDate
       }
     });
   } catch (error) {

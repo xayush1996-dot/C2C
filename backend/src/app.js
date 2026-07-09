@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
-import { helmetMiddleware, corsMiddleware } from './middleware/security.js';
+import { helmetMiddleware, corsMiddleware, apiLimiter } from './middleware/security.js';
 import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 import adminAuthRoutes from './routes/adminAuthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -38,6 +38,9 @@ app.use(helmetMiddleware);
 
 // Set strict CORS policy
 app.use(corsMiddleware);
+
+// Apply rate limiting to all API requests
+app.use('/api', apiLimiter);
 
 // Restrict incoming payload sizes to prevent DoS attacks, preserving raw body buffer for webhook signature checks
 app.use(express.json({

@@ -7,7 +7,7 @@ import { logger } from '../config/logger.js';
 import { AppError } from '../middleware/errorHandler.js';
 import User from '../models/User.js';
 import UserRefreshToken from '../models/UserRefreshToken.js';
-import { sendVerificationCode } from '../services/emailService.js';
+import { sendVerificationCode, sendWelcomeEmail } from '../services/emailService.js';
 import { exec } from 'child_process';
 import path from 'path';
 
@@ -132,6 +132,9 @@ export const register = async (req, res, next) => {
       role: 'CUSTOMER'
     });
 
+    // Fire and forget welcome email
+    sendWelcomeEmail(user.email, user.name).catch(err => logger.error(err));
+
     logger.info(`[Security Alert] Successful customer registration: ${user.email} from IP: ${req.ip}`);
 
     const accessToken = generateAccessToken(user);
@@ -157,7 +160,9 @@ export const register = async (req, res, next) => {
         id: user._id,
         email: user.email,
         name: user.name,
-        role: user.role
+        role: user.role,
+        isPremium: user.isPremium,
+        premiumExpiryDate: user.premiumExpiryDate
       }
     });
   } catch (error) {
@@ -236,7 +241,9 @@ export const login = async (req, res, next) => {
         id: user._id,
         email: user.email,
         name: user.name,
-        role: user.role
+        role: user.role,
+        isPremium: user.isPremium,
+        premiumExpiryDate: user.premiumExpiryDate
       }
     });
   } catch (error) {
@@ -263,8 +270,10 @@ export const google = async (req, res, next) => {
     if (user) {
       // Secure check for existing local accounts (No silent insecure account linking)
       if (!user.googleId) {
-        logger.warn(`[Security Alert] Rejected Google OAuth login for local password account: ${trimmedEmail} from IP: ${req.ip}`);
-        return next(new AppError('This email is registered with password login. Please log in using your password.', 400));
+        // Automatically link the Google account
+        user.googleId = sub;
+        await user.save();
+        logger.info(`[Security Alert] Linked Google OAuth to existing local account: ${trimmedEmail} from IP: ${req.ip}`);
       }
       
       if (user.googleId !== sub) {
@@ -280,6 +289,9 @@ export const google = async (req, res, next) => {
         role: 'CUSTOMER'
       });
       logger.info(`[Security Alert] Successful customer Google OAuth registration: ${user.email} from IP: ${req.ip}`);
+      
+      // Fire and forget welcome email
+      sendWelcomeEmail(user.email, user.name).catch(err => logger.error(err));
     }
 
     // Generate session
@@ -306,7 +318,9 @@ export const google = async (req, res, next) => {
         id: user._id,
         email: user.email,
         name: user.name,
-        role: user.role
+        role: user.role,
+        isPremium: user.isPremium,
+        premiumExpiryDate: user.premiumExpiryDate
       }
     });
   } catch (error) {
@@ -414,7 +428,9 @@ export const me = async (req, res) => {
       id: req.user._id,
       email: req.user.email,
       name: req.user.name,
-      role: req.user.role
+      role: req.user.role,
+      isPremium: req.user.isPremium,
+      premiumExpiryDate: req.user.premiumExpiryDate
     }
   });
 };
