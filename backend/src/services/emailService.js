@@ -95,6 +95,103 @@ export const sendCalendlyLinkEmail = async (email, serviceName, calendlyUrl) => 
     logger.info(`Calendly link successfully emailed to ${email}`);
   } catch (error) {
     logger.error(`Failed to send Calendly link email to ${email}: ${error.message}`);
-    // We don't throw an error here because this is a fire-and-forget background task after payment verification
+    throw error;
+  }
+};
+
+/**
+ * Sends a welcome email to a newly registered user.
+ * @param {string} email - Recipient email address
+ * @param {string} name - Recipient name
+ */
+export const sendWelcomeEmail = async (email, name) => {
+  const mailOptions = {
+    from: `"C2C Mentorship" <${env.EMAIL_USER}>`,
+    to: email,
+    subject: 'Welcome to Confusion to Clarity Mentorship!',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eae7dd; border-radius: 8px; background-color: #faf9f6;">
+        <h2 style="color: #c5a880; text-align: center; border-bottom: 2px solid #eae7dd; padding-bottom: 10px;">Confusion to Clarity</h2>
+        <p style="font-size: 16px; color: #4a4a4a;">Hello ${name},</p>
+        <p style="font-size: 16px; color: #4a4a4a;">Welcome to Confusion to Clarity Mentorship! We are thrilled to have you onboard.</p>
+        <p style="font-size: 16px; color: #4a4a4a;">Our 1-on-1 mentorship platform is designed to assist you in mapping your cognitive strengths to top global universities and career paths.</p>
+        <p style="font-size: 16px; color: #4a4a4a;">Please log in to your customer portal at any time to check your scheduled sessions, access premium content, and manage your billing log.</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://con2c.vercel.app/login" style="background-color: #c5a880; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px; display: inline-block;">Access Customer Portal</a>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #eae7dd; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #aaaaaa; text-align: center;">Confusion to Clarity Mentorship &copy; 2026</p>
+      </div>
+    `
+  };
+
+  if (isMockEmail) {
+    logger.info(`[Email Service Simulation] Sent Welcome Email to ${email} for ${name}`);
+    return;
+  }
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info(`Welcome email successfully sent to ${email}`);
+  } catch (error) {
+    logger.error(`Failed to send welcome email to ${email}: ${error.message}`);
+    throw error;
+  }
+};
+
+/**
+ * Sends a payment confirmation receipt email containing the generated invoice PDF buffer as an attachment.
+ * @param {string} email - Recipient email address
+ * @param {string} name - Recipient name
+ * @param {Object} payment - Populated Payment model document
+ * @param {Buffer} invoiceBuffer - PDF invoice raw buffer
+ */
+export const sendInvoiceEmail = async (email, name, payment, invoiceBuffer) => {
+  const serviceName = payment.booking?.service?.name || 'Coaching Service Setup fee';
+  const amountInINR = (payment.amount / 100).toFixed(2);
+  const invoiceNo = `INV-${payment._id.toString().substring(18).toUpperCase()}`;
+
+  const mailOptions = {
+    from: `"C2C Mentorship" <${env.EMAIL_USER}>`,
+    to: email,
+    subject: `Payment Receipt & Invoice ${invoiceNo} - Confusion to Clarity`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eae7dd; border-radius: 8px; background-color: #faf9f6;">
+        <h2 style="color: #c5a880; text-align: center; border-bottom: 2px solid #eae7dd; padding-bottom: 10px;">Confusion to Clarity</h2>
+        <p style="font-size: 16px; color: #4a4a4a;">Hello ${name},</p>
+        <p style="font-size: 16px; color: #4a4a4a;">Thank you for your payment! Your transaction for <strong>${serviceName}</strong> has been successfully processed.</p>
+        <div style="background-color: #eae7dd; padding: 15px; border-radius: 4px; margin: 20px 0; font-size: 14px; color: #1a1a1a;">
+          <h4 style="margin-top: 0; color: #c5a880;">Payment Details Summary:</h4>
+          <p><strong>Invoice Number:</strong> ${invoiceNo}</p>
+          <p><strong>Service:</strong> ${serviceName}</p>
+          <p><strong>Amount Paid:</strong> INR ${amountInINR}</p>
+          <p><strong>Payment reference ID:</strong> ${payment.razorpayPaymentId || 'N/A'}</p>
+          <p><strong>Payment Date:</strong> ${new Date(payment.paidAt || payment.updatedAt).toLocaleDateString()}</p>
+        </div>
+        <p style="font-size: 16px; color: #4a4a4a;">We have attached the official PDF invoice receipt to this email for your records.</p>
+        <hr style="border: 0; border-top: 1px solid #eae7dd; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #aaaaaa; text-align: center;">Confusion to Clarity Mentorship &copy; 2026</p>
+      </div>
+    `,
+    attachments: [
+      {
+        filename: `invoice_${invoiceNo.toLowerCase()}.pdf`,
+        content: invoiceBuffer,
+        contentType: 'application/pdf'
+      }
+    ]
+  };
+
+  if (isMockEmail) {
+    logger.info(`[Email Service Simulation] Sent Invoice ${invoiceNo} Email to ${email} for amount INR ${amountInINR}`);
+    return;
+  }
+
+  try {
+    await transporter.sendMail(mailOptions);
+    logger.info(`Invoice email successfully sent to ${email}`);
+  } catch (error) {
+    logger.error(`Failed to send invoice email to ${email}: ${error.message}`);
+    throw error;
   }
 };

@@ -99,3 +99,75 @@ export const generatePdfReport = (res, options) => {
   // End stream
   doc.end();
 };
+
+/**
+ * Compiles a structured receipt invoice PDF in memory as a binary Buffer.
+ * @param {Object} payment - Populated Payment model document
+ * @returns {Promise<Buffer>} Raw PDF file binary buffer
+ */
+export const generateInvoicePdfBuffer = (payment) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      const chunks = [];
+      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', err => reject(err));
+
+      // Title
+      doc.fontSize(20).font('Helvetica-Bold').fillColor('#c5a880').text('INVOICE', 50, 50);
+      
+      // Business details
+      doc.fontSize(10).font('Helvetica-Bold').fillColor('#1a1a1a').text('Confusion to Clarity Mentorship', 350, 50, { align: 'right' });
+      doc.font('Helvetica').fillColor('#555555');
+      doc.text('Email: support@c2c.com', 350, 65, { align: 'right' });
+      doc.text('Website: con2c.vercel.app', 350, 80, { align: 'right' });
+      
+      doc.moveTo(50, 105).lineTo(545, 105).strokeColor('#cccccc').stroke();
+
+      // Invoice Details
+      doc.fontSize(10).font('Helvetica-Bold').fillColor('#1a1a1a').text('Bill To:', 50, 125);
+      doc.font('Helvetica').fillColor('#555555');
+      doc.text(`Name: ${payment.user?.name || 'Customer'}`, 50, 140);
+      doc.text(`Email: ${payment.user?.email || 'N/A'}`, 50, 155);
+
+      doc.font('Helvetica-Bold').fillColor('#1a1a1a').text('Invoice Metadata:', 300, 125);
+      doc.font('Helvetica').fillColor('#555555');
+      doc.text(`Invoice No: INV-${payment._id.toString().substring(18).toUpperCase()}`, 300, 140);
+      doc.text(`Date: ${new Date(payment.paidAt || payment.updatedAt).toLocaleDateString()}`, 300, 155);
+      doc.text(`Razorpay Payment ID: ${payment.razorpayPaymentId || 'N/A'}`, 300, 170);
+
+      doc.moveTo(50, 195).lineTo(545, 195).strokeColor('#cccccc').stroke();
+
+      // Table Headers
+      doc.fontSize(10).font('Helvetica-Bold').fillColor('#1a1a1a');
+      doc.text('Description', 50, 215);
+      doc.text('Amount', 450, 215, { width: 95, align: 'right' });
+
+      doc.moveTo(50, 230).lineTo(545, 230).strokeColor('#a0a0a0').stroke();
+
+      // Row Detail
+      const serviceName = payment.booking?.service?.name || 'Coaching Service Setup fee';
+      const amountInINR = (payment.amount / 100).toFixed(2);
+      
+      doc.fontSize(9).font('Helvetica').fillColor('#333333');
+      doc.text(serviceName, 50, 245, { width: 350 });
+      doc.text(`INR ${amountInINR}`, 450, 245, { width: 95, align: 'right' });
+
+      doc.moveTo(50, 270).lineTo(545, 270).strokeColor('#f0f0f0').stroke();
+
+      // Summary Total
+      doc.fontSize(10).font('Helvetica-Bold').fillColor('#1a1a1a');
+      doc.text('Total Amount Paid:', 300, 290);
+      doc.text(`INR ${amountInINR}`, 450, 290, { width: 95, align: 'right' });
+
+      // Footer
+      doc.fontSize(8).font('Helvetica').fillColor('#999999');
+      doc.text('Thank you for choosing Confusion to Clarity Mentorship. We look forward to our session.', 50, 750, { align: 'center', width: 495 });
+
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
+  });
+};

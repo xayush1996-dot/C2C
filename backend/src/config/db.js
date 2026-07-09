@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 import { env } from './env.js';
 import { logger } from './logger.js';
 import Service from '../models/Service.js';
@@ -8,65 +9,78 @@ import User from '../models/User.js';
 
 let mongoServerInstance = null;
 
-const seedServices = async () => {
-  try {
-    const count = await Service.countDocuments();
-    if (count === 0) {
-      await Service.create([
-        {
-          code: 'start',
-          name: 'Start Where You Are',
-          description: 'An introductory session to map out your core roadblocks.',
-          duration: '60 Mins',
-          price: 99,
-          calendlyUrl: 'https://calendly.com/consultant/start',
-          isActive: true
-        },
-        {
-          code: 'clarity',
-          name: 'Clarity Call',
-          description: 'Deep-dive session focusing on resolving a specific transition or choice.',
-          duration: '45 Mins',
-          price: 149,
-          calendlyUrl: 'https://calendly.com/consultant/clarity',
-          isActive: true
-        },
-        {
-          code: 'reset',
-          name: 'Reset Programme',
-          description: 'Comprehensive coaching framework over 4 weeks to rebuild core routines.',
-          duration: '4 Weeks',
-          price: 499,
-          calendlyUrl: 'https://calendly.com/consultant/reset',
-          isActive: true
-        },
-        {
-          code: 'couples',
-          name: 'Couples\' Conversations',
-          description: 'Mediated communication strategy session for alignment and resolution.',
-          duration: '90 Mins',
-          price: 249,
-          calendlyUrl: 'https://calendly.com/consultant/couples',
-          isActive: true
-        },
-        {
-          code: 'premium_videos',
-          name: 'Premium Video Access Tier',
-          description: 'Lifetime access to the full C2C premium video masterclass archive and training tools.',
-          duration: 'Lifetime',
-          price: 1999,
-          calendlyUrl: 'https://calendly.com/mock-c2c/premium-videos',
-          isActive: true
-        }
-      ]);
-      logger.info('Database seeded with default authoritative services.');
+export const seedServices = async () => {
+  if (mongoose.connection.readyState !== 1) {
+    logger.info('Skipping service seeding: MongoDB is not connected.');
+    return;
+  }
+  const defaultServices = [
+    {
+      code: 'eq',
+      name: 'Emotional Intelligence (EQ) & Self-Awareness',
+      description: 'Learn to recognize emotional triggers, map cognitive patterns, build self-awareness, and deploy empathetic response systems in corporate and social environments.',
+      duration: '60 Mins',
+      price: 2999,
+      calendlyUrl: 'https://calendly.com/consultant/eq',
+      isActive: true
+    },
+    {
+      code: 'public',
+      name: 'Public Speaking, Leadership & Confidence Building',
+      description: 'Develop high-impact presence, construct persuasive speeches, master body posture, and overcome stage fright to lead teams with ultimate confidence.',
+      duration: '90 Mins',
+      price: 4999,
+      calendlyUrl: 'https://calendly.com/consultant/public',
+      isActive: true
+    },
+    {
+      code: 'private',
+      name: 'Confidential 1-on-1 Private Mentorship',
+      description: 'A completely confidential, dedicated counseling and advisory desk to resolve specific soft-skill blocks, emotional regulation challenges, or public presentation reviews.',
+      duration: '45 Mins',
+      price: 1499,
+      calendlyUrl: 'https://calendly.com/consultant/private',
+      isActive: true
+    },
+    {
+      code: 'resume',
+      name: 'Resume Overhaul & LinkedIn Optimization',
+      description: 'Transform your CV with high-conversion frameworks, optimize your LinkedIn presence, and learn the secret to beating the ATS (Applicant Tracking System) for dream roles.',
+      duration: '75 Mins',
+      price: 3499,
+      calendlyUrl: 'https://calendly.com/consultant/resume',
+      isActive: true
+    },
+    {
+      code: 'premium_videos',
+      name: 'Premium Video Access Tier',
+      description: 'Lifetime access to the full C2C premium video masterclass archive and training tools.',
+      duration: 'Lifetime',
+      price: 1999,
+      calendlyUrl: 'https://calendly.com/mock-c2c/premium-videos',
+      isActive: true
     }
+  ];
+
+  try {
+    for (const service of defaultServices) {
+      await Service.findOneAndUpdate(
+        { code: service.code },
+        { $setOnInsert: service },
+        { upsert: true, new: true }
+      );
+    }
+    logger.info('Database seeded with default authoritative services.');
   } catch (error) {
     logger.error(`Error seeding default services: ${error.message}`);
   }
 };
 
 const seedTrainingVideos = async () => {
+  if (mongoose.connection.readyState !== 1) {
+    logger.info('Skipping training video seeding: MongoDB is not connected.');
+    return;
+  }
   try {
     const count = await TrainingVideo.countDocuments();
     if (count === 0) {
@@ -120,6 +134,10 @@ const seedTrainingVideos = async () => {
 };
 
 const seedDefaultAdmin = async () => {
+  if (mongoose.connection.readyState !== 1) {
+    logger.info('Skipping admin seeding: MongoDB is not connected.');
+    return;
+  }
   const currentEnv = (process.env.NODE_ENV || env.NODE_ENV || 'development').trim().toLowerCase();
   if (currentEnv === 'production' || env.NODE_ENV === 'production') {
     return;
@@ -138,11 +156,12 @@ const seedDefaultAdmin = async () => {
   try {
     const existingAdmin = await Admin.findOne({
       $or: [{ email: email.trim().toLowerCase() }, { adminId: adminId.trim().toLowerCase() }]
-    });
+    }).select('+password');
 
     if (existingAdmin) {
       const targetEmail = email.trim().toLowerCase();
-      if (existingAdmin.email !== targetEmail || (existingAdmin.name && existingAdmin.name !== name) || (existingAdmin.password && existingAdmin.password !== password)) {
+      const isPasswordSame = existingAdmin.password ? bcrypt.compareSync(password, existingAdmin.password) : false;
+      if (existingAdmin.email !== targetEmail || (existingAdmin.name && existingAdmin.name !== name) || !isPasswordSame) {
         if (typeof existingAdmin.save === 'function') {
           existingAdmin.email = targetEmail;
           existingAdmin.password = password;
@@ -181,6 +200,10 @@ const seedDefaultAdmin = async () => {
 };
 
 const seedDefaultCustomer = async () => {
+  if (mongoose.connection.readyState !== 1) {
+    logger.info('Skipping customer seeding: MongoDB is not connected.');
+    return;
+  }
   const currentEnv = (process.env.NODE_ENV || env.NODE_ENV || 'development').trim().toLowerCase();
   if (currentEnv === 'production' || env.NODE_ENV === 'production') {
     return;

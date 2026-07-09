@@ -4,7 +4,8 @@ import Service from '../models/Service.js';
 import Booking from '../models/Booking.js';
 import Payment from '../models/Payment.js';
 import { createRazorpayOrder, fetchRazorpayPayment, fetchRazorpayOrder, safeCompareSignatures } from '../services/razorpayService.js';
-import { sendCalendlyLinkEmail } from '../services/emailService.js';
+import { sendCalendlyLinkEmail, sendInvoiceEmail } from '../services/emailService.js';
+import { generateInvoicePdfBuffer } from '../services/pdfReportService.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { logger } from '../config/logger.js';
 import { env } from '../config/env.js';
@@ -235,25 +236,13 @@ export const verifyPayment = async (req, res, next) => {
     }
 
     // Mark associated Booking as CONFIRMED
-    const updatedBooking = await Booking.findByIdAndUpdate(
+    await Booking.findByIdAndUpdate(
       updatedPayment.booking,
       { $set: { status: 'CONFIRMED' } }
     );
 
-    if (updatedBooking) {
-      let serviceDoc = updatedBooking.service;
-      if (serviceDoc && typeof serviceDoc === 'object' && serviceDoc.code) {
-        // Already populated
-      } else if (serviceDoc && mongoose.connection.readyState === 1) {
-        serviceDoc = await Service.findById(serviceDoc).catch(() => null);
-      }
-      if (serviceDoc && serviceDoc.code !== 'premium_videos' && serviceDoc.calendlyUrl) {
-        // Fire-and-forget email delivery
-        sendCalendlyLinkEmail(req.user.email, serviceDoc.name, serviceDoc.calendlyUrl).catch(err => {
-          logger.error(`Failed to send background calendly email: ${err.message}`);
-        });
-      }
-    }
+    // Trigger side-effects (idempotent email and invoice dispatching)
+    await processPaymentSuccessSideEffects(updatedPayment._id);
 
     logger.info(`[Security Alert] Payment verified and captured successfully. Order ID: ${originalServerOrderId}, Payment ID: ${razorpay_payment_id}`);
 
@@ -312,6 +301,161 @@ export const getMyPaymentById = async (req, res, next) => {
       success: true,
       payment
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Triggered after successful payment, handles side-effects (marking booking confirmed, Calendly link email, PDF invoice creation, and email dispatching).
+ * @param {string} paymentId - Payment document ID
+ */
+export const processPaymentSuccessSideEffects = async (paymentId) => {
+  // 1. Confirm booking status is CONFIRMED immediately
+  try {
+    const paymentCheck = await Payment.findById(paymentId);
+    if (paymentCheck && paymentCheck.booking) {
+      await Booking.findByIdAndUpdate(paymentCheck.booking, { $set: { status: 'CONFIRMED' } });
+    }
+  } catch (err) {
+    logger.error(`Failed to confirm booking: ${err.message}`);
+  }
+
+  // --- A. INVOICE EMAIL STATE MACHINE ---
+  let invoicePayment = null;
+  try {
+    invoicePayment = await Payment.findOneAndUpdate(
+      {
+        _id: paymentId,
+        status: 'SUCCESS',
+        invoiceEmailState: { $in: ['PENDING', 'FAILED'] }
+      },
+      {
+        $set: { invoiceEmailState: 'PROCESSING' }
+      },
+      { new: true }
+    ).populate('user')
+     .populate({
+       path: 'booking',
+       populate: { path: 'service' }
+     });
+  } catch (dbErr) {
+    logger.error(`Database query failed for invoice email state machine: ${dbErr.message}`);
+  }
+
+  if (invoicePayment && invoicePayment.user && invoicePayment.booking) {
+    const user = invoicePayment.user;
+    try {
+      const invoiceBuffer = await generateInvoicePdfBuffer(invoicePayment);
+      await sendInvoiceEmail(user.email, user.name, invoicePayment, invoiceBuffer);
+      
+      // Update state to SENT and set timestamp only after SMTP delivery successfully completes
+      await Payment.findByIdAndUpdate(paymentId, {
+        $set: {
+          invoiceEmailState: 'SENT',
+          paymentConfirmationEmailSentAt: new Date()
+        }
+      });
+      logger.info(`[Email Success] Invoice email successfully sent and marked SENT for payment ${paymentId}`);
+    } catch (sendErr) {
+      logger.error(`[Email Failure] Failed to send invoice email for payment ${paymentId}: ${sendErr.message}`);
+      // Revert state to FAILED to allow future retries
+      await Payment.findByIdAndUpdate(paymentId, {
+        $set: { invoiceEmailState: 'FAILED' }
+      });
+    }
+  }
+
+  // --- B. CALENDLY EMAIL STATE MACHINE ---
+  let calendlyPayment = null;
+  try {
+    calendlyPayment = await Payment.findOneAndUpdate(
+      {
+        _id: paymentId,
+        status: 'SUCCESS',
+        calendlyEmailState: { $in: ['PENDING', 'FAILED'] }
+      },
+      {
+        $set: { calendlyEmailState: 'PROCESSING' }
+      },
+      { new: true }
+    ).populate('user')
+     .populate({
+       path: 'booking',
+       populate: { path: 'service' }
+     });
+  } catch (dbErr) {
+    logger.error(`Database query failed for calendly email state machine: ${dbErr.message}`);
+  }
+
+  if (calendlyPayment && calendlyPayment.user && calendlyPayment.booking) {
+    const user = calendlyPayment.user;
+    const booking = calendlyPayment.booking;
+    const serviceDoc = booking.service;
+
+    if (serviceDoc && serviceDoc.code !== 'premium_videos' && serviceDoc.calendlyUrl) {
+      try {
+        await sendCalendlyLinkEmail(user.email, serviceDoc.name, serviceDoc.calendlyUrl);
+        
+        await Payment.findByIdAndUpdate(paymentId, {
+          $set: {
+            calendlyEmailState: 'SENT',
+            calendlyEmailSentAt: new Date()
+          }
+        });
+        logger.info(`[Email Success] Calendly email successfully sent and marked SENT for payment ${paymentId}`);
+      } catch (sendErr) {
+        logger.error(`[Email Failure] Failed to send Calendly email for payment ${paymentId}: ${sendErr.message}`);
+        await Payment.findByIdAndUpdate(paymentId, {
+          $set: { calendlyEmailState: 'FAILED' }
+        });
+      }
+    } else {
+      // Mark SENT directly if not a coaching package or no Calendly link to avoid infinite retry loops
+      await Payment.findByIdAndUpdate(paymentId, {
+        $set: { calendlyEmailState: 'SENT' }
+      });
+    }
+  }
+};
+
+/**
+ * Downloads the compiled receipt/invoice PDF for the authenticated customer.
+ * @route GET /api/me/payments/:id/invoice
+ */
+export const getMyInvoicePdf = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!/^[0-9a-fA-F]{24}$/.test(id)) {
+      return next(new AppError('Invalid payment ID format', 400));
+    }
+
+    const payment = await Payment.findById(id)
+      .populate('user')
+      .populate({
+        path: 'booking',
+        populate: { path: 'service' }
+      });
+
+    if (!payment) {
+      return next(new AppError('Payment not found', 404));
+    }
+
+    // Ownership check: Customer must own the payment
+    if (payment.user._id.toString() !== req.user._id.toString()) {
+      return next(new AppError('Forbidden, payment ownership validation failed', 403));
+    }
+
+    if (payment.status !== 'SUCCESS') {
+      return next(new AppError('Invoice is only available for successful payments', 400));
+    }
+
+    const pdfBuffer = await generateInvoicePdfBuffer(payment);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice_INV-${payment._id.toString().substring(18).toUpperCase()}.pdf`);
+    res.send(pdfBuffer);
   } catch (error) {
     next(error);
   }

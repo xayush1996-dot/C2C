@@ -84,6 +84,22 @@ const paymentSchema = new mongoose.Schema(
     paidAt: {
       type: Date
     },
+    paymentConfirmationEmailSentAt: {
+      type: Date
+    },
+    invoiceEmailState: {
+      type: String,
+      enum: ['PENDING', 'PROCESSING', 'SENT', 'FAILED'],
+      default: 'PENDING'
+    },
+    calendlyEmailSentAt: {
+      type: Date
+    },
+    calendlyEmailState: {
+      type: String,
+      enum: ['PENDING', 'PROCESSING', 'SENT', 'FAILED'],
+      default: 'PENDING'
+    },
     status: {
       type: String,
       required: true,

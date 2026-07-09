@@ -1,6 +1,7 @@
 import { connectDB, disconnectDB } from '../config/db.js';
 import Admin from '../models/Admin.js';
 import { logger } from '../config/logger.js';
+import bcrypt from 'bcryptjs';
 
 const seedAdmins = async () => {
   // Block unsafe production execution
@@ -32,7 +33,8 @@ const seedAdmins = async () => {
 
     if (existingAdmin) {
       const targetEmail = email.trim().toLowerCase();
-      if (existingAdmin.email !== targetEmail || (existingAdmin.name && existingAdmin.name !== name) || (existingAdmin.password && existingAdmin.password !== password)) {
+      const isPasswordSame = existingAdmin.password ? bcrypt.compareSync(password, existingAdmin.password) : false;
+      if (existingAdmin.email !== targetEmail || (existingAdmin.name && existingAdmin.name !== name) || !isPasswordSame) {
         if (typeof existingAdmin.save === 'function') {
           existingAdmin.email = targetEmail;
           existingAdmin.password = password;

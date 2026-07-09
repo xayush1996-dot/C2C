@@ -29,6 +29,10 @@ export const errorHandler = (err, req, res, next) => {
     message
   };
 
+  if (err.errorCode) {
+    response.errorCode = err.errorCode;
+  }
+
   // Expose stack trace only in development
   if (env.NODE_ENV === 'development') {
     response.stack = err.stack;

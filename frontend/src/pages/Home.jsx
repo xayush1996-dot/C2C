@@ -5,6 +5,7 @@ import { Check, Mail, Phone, Play, Award, Globe, Users, MessageSquare, ArrowRigh
 import { useBooking } from "@/context/BookingContext";
 import VideoPlayer from "@/components/VideoPlayer";
 import FAQSection from "@/components/FAQSection";
+import { apiFetch } from "@/lib/api";
 
 const consultingTabs = [
   {
@@ -94,9 +95,9 @@ export default function HomePage() {
     const fetchCMSData = async () => {
       try {
         const [contentRes, servicesRes, videosRes] = await Promise.all([
-          fetch("/api/content"),
-          fetch("/api/services"),
-          fetch("/api/videos")
+          apiFetch("/api/content"),
+          apiFetch("/api/services"),
+          apiFetch("/api/videos")
         ]);
         if (contentRes.ok) {
           const contentData = await contentRes.json();

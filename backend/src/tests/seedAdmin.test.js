@@ -4,6 +4,7 @@ import Admin from '../models/Admin.js';
 import Service from '../models/Service.js';
 import TrainingVideo from '../models/TrainingVideo.js';
 import User from '../models/User.js';
+import bcrypt from 'bcryptjs';
 
 describe('seedAdmin script security and correctness tests', () => {
   let originalEnv;
@@ -112,9 +113,11 @@ describe('seedAdmin script security and correctness tests', () => {
     // Mock Admin.findOne to return an existing admin document
     jest.spyOn(Admin, 'findOne').mockResolvedValue({
       email: 'existingseedadmin@example.com',
-      adminId: 'seedadmin02'
+      adminId: 'seedadmin02',
+      password: 'mocked_password_hash'
     });
     
+    jest.spyOn(bcrypt, 'compareSync').mockReturnValue(true);
     const saveSpy = jest.spyOn(Admin.prototype, 'save');
 
     await expect(runSeedScript()).rejects.toThrow('process.exit called with 0');

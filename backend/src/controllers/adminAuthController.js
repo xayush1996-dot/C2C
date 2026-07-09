@@ -28,7 +28,7 @@ const setRefreshTokenCookie = (res, token) => {
   res.cookie('refreshToken', token, {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
   });
 };
@@ -55,19 +55,17 @@ export const login = async (req, res, next) => {
     if (admin && admin.lockoutUntil && admin.lockoutUntil > new Date()) {
       await bcrypt.compare(password, DUMMY_HASH);
       logger.warn(`[Security Alert] Failed admin login attempt for locked account: ${admin.email} from IP: ${req.ip}`);
-      return next(new AppError(genericErrorMessage, 401));
+      const error = new AppError(genericErrorMessage, 401);
+      error.errorCode = 'INVALID_CREDENTIALS';
+      return next(error);
     }
 
     if (!admin) {
       await bcrypt.compare(password, DUMMY_HASH);
       logger.warn(`[Security Alert] Failed admin login attempt for nonexistent identifier: ${trimmedLoginId} from IP: ${req.ip}`);
-      return next(new AppError(genericErrorMessage, 401));
-    }
-
-    if (!admin.isActive) {
-      await bcrypt.compare(password, DUMMY_HASH);
-      logger.warn(`[Security Alert] Failed admin login attempt for deactivated administrator account: ${admin.email} from IP: ${req.ip}`);
-      return next(new AppError(genericErrorMessage, 401));
+      const error = new AppError(genericErrorMessage, 401);
+      error.errorCode = 'INVALID_CREDENTIALS';
+      return next(error);
     }
 
     const isPasswordValid = await admin.comparePassword(password);
@@ -80,7 +78,16 @@ export const login = async (req, res, next) => {
       await admin.save();
 
       logger.warn(`[Security Alert] Failed admin login attempt: invalid password for administrator: ${admin.email} from IP: ${req.ip}`);
-      return next(new AppError(genericErrorMessage, 401));
+      const error = new AppError(genericErrorMessage, 401);
+      error.errorCode = 'INVALID_CREDENTIALS';
+      return next(error);
+    }
+
+    if (!admin.isActive) {
+      logger.warn(`[Security Alert] Failed admin login attempt for deactivated administrator account: ${admin.email} from IP: ${req.ip}`);
+      const error = new AppError('Administrator account is deactivated', 401);
+      error.errorCode = 'ACCOUNT_DISABLED';
+      return next(error);
     }
 
     // Authentication succeeded
@@ -209,7 +216,7 @@ export const logout = async (req, res, next) => {
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax'
     });
 
     res.status(200).json({

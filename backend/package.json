@@ -8,6 +8,7 @@
     "start": "cross-env TMPDIR=./tmp node src/server.js",
     "dev": "cross-env TMPDIR=./tmp nodemon src/server.js",
     "seed": "cross-env TMPDIR=./tmp node src/scripts/seedServices.js",
+    "admin:sync": "cross-env TMPDIR=./tmp node src/scripts/syncAdmin.js",
     "test": "cross-env NODE_ENV=test TMPDIR=./tmp node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --detectOpenHandles --testTimeout=30000 src/tests"
   },
   "dependencies": {

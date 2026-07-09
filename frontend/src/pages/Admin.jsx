@@ -15,13 +15,11 @@ import {
   Calendar, 
   FileSpreadsheet,
   AlertCircle,
-  Edit3
+  Edit3,
+  LogOut
 } from "lucide-react";
 
 export default function AdminPage() {
-  const defaultAdminEmail = import.meta.env.VITE_SEED_ADMIN_EMAIL || "confusiontoclarity7@gmail.com";
-  const defaultAdminPassword = import.meta.env.VITE_SEED_ADMIN_PASSWORD || "Confusion@2026";
-
   const navigate = useNavigate();
   const [authorized, setAuthorized] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
@@ -45,7 +43,7 @@ export default function AdminPage() {
             setAuthChecking(false);
             return;
           }
-          const res = await fetch("/api/admin/auth/me", {
+          const res = await apiFetch("/api/admin/auth/me", {
             headers: {
               "Authorization": `Bearer ${token}`,
               "X-Requested-With": "XMLHttpRequest"
@@ -78,7 +76,7 @@ export default function AdminPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/admin/auth/login", {
+      const res = await apiFetch("/api/admin/auth/login", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -87,48 +85,60 @@ export default function AdminPage() {
         credentials: "include",
         body: JSON.stringify({ loginId, password })
       });
-      const data = await res.json();
-      if (data.success) {
+      
+      let data = {};
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      }
+
+      if (res.ok && data.success) {
         localStorage.setItem("c2c_auth", "true");
         if (data.accessToken) {
           localStorage.setItem("c2c_token", data.accessToken);
         }
         setAuthorized(true);
       } else {
-        // Local fallback if backend returns error but credentials match demo
-        const id = loginId.trim().toLowerCase();
-        if (
-          (id === defaultAdminEmail.toLowerCase() && password === defaultAdminPassword) ||
-          (id === "admin@example.com" && password === "AdminPassword123")
-        ) {
-          localStorage.setItem("c2c_auth", "true");
-          localStorage.setItem("c2c_token", "mock_admin_token");
-          setAuthorized(true);
-          return;
-        }
         setLoading(false);
-        setError(data.error || "Invalid admin credentials. Please try again.");
+        if (res.status === 429) {
+          setError("Too many login attempts. Please try again later.");
+        } else if (res.status === 403) {
+          setError("Access denied (403 Forbidden).");
+        } else if (res.status === 401) {
+          if (data.errorCode === "ACCOUNT_DISABLED") {
+            setError("This administrator account has been deactivated.");
+          } else {
+            setError(data.message || data.error || "Invalid email/admin ID or password");
+          }
+        } else if (res.status >= 500) {
+          setError(`Server error (${res.status}). Please verify server availability.`);
+        } else {
+          setError(data.message || data.error || `Server error (${res.status}). Please try again.`);
+        }
       }
     } catch (err) {
-      // Backend not deployed fallback: check locally
-      const id = loginId.trim().toLowerCase();
-      if (
-        (id === defaultAdminEmail.toLowerCase() && password === defaultAdminPassword) ||
-        (id === "admin@example.com" && password === "AdminPassword123")
-      ) {
-        localStorage.setItem("c2c_auth", "true");
-        localStorage.setItem("c2c_token", "mock_admin_token");
-        setAuthorized(true);
-      } else {
-        setLoading(false);
-        setError("Invalid admin credentials. Please try again.");
-      }
+      setLoading(false);
+      setError("Failed to connect to backend server. Please verify your network connection and CORS configuration.");
     }
   };
 
-  const handleQuickLogin = () => {
-    setLoginId(defaultAdminEmail);
-    setPassword(defaultAdminPassword);
+  const handleAdminLogout = async () => {
+    try {
+      const token = localStorage.getItem("c2c_token");
+      await apiFetch("/api/admin/auth/logout", {
+        method: "POST",
+        headers: {
+          "Authorization": token ? `Bearer ${token}` : "",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        credentials: "include"
+      });
+    } catch (e) {
+      console.error("Admin logout error:", e);
+    }
+    localStorage.removeItem("c2c_auth");
+    localStorage.removeItem("c2c_token");
+    setAuthorized(false);
   };
 
   const [activeTab, setActiveTab] = useState("overview"); // overview, enquiries, ledger, reports, cms
@@ -189,7 +199,7 @@ export default function AdminPage() {
               name: b.user ? b.user.name : "N/A",
               email: b.user ? b.user.email : "N/A",
               service: b.service ? b.service.name : "Coaching Package",
-              paid: b.paymentStatus === "CONFIRMED" || b.paymentStatus === "CAPTURED" ? `₹${b.service ? b.service.price : 99}.00` : "₹0.00",
+              paid: b.paymentStatus === "SUCCESS" || b.paymentStatus === "CONFIRMED" || b.paymentStatus === "CAPTURED" ? `₹${b.service ? b.service.price : 99}.00` : "₹0.00",
               date: b.scheduledTime ? new Date(b.scheduledTime).toLocaleDateString() : "Pending",
               time: b.scheduledTime ? new Date(b.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Pending",
               meetActive: b.status === "CONFIRMED"
@@ -275,7 +285,7 @@ export default function AdminPage() {
 
       // 5. Fetch training videos
       try {
-        const videosRes = await fetch("/api/admin/videos", { headers, credentials: "include" });
+        const videosRes = await apiFetch("/api/admin/videos", { headers, credentials: "include" });
         if (videosRes.ok) {
           const videosData = await videosRes.json();
           if (videosData.success) {
@@ -297,6 +307,7 @@ export default function AdminPage() {
   
   // Filter settings for reports
   const [selectedService, setSelectedService] = useState("all");
+  const [reportType, setReportType] = useState("bookings");
   const [startDate, setStartDate] = useState("2026-07-01");
   const [endDate, setEndDate] = useState("2026-07-31");
   
@@ -309,7 +320,7 @@ export default function AdminPage() {
     setCmsMessage("");
     try {
       const token = localStorage.getItem("c2c_token");
-      const res = await fetch("/api/admin/content", {
+      const res = await apiFetch("/api/admin/content", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -338,7 +349,7 @@ export default function AdminPage() {
     setCmsMessage("");
     try {
       const token = localStorage.getItem("c2c_token");
-      const res = await fetch(`/api/admin/services/${id}`, {
+      const res = await apiFetch(`/api/admin/services/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -477,7 +488,7 @@ export default function AdminPage() {
     try {
       const url = isEditingVideo ? `/api/admin/videos/${selectedVideo._id}` : "/api/admin/videos";
       const method = isEditingVideo ? "PUT" : "POST";
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers,
         credentials: "include",
@@ -549,10 +560,7 @@ export default function AdminPage() {
     setDownloadSuccess(false);
     try {
       const token = localStorage.getItem("c2c_token");
-      const base = import.meta.env.VITE_API_BASE_URL || "";
-      const url = `${base}/api/admin/reports/bookings?startDate=${startDate}&endDate=${endDate}`;
-      
-      const res = await fetch(url, {
+      const res = await apiFetch(`/api/admin/reports/${reportType}?startDate=${startDate}&endDate=${endDate}`, {
         headers: {
           "Authorization": token ? `Bearer ${token}` : "",
           "X-Requested-With": "XMLHttpRequest"
@@ -560,13 +568,26 @@ export default function AdminPage() {
         credentials: "include"
       });
       
-      if (!res.ok) throw new Error("Failed to compile PDF report");
+      if (!res.ok) {
+        let errorMsg = "Failed to compile PDF report.";
+        try {
+          const errData = await res.json();
+          errorMsg = errData.error || errData.message || errorMsg;
+        } catch (e) {}
+        throw new Error(errorMsg);
+      }
+
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const errData = await res.json();
+        throw new Error(errData.error || errData.message || "Failed to compile PDF report");
+      }
       
       const blob = await res.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.setAttribute("download", `report_bookings_${Date.now()}.pdf`);
+      link.setAttribute("download", `report_${reportType}_${Date.now()}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -636,9 +657,9 @@ export default function AdminPage() {
 
             <div className="relative">
               <input
-                type="email"
+                type="text"
                 required
-                placeholder="Admin Email"
+                placeholder="Email / Admin ID"
                 value={loginId}
                 onChange={(e) => setLoginId(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-border-divider bg-bg-base/30 text-sm focus:outline-none focus:border-accent-gold text-text-primary placeholder:text-text-secondary/50 transition-all duration-200"
@@ -683,17 +704,6 @@ export default function AdminPage() {
               )}
             </button>
           </form>
-
-          {/* Quick Login Link */}
-          <div className="text-center pt-2 border-t border-border-divider/50">
-            <button
-              type="button"
-              onClick={handleQuickLogin}
-              className="text-[10px] uppercase font-bold tracking-wider text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
-            >
-              Use Quick Demo credentials
-            </button>
-          </div>
         </div>
       </div>
     );
@@ -738,7 +748,7 @@ export default function AdminPage() {
               }`}
             >
               <Users size={16} />
-              <span>Enquiries ({enquiries.filter(e => e.status === "New").length})</span>
+              <span>Enquiries ({enquiries.filter(e => e.status === "New" || e.status === "PENDING").length})</span>
             </button>
             <button
               onClick={() => { setActiveTab("ledger"); setSearchTerm(""); }}
@@ -776,8 +786,8 @@ export default function AdminPage() {
           </nav>
         </div>
 
-        {/* Exit link */}
-        <div className="pt-6 border-t border-border-divider/50">
+        {/* Exit links */}
+        <div className="pt-6 border-t border-border-divider/50 space-y-3">
           <Link
             to="/"
             className="flex items-center space-x-2 text-xs font-semibold text-text-secondary hover:text-accent-gold transition-colors duration-200 px-2"
@@ -785,6 +795,13 @@ export default function AdminPage() {
             <ArrowLeft size={14} />
             <span>Return to Site</span>
           </Link>
+          <button
+            onClick={handleAdminLogout}
+            className="w-full flex items-center space-x-2 text-xs font-semibold text-text-secondary hover:text-accent-gold transition-colors duration-200 px-2 bg-transparent border-0 cursor-pointer text-left"
+          >
+            <LogOut size={14} />
+            <span>Admin Log Out</span>
+          </button>
         </div>
       </aside>
 
@@ -847,7 +864,7 @@ export default function AdminPage() {
                   <Users size={18} className="text-accent-gold" />
                 </div>
                 <p className="font-serif text-3xl font-bold text-text-primary">
-                  {enquiries.filter((e) => e.status === "New").length}
+                  {enquiries.filter((e) => e.status === "New" || e.status === "PENDING").length}
                 </p>
                 <span className="text-[10px] text-text-secondary">Awaiting executive response</span>
               </div>
@@ -1022,7 +1039,22 @@ export default function AdminPage() {
             <div className="bg-surface rounded-2xl border border-border-divider/60 p-6 space-y-6 shadow-xs">
               <h3 className="font-serif text-lg font-bold text-text-primary border-b border-border-divider/50 pb-2">Filter Data Report</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* Report Type Dropdown */}
+                <div className="space-y-1.5 text-left">
+                  <label className="text-xs font-semibold text-text-secondary">Report Type:</label>
+                  <select
+                    value={reportType}
+                    onChange={(e) => setReportType(e.target.value)}
+                    className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-border-divider bg-bg-base/50 text-text-primary focus:outline-none focus:border-accent-gold/45 font-semibold"
+                  >
+                    <option value="bookings">Bookings Report</option>
+                    <option value="payments">Payments Report</option>
+                    <option value="enquiries">Enquiries Report</option>
+                    <option value="customers">Customers Report</option>
+                  </select>
+                </div>
+
                 {/* Service Dropdown */}
                 <div className="space-y-1.5 text-left">
                   <label className="text-xs font-semibold text-text-secondary">Service Category:</label>

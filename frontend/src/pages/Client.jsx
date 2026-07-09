@@ -133,6 +133,48 @@ export default function ClientPage() {
     navigate("/login");
   };
 
+  const handleDownloadInvoice = async (paymentId) => {
+    try {
+      const token = localStorage.getItem("c2c_client_token");
+      const res = await apiFetch(`/api/me/payments/${paymentId}/invoice`, {
+        headers: {
+          "Authorization": token ? `Bearer ${token}` : "",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        credentials: "include"
+      });
+
+      if (!res.ok) {
+        let errMsg = "Failed to download receipt.";
+        try {
+          const errData = await res.json();
+          errMsg = errData.error || errData.message || errMsg;
+        } catch (e) {}
+        alert(errMsg);
+        return;
+      }
+
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const errData = await res.json();
+        alert(errData.error || errData.message || "Failed to download invoice.");
+        return;
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.setAttribute("download", `receipt_${paymentId.substring(18).toUpperCase()}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      alert("Error: Failed to connect to server.");
+    }
+  };
+
   if (!authorized) {
     return (
       <div className="min-h-screen bg-bg-base flex items-center justify-center">
@@ -303,12 +345,19 @@ export default function ClientPage() {
                         {b.service?.name || "Coaching Service"} Setup fee
                       </td>
                       <td className="py-3 font-semibold text-text-primary">
-                        ₹{b.service?.price || 0}
+                        ₹{b.service?.price || 0} ({b.paymentStatus || 'PENDING'})
                       </td>
                       <td className="py-3 text-right">
-                        <button className="text-[10px] font-bold text-text-secondary hover:text-text-primary hover:underline inline-flex items-center gap-1 cursor-pointer">
-                          <Download size={10} /> PDF Receipt
-                        </button>
+                        {b.paymentStatus === 'SUCCESS' && b.paymentId ? (
+                          <button
+                            onClick={() => handleDownloadInvoice(b.paymentId)}
+                            className="text-[10px] font-bold text-text-secondary hover:text-text-primary hover:underline inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            <Download size={10} /> PDF Receipt
+                          </button>
+                        ) : (
+                          <span className="text-[10px] text-text-secondary/40 font-semibold uppercase tracking-wider">Unpaid</span>
+                        )}
                       </td>
                     </tr>
                   ))}

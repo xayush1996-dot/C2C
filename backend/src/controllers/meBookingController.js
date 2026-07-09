@@ -15,6 +15,7 @@ export const getMyBookings = async (req, res, next) => {
       
       const bookingObj = booking.toObject();
       bookingObj.paymentStatus = payment ? payment.status : 'PENDING';
+      bookingObj.paymentId = payment ? payment._id : null;
       
       const isExpiredOrCompleted = booking.status === 'COMPLETED' || (booking.scheduledTime && new Date(booking.scheduledTime) < new Date());
       if (isPaid && !isExpiredOrCompleted && booking.service && booking.service.calendlyUrl) {
@@ -55,6 +56,7 @@ export const getMyBookingById = async (req, res, next) => {
 
     const bookingObj = booking.toObject();
     bookingObj.paymentStatus = payment ? payment.status : 'PENDING';
+    bookingObj.paymentId = payment ? payment._id : null;
 
     const isExpiredOrCompleted = booking.status === 'COMPLETED' || (booking.scheduledTime && new Date(booking.scheduledTime) < new Date());
     if (isPaid && !isExpiredOrCompleted && booking.service && booking.service.calendlyUrl) {

@@ -16,6 +16,7 @@ import {
   UserCheck
 } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
+import { apiFetch } from "@/lib/api";
 
 export default function SanctuaryPage() {
   const { openBooking } = useBooking();
@@ -38,7 +39,7 @@ export default function SanctuaryPage() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/google", {
+      const res = await apiFetch("/api/auth/google", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

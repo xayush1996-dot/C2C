@@ -212,13 +212,16 @@ export default function BookingModal() {
         credentials: "include",
         body: JSON.stringify({ serviceId: activePackage.id })
       });
-      const orderData = await orderRes.json();
 
-      if (!orderData.success) {
-        setIsPaying(false);
-        setPaymentStep(0);
-        alert("Failed to initiate order: " + (orderData.error || "Server error."));
-        return;
+      let orderData;
+      try {
+        orderData = await orderRes.json();
+      } catch (jsonErr) {
+        throw new Error(`Server returned invalid response format (Status: ${orderRes.status})`);
+      }
+
+      if (!orderRes.ok || !orderData.success) {
+        throw new Error(orderData.error || orderData.message || `Order initialization failed (Status: ${orderRes.status})`);
       }
 
       const { orderId, amount, keyId, bookingReference } = orderData;
@@ -288,6 +291,15 @@ export default function BookingModal() {
         },
         theme: {
           color: "#D4AF37"
+        },
+        modal: {
+          ondismiss: function () {
+            // Prevent overwriting active verification or successful state
+            if (paymentStep !== 4 && !paymentSuccess) {
+              setIsPaying(false);
+              setPaymentStep(0);
+            }
+          }
         }
       };
 
@@ -302,7 +314,10 @@ export default function BookingModal() {
     } catch (err) {
       setIsPaying(false);
       setPaymentStep(0);
-      alert("Failed to connect to backend server.");
+      const msg = err.name === 'TypeError'
+        ? "Network error: Unable to connect to backend server. Please verify your connection or CORS settings."
+        : err.message || "An unexpected error occurred.";
+      alert(msg);
     }  };
 
   // Generate some mockup dates for calendar (next 5 weekdays)

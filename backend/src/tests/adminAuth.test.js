@@ -130,7 +130,7 @@ describe('Admin Authentication System Tests', () => {
       expect(res.body.message).toBe('Invalid email/admin ID or password');
     });
 
-    it('should reject login for disabled admin', async () => {
+    it('should reject login for disabled admin with correct password with custom error code', async () => {
       mockFindOne(mockDisabledAdmin);
 
       const res = await request(app)
@@ -139,6 +139,20 @@ describe('Admin Authentication System Tests', () => {
 
       expect(res.status).toBe(401);
       expect(res.body.status).toBe('fail');
+      expect(res.body.errorCode).toBe('ACCOUNT_DISABLED');
+      expect(res.body.message).toBe('Administrator account is deactivated');
+    });
+
+    it('should reject login for disabled admin with incorrect password with generic error to prevent harvesting', async () => {
+      mockFindOne(mockDisabledAdmin);
+
+      const res = await request(app)
+        .post('/api/admin/auth/login')
+        .send({ loginId: 'disabled@example.com', password: 'WrongPassword' });
+
+      expect(res.status).toBe(401);
+      expect(res.body.status).toBe('fail');
+      expect(res.body.errorCode).toBe('INVALID_CREDENTIALS');
       expect(res.body.message).toBe('Invalid email/admin ID or password');
     });
   });
@@ -369,6 +383,55 @@ describe('Admin Authentication System Tests', () => {
       expect(res.status).toBe(401);
       expect(res.body.message).toBe('Invalid session refresh token');
       expect(deleteManySpy).toHaveBeenCalledWith({ familyId: 'stolen_family_123' });
+    });
+  });
+
+  describe('Additional Hardening and Regression Tests (Phase 12)', () => {
+    it('should handle whitespace around identifier and normalize email casing', async () => {
+      mockFindOne(mockActiveAdmin);
+      jest.spyOn(RefreshToken, 'create').mockResolvedValue({ token: 'mocktoken' });
+
+      const res = await request(app)
+        .post('/api/admin/auth/login')
+        .send({ loginId: '   ADMIN@EXAMPLE.COM   ', password: 'AdminPassword123' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should not modify password whitespace', async () => {
+      mockFindOne(mockActiveAdmin);
+
+      const res = await request(app)
+        .post('/api/admin/auth/login')
+        .send({ loginId: 'admin@example.com', password: ' AdminPassword123 ' });
+
+      expect(res.status).toBe(401);
+    });
+
+    it('should prevent customer login through admin route', async () => {
+      // Customer is not in Admin collection, so query returns null
+      mockFindOne(null);
+
+      const res = await request(app)
+        .post('/api/admin/auth/login')
+        .send({ loginId: 'client@example.com', password: 'clientpassword' });
+
+      expect(res.status).toBe(401);
+    });
+
+    it('should verify password select(+password) is present in query', async () => {
+      const findSpy = jest.spyOn(Admin, 'findOne').mockReturnValue({
+        select: jest.fn().mockResolvedValue(mockActiveAdmin)
+      });
+
+      await request(app)
+        .post('/api/admin/auth/login')
+        .send({ loginId: 'admin@example.com', password: 'AdminPassword123' });
+
+      expect(findSpy).toHaveBeenCalled();
+      const selectMock = findSpy.mock.results[0].value.select;
+      expect(selectMock).toHaveBeenCalledWith('+password +failedLoginAttempts +lockoutUntil');
     });
   });
 });

@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkle, User, ChevronDown, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
+import { apiFetch } from "@/lib/api";
 
 const navigationItems = [
   { name: "Home", href: "/" },
@@ -84,7 +85,7 @@ export default function Header() {
       } else {
         const token = localStorage.getItem("c2c_client_token");
         if (token) {
-          fetch("/api/auth/me", {
+          apiFetch("/api/auth/me", {
             headers: {
               "Authorization": `Bearer ${token}`,
               "X-Requested-With": "XMLHttpRequest"
@@ -109,7 +110,7 @@ export default function Header() {
       const token = localStorage.getItem("c2c_client_token") || localStorage.getItem("c2c_token");
       const isClient = localStorage.getItem("c2c_client_token") !== null;
       const endpoint = isClient ? "/api/auth/logout" : "/api/admin/auth/logout";
-      await fetch(endpoint, { 
+      await apiFetch(endpoint, { 
         method: "POST",
         headers: {
           "Authorization": token ? `Bearer ${token}` : "",

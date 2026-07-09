@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { GoogleLogin } from '@react-oauth/google';
+import { apiFetch } from "@/lib/api";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ export default function LoginPage() {
     setLoading(true);
     setForgotSuccess("");
     try {
-      const res = await fetch("/api/auth/forgot-password", {
+      const res = await apiFetch("/api/auth/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,7 +61,7 @@ export default function LoginPage() {
     setLoading(true);
     setForgotSuccess("");
     try {
-      const res = await fetch("/api/auth/reset-password", {
+      const res = await apiFetch("/api/auth/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -110,7 +111,7 @@ export default function LoginPage() {
     try {
       if (isRegistering) {
         // Register customer on the backend
-        const regRes = await fetch("/api/auth/register", {
+        const regRes = await apiFetch("/api/auth/register", {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
@@ -127,7 +128,7 @@ export default function LoginPage() {
       }
 
       // Log in
-      const res = await fetch("/api/auth/login", {
+      const res = await apiFetch("/api/auth/login", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -188,7 +189,7 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/google", {
+      const res = await apiFetch("/api/auth/google", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

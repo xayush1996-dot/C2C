@@ -257,13 +257,16 @@ export default function PremiumVideos() {
         credentials: "include",
         body: JSON.stringify({ serviceId: targetServiceId })
       });
-      const orderData = await orderRes.json();
 
-      if (!orderData.success) {
-        setIsPaying(false);
-        setPaymentStep(0);
-        alert("Failed to initiate order: " + (orderData.error || "Server error."));
-        return;
+      let orderData;
+      try {
+        orderData = await orderRes.json();
+      } catch (jsonErr) {
+        throw new Error(`Server returned invalid response format (Status: ${orderRes.status})`);
+      }
+
+      if (!orderRes.ok || !orderData.success) {
+        throw new Error(orderData.error || orderData.message || `Order initialization failed (Status: ${orderRes.status})`);
       }
 
       const { orderId, amount, keyId } = orderData;
@@ -330,6 +333,15 @@ export default function PremiumVideos() {
         },
         theme: {
           color: "#D4AF37" // accent-gold
+        },
+        modal: {
+          ondismiss: function () {
+            // Prevent overwriting active verification or successful state
+            if (paymentStep !== 4 && !paymentSuccess) {
+              setIsPaying(false);
+              setPaymentStep(0);
+            }
+          }
         }
       };
 
@@ -344,7 +356,10 @@ export default function PremiumVideos() {
     } catch (err) {
       setIsPaying(false);
       setPaymentStep(0);
-      alert("Failed to connect to backend server.");
+      const msg = err.name === 'TypeError'
+        ? "Network error: Unable to connect to backend server. Please verify your connection or CORS settings."
+        : err.message || "An unexpected error occurred.";
+      alert(msg);
     }
   };
 
